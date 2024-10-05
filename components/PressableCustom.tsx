@@ -6,7 +6,7 @@ export interface props {
   label: string
 }
 
-export function Tarjeta(props: { label: string }) {
+export function PressableCustom(props: { label: string }) {
   const [pressed, changePressed] = useState(false); //tarjeta arranca no apretada
   const changeState = () => {changePressed(prevState => !prevState);} 
 

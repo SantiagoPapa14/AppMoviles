@@ -1,14 +1,14 @@
-import { Tarjeta } from "@/components/Tarjeta";
+import { PressableCustom } from "@/components/PressableCustom";
 import { View } from "react-native";
 import styles from "@/components/Styles";
 
 export default function Index() {
   return (
     <View style = {styles.defaultViewStyle}>
-      <Tarjeta label={"QUIZ"}></Tarjeta>
-      <Tarjeta label={"RESUMEN"}></Tarjeta>
-      <Tarjeta label={"FLASHCARDS"}></Tarjeta>
-      <Tarjeta label={"MIND MAP"}></Tarjeta>
+      <PressableCustom label={"QUIZ"}></PressableCustom>
+      <PressableCustom label={"RESUMEN"}></PressableCustom>
+      <PressableCustom label={"FLASHCARDS"}></PressableCustom>
+      <PressableCustom label={"MIND MAP"}></PressableCustom>
     </View>
   );
 }
