@@ -4,45 +4,48 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = async () => {
-    if (email === "" || password === "") {
-      Alert.alert("Error", "Please enter both email and password.");
+  const handleRegister = async () => {
+    if (username === "" || password === "" || email === "") {
+      Alert.alert("Error", "Please enter both username and password.");
     } else {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://localhost:3000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          username: username,
           email: email,
           password: password,
         }),
       });
-      if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem("token", data.token);
-        router.push("/CreateTab");
-      } else {
-        Alert.alert("Error", "Login failed.");
-      }
+      const data = await response.json();
+      await AsyncStorage.setItem("token", data.token);
+      router.push("/CreateTab");
     }
   };
 
   return (
     <View>
-      <Text>Login</Text>
+      <Text>Register</Text>
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} />
+      <TextInput
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
       <TextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <Button title="Register" onPress={handleRegister} />
     </View>
   );
 }
