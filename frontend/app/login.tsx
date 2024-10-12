@@ -25,7 +25,7 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         await AsyncStorage.setItem("token", data.token);
-        router.push("/CreateTab");
+        router.push("./(mainTabs)/createTab");
       } else {
         Alert.alert("Error", "Login failed.");
       }
@@ -48,7 +48,13 @@ export default function App() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <Button title="Login" onPress={handleLogin} color="#B49F84" />
+    <Text style={styles.registerText}>
+      Don't have an account?{" "}
+      <Text style={styles.registerLink} onPress={() => router.push("./register")}>
+        Register here
+      </Text>
+    </Text>
     </View>
   );
 }
@@ -75,5 +81,14 @@ const styles = {
     borderColor: "#ccc",
     borderRadius: 4,
     backgroundColor: "#fff",
+  },
+  registerText: {
+    marginTop: 16,
+    fontSize: 14,
+    color: "#333",
+  },
+  registerLink: {
+    color: "#1e90ff",
+    textDecorationLine: "underline" as "underline",
   },
 };

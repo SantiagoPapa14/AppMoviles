@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Text, TextInput, View, Button, Alert, Dimensions} from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function App() {
   const [username, setUsername] = useState("");
@@ -26,39 +28,43 @@ export default function App() {
       });
       const data = await response.json();
       await AsyncStorage.setItem("token", data.token);
-      router.push("/CreateTab");
+      router.push("./(mainTabs)/createTab");
     }
   };
 
   
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title="Register" onPress={handleRegister} />
-    </View>
+
+    <>
+      <View style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.container}>
+          <Text style={styles.title}>Register</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail} />
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername} />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry />
+            <Button title="Register" onPress={handleRegister} color="#B49F84" />
+        </View>
+    </>
   );
 }
-
-
 
 const { width } = Dimensions.get("window");
 
@@ -70,9 +76,20 @@ const styles = {
     padding: 16,
     backgroundColor: "#f5f5f5",
   },
+  backButton: {
+    flexDirection: "row" as "row",
+    justifyContent: "flex-start" as "flex-start",
+    padding: 16,
+    backgroundColor: "#f5f5f5",
+  },
   title: {
     fontSize: 24,
     marginBottom: 16,
+  },
+  buttons: {
+    marginTop: 16,
+    fontSize: 14,
+    color: "#B49F84",
   },
   input: {
     width: width * 0.8, // 80% de la pantalla
