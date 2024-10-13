@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { PressableCustom } from "@/components/PressableCustom";
 
 type RootStackParamList = {
   Home: undefined;
@@ -55,8 +56,8 @@ return (
             ) : (
                 <Text style={styles.text}>No profile information available.</Text>
             )}
-            <Button
-                title="Go to Home"
+            <PressableCustom
+                label="Go to Home"
                 onPress={() => navigation.navigate("Home")}
             />
         </View>
