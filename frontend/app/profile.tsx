@@ -45,14 +45,6 @@ const ProfileScreen = () => {
   };
 
 return (
-    <View>
-        <View style={styles.header}>
-            <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="black" />
-            </Pressable>
-            <Text style={styles.headerText}>Profile</Text>
-        </View>
-
         <View style={styles.container}>
             {profile ? (
                 <>
@@ -68,7 +60,6 @@ return (
                 onPress={() => navigation.navigate("Home")}
             />
         </View>
-    </View>
 );
 };
 
