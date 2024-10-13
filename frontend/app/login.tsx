@@ -25,7 +25,7 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         await AsyncStorage.setItem("token", data.token);
-        router.push("./(mainTabs)/createTab");
+        router.replace("./createTab");
       } else {
         Alert.alert("Error", "Login failed.");
       }
