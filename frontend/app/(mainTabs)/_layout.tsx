@@ -1,4 +1,4 @@
-import { Stack, Tabs } from "expo-router";
+import { router, Stack, Tabs } from "expo-router";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import ProfileScreen from "@/app/profile";
@@ -95,6 +95,24 @@ function DrawerNavigator() {
       />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="Settings" component={SettingScreen} />
+      <Drawer.Screen
+        name="Logout"
+        component={() => null} // Placeholder component, replace with actual logout logic
+        options={{
+          drawerLabel: "Log Out",
+          drawerIcon: ({ color, size }) => (
+        <Ionicons name="log-out-outline" size={size} color={color} />
+          ),
+        }}
+        listeners={({ navigation }) => ({
+          drawerItemPress: () => {
+        // Add your logout logic here
+        console.log("User logged out");
+        router.push("../login");
+        
+          },
+        })}
+      />
     </Drawer.Navigator>
   );
 }
