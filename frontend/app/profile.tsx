@@ -13,7 +13,8 @@ type RootStackParamList = {
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState<{
-    name: string;
+    userId: number;
+    username: string;
     email: string;
   } | null>(null);
 
@@ -21,11 +22,18 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const name = await AsyncStorage.getItem("username");
-        const email = await AsyncStorage.getItem("email");
-
-        if (name !== null && email !== null) {
-          setProfile({ name, email });
+        const token = await AsyncStorage.getItem("token");
+        const response = await fetch("http://localhost:3000/user/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.ok) {
+          setProfile(await response.json());
+        } else {
+          throw Error("Unable to fetch user data.");
         }
       } catch (error) {
         console.error("Failed to load profile", error);
@@ -34,20 +42,11 @@ const ProfileScreen = () => {
     fetchProfile();
   }, []);
 
-  const clearProfile = async () => {
-    try {
-      await AsyncStorage.removeItem("token");
-      setProfile(null);
-    } catch (error) {
-      console.error("Failed to clear profile", error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       {profile ? (
         <>
-          <Text style={styles.text}>Name: {profile.name}</Text>
+          <Text style={styles.text}>Name: {profile.username}</Text>
           <Text style={styles.text}>Email: {profile.email}</Text>
         </>
       ) : (

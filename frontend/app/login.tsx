@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput, View, Button, Alert , Dimensions} from "react-native";
+import { Text, TextInput, View, Button, Alert, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -49,12 +49,15 @@ export default function App() {
         secureTextEntry
       />
       <Button title="Login" onPress={handleLogin} color="#B49F84" />
-    <Text style={styles.registerText}>
-      Don't have an account?{" "}
-      <Text style={styles.registerLink} onPress={() => router.push("./register")}>
-        Register here
+      <Text style={styles.registerText}>
+        Don't have an account?{" "}
+        <Text
+          style={styles.registerLink}
+          onPress={() => router.push("./register")}
+        >
+          Register here
+        </Text>
       </Text>
-    </Text>
     </View>
   );
 }

@@ -32,7 +32,7 @@ const loginUser = async (email, password) => {
   if (!user) {
     return false;
   }
-  if (valid) {
+  if (!valid) {
     return false;
   }
   return generateToken(user);

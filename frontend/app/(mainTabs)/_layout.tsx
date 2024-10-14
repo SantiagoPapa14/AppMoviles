@@ -5,6 +5,7 @@ import ProfileScreen from "@/app/profile";
 import SettingScreen from "@/app/settings";
 import { Image, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Drawer = createDrawerNavigator();
 
@@ -50,16 +51,26 @@ function DrawerNavigator() {
           if (route.name === "Home") {
             return (
               <>
-              <Image
-                source={require("@/assets/images/LOGOS/logotipoSolo.png")}
-                style={{
-                width: 40 * 1.5,
-                height: 40 * 1.5,
-                alignSelf: "center",
-                }}
-                resizeMode="contain"
-              />
-                <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", textAlign: "center", marginHorizontal:30 }}>Recapify</Text>
+                <Image
+                  source={require("@/assets/images/LOGOS/logotipoSolo.png")}
+                  style={{
+                    width: 40 * 1.5,
+                    height: 40 * 1.5,
+                    alignSelf: "center",
+                  }}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    marginHorizontal: 30,
+                  }}
+                >
+                  Recapify
+                </Text>
               </>
             );
           }
@@ -101,15 +112,16 @@ function DrawerNavigator() {
         options={{
           drawerLabel: "Log Out",
           drawerIcon: ({ color, size }) => (
-        <Ionicons name="log-out-outline" size={size} color={color} />
+            <Ionicons name="log-out-outline" size={size} color={color} />
           ),
         }}
         listeners={({ navigation }) => ({
           drawerItemPress: () => {
-        // Add your logout logic here
-        console.log("User logged out");
-        router.push("../login");
-        
+            // Add your logout logic here
+            console.log("User logged out");
+            AsyncStorage.removeItem("token").then(() => {
+              router.push("../login");
+            });
           },
         })}
       />
