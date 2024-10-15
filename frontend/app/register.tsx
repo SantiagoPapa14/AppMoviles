@@ -28,7 +28,7 @@ export default function App() {
       });
       const data = await response.json();
       await AsyncStorage.setItem("token", data.token);
-      router.push("./(mainTabs)/createTab");
+      router.push("./login");
     }
   };
 

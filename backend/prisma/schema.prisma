@@ -18,7 +18,7 @@ model User {
   summaries       Summary[]
   quizzes         Quiz[]
   flashcards      Flashcard[]
-  mentalMaps      MentalMap[]
+  mentalMaps      MindMap[]
 }
 
 model Summary {
@@ -51,12 +51,23 @@ model Flashcard {
   user      User     @relation(fields: [userId], references: [userId])
 }
 
-model MentalMap {
+model MindMap {
   id        Int      @id @default(autoincrement())
   title     String
-  nodes     String   // JSON string or another appropriate type
+  nodes     Node[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    Int
   user      User     @relation(fields: [userId], references: [userId])
+	@@map("MindMap")
+}
+
+model Node {
+  id          Int      @id @default(autoincrement())
+  content     String
+  parentId    Int?
+  mindMapId Int
+  MindMap   MindMap @relation(fields: [mindMapId], references: [id])
+  parent      Node?     @relation("NodeToNode", fields: [parentId], references: [id])
+  children    Node[]    @relation("NodeToNode")
 }
