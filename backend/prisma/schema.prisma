@@ -11,16 +11,16 @@ datasource db {
 }
 
 model User {
-  userId          Int          @id @default(autoincrement())
-  email           String       @unique
-  username        String
-  hashedPassword  String
-  name            String       @default("")
-  profileImage    String?
-  summaries       Summary[]
-  quizzes         Quiz[]
-  flashcards      Flashcard[]
-  mentalMaps      MindMap[]
+  userId         Int         @id @default(autoincrement())
+  email          String      @unique
+  username       String
+  hashedPassword String
+  name           String      @default("")
+  profileImage   String?
+  summaries      Summary[]
+  quizzes        Quiz[]
+  flashcards     Flashcard[]
+  mentalMaps     MindMap[]
 }
 
 model Summary {
@@ -34,25 +34,45 @@ model Summary {
 }
 
 model Quiz {
-  id        Int      @id @default(autoincrement())
+  quizId    Int            @id @default(autoincrement())
   title     String
-  questions String   // JSON string or another appropriate type
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  questions QuizQuestion[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
   userId    Int
-  user      User     @relation(fields: [userId], references: [userId])
+  user      User           @relation(fields: [userId], references: [userId])
+}
+
+model QuizQuestion {
+  id       Int    @id @default(autoincrement()) // Add the id field
+  quizId   Int
+  quiz     Quiz   @relation(fields: [quizId], references: [quizId])
+  question String
+  answer   String
 }
 
 model Flashcard {
-  id        Int      @id @default(autoincrement())
-  question  String
-  answer    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [userId])
+  idFlashcard    Int              @id @default(autoincrement())
+  cards          String
+  answer         String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  userId         Int
+  user           User             @relation(fields: [userId], references: [userId])
+  FlashcardSlide FlashcardSlide[]
 }
 
+model FlashcardSlide {
+  id          Int       @id @default(autoincrement()) // Add the id field
+  idFlashcard Int
+  flashcard   Flashcard @relation(fields: [idFlashcard], references: [idFlashcard])
+  question    String
+  answer      String
+}
+
+
+
+//POSIBLEMENTE VUELA
 model MindMap {
   id        Int      @id @default(autoincrement())
   title     String
@@ -61,15 +81,16 @@ model MindMap {
   updatedAt DateTime @updatedAt
   userId    Int
   user      User     @relation(fields: [userId], references: [userId])
-	@@map("MindMap")
+
+  @@map("MindMap")
 }
 
 model Node {
-  id          Int      @id @default(autoincrement())
-  content     String
-  parentId    Int?
+  id        Int     @id @default(autoincrement())
+  content   String
+  parentId  Int?
   mindMapId Int
   MindMap   MindMap @relation(fields: [mindMapId], references: [id])
-  parent      Node?     @relation("NodeToNode", fields: [parentId], references: [id])
-  children    Node[]    @relation("NodeToNode")
+  parent    Node?   @relation("NodeToNode", fields: [parentId], references: [id])
+  children  Node[]  @relation("NodeToNode")
 }

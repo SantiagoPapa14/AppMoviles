@@ -12,7 +12,7 @@ export default function App() {
     if (email === "" || password === "") {
       Alert.alert("Error", "Please enter both email and password.");
     } else {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://172.19.0.1:3000/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
