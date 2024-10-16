@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     },
     presseableTextStyle: {
         fontFamily: 'Mondapick',
-        fontWeight: 400,
         fontSize: 15,
         lineHeight: 18,
     },

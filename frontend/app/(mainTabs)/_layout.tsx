@@ -1,11 +1,36 @@
 import { router, Stack, Tabs } from "expo-router";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  createDrawerNavigator,
+  DrawerItem,
+  DrawerContentScrollView,
+  DrawerItemList,
+} from "@react-navigation/drawer";
+import {
+  DrawerNavigationState,
+  NavigationContainer,
+  ParamListBase,
+} from "@react-navigation/native";
 import ProfileScreen from "@/app/profile";
 import SettingScreen from "@/app/settings";
-import { Image, Text } from "react-native";
+import {
+  Image,
+  ScrollView,
+  ScrollViewProps,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  DrawerNavigationHelpers,
+  DrawerDescriptorMap,
+} from "@react-navigation/drawer/lib/typescript/src/types";
+import { RefAttributes } from "react";
+import { JSX } from "react/jsx-runtime";
+import CustomDrawerContent from "@/components/CustomDrawerContent";
+import CreateScreen from "./createTab";
+
 
 const Drawer = createDrawerNavigator();
 
@@ -39,46 +64,29 @@ function TabsNavigator() {
     </Tabs>
   );
 }
+
 function DrawerNavigator() {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
       backBehavior="initialRoute"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={({ route }) => ({
         drawerIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = "home-outline"; // default value
 
           if (route.name === "Home") {
-            return (
-              <>
-                <Image
-                  source={require("@/assets/images/LOGOS/logotipoSolo.png")}
-                  style={{
-                    width: 40 * 1.5,
-                    height: 40 * 1.5,
-                    alignSelf: "center",
-                  }}
-                  resizeMode="contain"
-                />
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    textAlign: "center",
-                    marginHorizontal: 30,
-                  }}
-                >
-                  Recapify
-                </Text>
-              </>
-            );
+            iconName = focused ? "home" : "home-outline";
+            return <Ionicons name={iconName} size={size} color={color} />;
           }
           if (route.name === "Profile") {
             iconName = focused ? "person" : "person-outline";
             return <Ionicons name={iconName} size={size} color={color} />;
           } else if (route.name === "Settings") {
             iconName = focused ? "settings" : "settings-outline";
+            return <Ionicons name={iconName} size={size} color={color} />;
+          } else if (route.name === "NewItem") {
+            iconName = focused ? "star" : "star-outline";
             return <Ionicons name={iconName} size={size} color={color} />;
           }
         },
@@ -91,7 +99,7 @@ function DrawerNavigator() {
         headerTitle: () => (
           <Image
             source={require("@/assets/images/LOGOS/imagotipo.png")}
-            style={{ width: 100 * 2.5, height: 40 * 2.5, alignSelf: "center" }}
+            style={{ width: 250, height: 100, alignSelf: "center" }}
             resizeMode="contain"
           />
         ),
@@ -102,29 +110,9 @@ function DrawerNavigator() {
       <Drawer.Screen
         name="Home"
         component={TabsNavigator}
-        options={{ drawerLabel: () => null }}
       />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="Settings" component={SettingScreen} />
-      <Drawer.Screen
-        name="Logout"
-        component={() => null} // Placeholder component, replace with actual logout logic
-        options={{
-          drawerLabel: "Log Out",
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="log-out-outline" size={size} color={color} />
-          ),
-        }}
-        listeners={({ navigation }) => ({
-          drawerItemPress: () => {
-            // Add your logout logic here
-            console.log("User logged out");
-            AsyncStorage.removeItem("token").then(() => {
-              router.push("../login");
-            });
-          },
-        })}
-      />
     </Drawer.Navigator>
   );
 }

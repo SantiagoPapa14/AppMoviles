@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { PressableCustom } from "@/components/PressableCustom";
+import { useUserAuth } from "@/hooks/userAuth";
 
 type RootStackParamList = {
   Home: undefined;
@@ -12,35 +13,9 @@ type RootStackParamList = {
 };
 
 const ProfileScreen = () => {
-  const [profile, setProfile] = useState<{
-    userId: number;
-    username: string;
-    email: string;
-  } | null>(null);
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/user/", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-        });
-        if (response.ok) {
-          setProfile(await response.json());
-        } else {
-          throw Error("Unable to fetch user data.");
-        }
-      } catch (error) {
-        console.error("Failed to load profile", error);
-      }
-    };
-    fetchProfile();
-  }, []);
+  const profile = useUserAuth();
 
   return (
     <View style={styles.container}>
@@ -52,10 +27,6 @@ const ProfileScreen = () => {
       ) : (
         <Text style={styles.text}>No profile information available.</Text>
       )}
-      <PressableCustom
-        label="Go to Home"
-        onPress={() => navigation.navigate("Home")}
-      />
     </View>
   );
 };
