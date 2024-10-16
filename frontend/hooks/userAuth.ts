@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 
 async function fetchUserProfile(): Promise<{ userId: number; username: string; email: string ;name:string} | null> {
     try {
-        const token = await AsyncStorage.getItem("token");
+        const token = await AsyncStorage.getItem("userToken");
         if (!token) throw new Error("No token found");
 
         const response = await fetch("http://localhost:3000/user/", {

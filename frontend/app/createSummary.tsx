@@ -12,15 +12,16 @@ const CreateSummary = () => {
     const profile = useUserAuth(); // Obtener el usuario logueado
 
     const handleSave = async () => {
+        
         if (!title.trim() || !summary.trim()) {
             Alert.alert('Error', 'El título y el resumen no pueden estar vacíos');
             return;
         }
-
         try {
             if (!profile) {
                 Alert.alert('Error', 'No se pudo obtener el perfil del usuario');
             } else {
+                console.log(profile)
                 await saveSummaryToAPI(profile, summary, title);
                 Alert.alert('Éxito', 'Resumen guardado correctamente');
                 setTitle('');
@@ -102,7 +103,7 @@ async function saveSummaryToAPI(profile: { userId: number; username: string; ema
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: profile.userId, summary }),
+        body: JSON.stringify({ userId: profile.userId, summary, title }),
     });
 
     if (!response.ok) {

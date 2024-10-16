@@ -24,7 +24,7 @@ export default function App() {
       });
       if (response.ok) {
         const data = await response.json();
-        await AsyncStorage.setItem("token", data.token);
+        await AsyncStorage.setItem("userToken", data.token);
         router.replace("./createTab");
       } else {
         Alert.alert("Error", "Login failed.");

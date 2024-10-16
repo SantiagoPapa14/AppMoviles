@@ -6,6 +6,7 @@ import HomeScreen from './(mainTabs)/createTab'; // Ensure this path is correct
 import LoginScreen from './login'; // Ensure this path is correct
 import RegisterScreen from './register'; // Ensure this path is correct
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Redirect } from 'expo-router';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,18 +42,7 @@ const App = () => {
     );
   }
   
-  return (
-      <Stack.Navigator>
-        {isLoggedIn ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
-        ) : (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-          </>
-        )}
-      </Stack.Navigator>
-  );
+  return isLoggedIn ? <Redirect href='/homeTab' /> :  <Redirect href='/login'/> 
 };
 
 export default App;

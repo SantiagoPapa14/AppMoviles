@@ -9,9 +9,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useUserAuth } from "@/hooks/userAuth";
 
-
-
-
 export default function CustomDrawerContent(props: any) {
   const user = useUserAuth();
   return (
@@ -65,7 +62,7 @@ export default function CustomDrawerContent(props: any) {
         onPress={() => {
           // Add your logout logic here
           console.log("User logged out");
-          AsyncStorage.removeItem("token").then(() => {
+          AsyncStorage.removeItem("userToken").then(() => {
             router.push("../login");
           });
         }}
