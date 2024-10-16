@@ -1,19 +1,24 @@
 import { useState } from "react";
-import { Text, TextInput, View, Button, Alert, Dimensions} from "react-native";
+import { Text, TextInput, View, Button, Alert, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function App() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleRegister = async () => {
-    if (username === "" || password === "" || email === "") {
-      Alert.alert("Error", "Please enter both username and password.");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (username === "" || password === "" || email === "" || name === "") {
+      Alert.alert("Error", "Please fill in all fields.");
+    } else if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
     } else {
       const response = await fetch("http://localhost:3000/register", {
         method: "POST",
@@ -24,44 +29,55 @@ export default function App() {
           username: username,
           email: email,
           password: password,
+          name: name,
         }),
       });
+
       const data = await response.json();
       await AsyncStorage.setItem("token", data.token);
-      router.push("./login");
+      router.replace("./login");
     }
   };
 
-  
   return (
-
     <>
       <View style={styles.backButton}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.container}>
-          <Text style={styles.title}>Register</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail} />
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername} />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry />
-            <Button title="Register" onPress={handleRegister} color="#B49F84" />
-        </View>
+        <Text style={styles.title}>Register</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <Button title="Register" onPress={handleRegister} color="#B49F84" />
+      </View>
     </>
   );
 }

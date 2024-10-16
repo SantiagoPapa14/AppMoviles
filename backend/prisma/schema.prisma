@@ -15,6 +15,8 @@ model User {
   email           String       @unique
   username        String
   hashedPassword  String
+  name            String       @default("")
+  profileImage    String?
   summaries       Summary[]
   quizzes         Quiz[]
   flashcards      Flashcard[]

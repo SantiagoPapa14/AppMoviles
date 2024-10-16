@@ -43,17 +43,18 @@ app.post("/login", async (req, res) => {
 //Register user
 app.post("/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password ,name} = req.body;
     if (!email || !password || !username) {
       res.status(400).json({
         message: "Please provide email and password",
       });
       return;
     }
-    const token = await authLib.registerUser(email, username, password);
+    
+    const token = await authLib.registerUser(email, username, password, name);
 
     res.status(200).json({
-      message: "Register successful!",
+      message: "Register successful!", 
       token: token,
     });
   } catch (err) {

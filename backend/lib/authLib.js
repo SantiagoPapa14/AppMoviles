@@ -38,9 +38,9 @@ const loginUser = async (email, password) => {
   return generateToken(user);
 };
 
-const registerUser = async (email, username, password) => {
+const registerUser = async (email, username, password,name) => {
   const hashedPass = await bcrypt.hash(password, 10);
-  const user = userRepository.createUser(email, username, hashedPass);
+  const user = userRepository.createUser(email, username, hashedPass,name);
   if (!user) {
     return null;
   }

@@ -20,11 +20,15 @@ export default function CustomDrawerContent(props: any) {
         onPress={() => props.navigation.navigate("Profile")}
         style={{ alignItems: "center", marginVertical: 20 }}
       >
-        <Image
-          source={{ uri: user?.profilePicture || "https://example.com/profile-picture.jpg" }} // Replace with actual profile picture URL
-          style={{ width: 60, height: 60, borderRadius: 30 }}
-          resizeMode="cover"
-        />
+        {user?.profileImage ? (
+          <Image
+            source={{ uri: user.profileImage }}
+            style={{ width: 60, height: 60, borderRadius: 30 }}
+            resizeMode="cover"
+          />
+        ) : (
+          <Ionicons name="person-circle-outline" size={60} color="white" />
+        )}
         <Text
           style={{
             color: "white",
@@ -44,7 +48,7 @@ export default function CustomDrawerContent(props: any) {
             marginBottom: 10,
           }}
         >
-          {user?.email || "user@example.com"}
+          {user?.name || "user@example.com"}
         </Text>
         <Text
           style={{

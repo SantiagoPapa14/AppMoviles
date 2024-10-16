@@ -8,15 +8,14 @@ import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from expo
 import ProfileScreen from "@/app/profile"; // Ensure this path is correct
 import { useRouter } from "expo-router";
 
-const router = useRouter();
 export default function CreateScreen() {
+  const router = useRouter();
   return (
     <View style={styles.defaultViewStyle}>
       <PressableCustom label={"QUIZ"} />
       <PressableCustom
         label={"RESUMEN"}
         onPress={() => {
-          
           router.push("/createSummary");
         }}
       />
