@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Text, TextInput, View, Button, Alert, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE_URL } from "@/constants/API-IP";
 
 export default function App() {
   const [email, setEmail] = useState("");
@@ -12,7 +13,7 @@ export default function App() {
     if (email === "" || password === "") {
       Alert.alert("Error", "Please enter both email and password.");
     } else {
-      const response = await fetch("http://172.19.0.1:3000/login", {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

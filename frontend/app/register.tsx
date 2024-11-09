@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { API_BASE_URL } from "@/constants/API-IP";
 
 export default function App() {
   const [name, setName] = useState("");
@@ -12,6 +13,9 @@ export default function App() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+
+
+  
   const handleRegister = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -20,7 +24,7 @@ export default function App() {
     } else if (!emailRegex.test(email)) {
       Alert.alert("Error", "Please enter a valid email address.");
     } else {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

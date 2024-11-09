@@ -63,7 +63,7 @@ export default function CustomDrawerContent(props: any) {
           // Add your logout logic here
           console.log("User logged out");
           AsyncStorage.removeItem("userToken").then(() => {
-            router.push("../login");
+            router.replace("/");
           });
         }}
         style={{
