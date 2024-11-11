@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     presseableTextStyle: {
-        fontFamily: 'Mondapick',
+        fontFamily: 'Mondapick', // Ensure this line is correct
         fontSize: 15,
         lineHeight: 18,
     },
