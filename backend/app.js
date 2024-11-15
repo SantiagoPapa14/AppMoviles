@@ -5,8 +5,10 @@ const port = 3000;
 const authLib = require("./lib/authLib");
 const { createSummary } = require("./lib/summaryRepository");
 const { createQuiz } = require("./lib/quizRepository");
+const { updateUser } = require("./lib/userRepository");
 const e = require("express");
 const { createDeck } = require("./lib/deckRepository");
+const { hash } = require("bcrypt");
 
 app.use(express.json());
 
@@ -75,6 +77,40 @@ app.get("/user/:id?", authLib.validateAuthorization, (req, res) => {
   } else {
     delete req.userData.hashedPassword;
     res.json(req.userData);
+  }
+});
+
+app.get("/user", authLib.validateAuthorization, (req, res) => {
+  res.json(req.userData);
+});
+
+app.patch("/user", authLib.validateAuthorization, async (req, res) => {
+  const { email, username, password, name } = req.body;
+
+  if (!email && !username && !password && !name) {
+    res.status(400).json({
+      message: "Please provide email and password",
+    });
+    return;
+  }
+  const hashPassword = await bcrypt.hash(req.body.password, 10);
+  const user = await updateUser(
+    req.userData.userId,
+    email,
+    username,
+    hashPassword,
+    name
+  );
+
+  if (!user) {
+    res.status(500).json({
+      message: "User not found",
+    });
+  } else {
+    res.status(200).json({
+      message: "User updated successfully!",
+      user: user,
+    });
   }
 });
 
