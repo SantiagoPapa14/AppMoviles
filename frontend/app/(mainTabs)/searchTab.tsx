@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Button } from "react-native";
 import { PressableCustom } from "@/components/PressableCustom";
+import { Card } from "@/components/Card"; // Adjust the path as necessary
 
 const SearchTab = () => {
   const router = useRouter();
@@ -13,21 +14,15 @@ const SearchTab = () => {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Top of the week</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={[styles.carouselBox, { backgroundColor: "#FF6347" }]}>
-            <Text style={styles.carouselText}>Item 1</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#4682B4" }]}>
-            <Text style={styles.carouselText}>Item 2</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#32CD32" }]}>
-            <Text style={styles.carouselText}>Item 3</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#FFD700" }]}>
-            <Text style={styles.carouselText}>Item 4</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#8A2BE2" }]}>
-            <Text style={styles.carouselText}>Item 5</Text>
-          </View>
+        {Array.from({ length: 3 }).map((_, index) => (
+            <Card
+                title={'Tarjeta ' + (index + 1)}
+                key={index}
+                color='red'
+                creator="Creator Name"
+                projectId={index + 1}
+            />
+            ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <View style={styles.buttonContainer}></View>
@@ -39,21 +34,15 @@ const SearchTab = () => {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Might interest you</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={[styles.carouselBox, { backgroundColor: "#FF6347" }]}>
-            <Text style={styles.carouselText}>Item 1</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#4682B4" }]}>
-            <Text style={styles.carouselText}>Item 2</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#32CD32" }]}>
-            <Text style={styles.carouselText}>Item 3</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#FFD700" }]}>
-            <Text style={styles.carouselText}>Item 4</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#8A2BE2" }]}>
-            <Text style={styles.carouselText}>Item 5</Text>
-          </View>
+        {Array.from({ length: 3 }).map((_, index) => (
+            <Card
+                title={'Tarjeta ' + (index + 1)}
+                key={index}
+                color='red'
+                creator="Creator Name"
+                projectId={index + 1}
+            />
+            ))}
         </ScrollView>
         <View style={styles.buttonContainer}>
           <PressableCustom
@@ -65,21 +54,15 @@ const SearchTab = () => {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Recently viewed</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={[styles.carouselBox, { backgroundColor: "#FF6347" }]}>
-            <Text style={styles.carouselText}>Item 1</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#4682B4" }]}>
-            <Text style={styles.carouselText}>Item 2</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#32CD32" }]}>
-            <Text style={styles.carouselText}>Item 3</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#FFD700" }]}>
-            <Text style={styles.carouselText}>Item 4</Text>
-          </View>
-          <View style={[styles.carouselBox, { backgroundColor: "#8A2BE2" }]}>
-            <Text style={styles.carouselText}>Item 5</Text>
-          </View>
+        {Array.from({ length: 3 }).map((_, index) => (
+            <Card
+                title={'Tarjeta ' + (index + 1)}
+                key={index}
+                color='red'
+                creator="Creator Name"
+                projectId={index + 1}
+            />
+            ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <PressableCustom
