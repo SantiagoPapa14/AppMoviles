@@ -12,14 +12,24 @@ export default function CreateScreen() {
   const router = useRouter();
   return (
     <View style={styles.defaultViewStyle}>
-      <PressableCustom label={"QUIZ"} />
+      <PressableCustom
+        label={"QUIZ"}
+        onPress={() => {
+          router.push("/createQuiz");
+        }}
+      />
       <PressableCustom
         label={"RESUMEN"}
         onPress={() => {
           router.push("/createSummary");
         }}
       />
-      <PressableCustom label={"FLASHCARDS"} />
+      <PressableCustom
+        label={"FLASHCARDS"}
+        onPress={() => {
+          router.push("/createFlashcard");
+        }}
+      />
       <PressableCustom label={"MIND MAP"} />
     </View>
   );

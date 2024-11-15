@@ -19,13 +19,14 @@ model User {
   profileImage   String?
   summaries      Summary[]
   quizzes        Quiz[]
-  flashcards     Flashcard[]
+  decks          Deck[]
   mentalMaps     MindMap[]
 }
 
 model Summary {
   id        Int      @id @default(autoincrement())
   title     String
+  subject   String
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,25 +50,27 @@ model QuizQuestion {
   quiz     Quiz   @relation(fields: [quizId], references: [quizId])
   question String
   answer   String
+  decoy1   String 
+  decoy2   String 
+  decoy3   String 
 }
 
-model Flashcard {
-  idFlashcard    Int              @id @default(autoincrement())
-  cards          String
-  answer         String
+model Deck {
+  deckId         Int              @id @default(autoincrement())
+  title          String
+  flashcards     Flashcard[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   userId         Int
   user           User             @relation(fields: [userId], references: [userId])
-  FlashcardSlide FlashcardSlide[]
 }
 
-model FlashcardSlide {
+model Flashcard {
   id          Int       @id @default(autoincrement()) // Add the id field
-  idFlashcard Int
-  flashcard   Flashcard @relation(fields: [idFlashcard], references: [idFlashcard])
-  question    String
-  answer      String
+  front       String
+  back        String
+  deckId      Int       
+  deck        Deck      @relation(fields: [deckId], references: [deckId])
 }
 
 

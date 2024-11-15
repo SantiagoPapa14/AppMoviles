@@ -3,7 +3,10 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
+const { createSummary } = require("./lib/summaryRepository");
+const { createQuiz } = require("./lib/quizRepository");
 const e = require("express");
+const { createDeck } = require("./lib/deckRepository");
 
 app.use(express.json());
 
@@ -43,18 +46,18 @@ app.post("/login", async (req, res) => {
 //Register user
 app.post("/register", async (req, res) => {
   try {
-    const { username, email, password ,name} = req.body;
+    const { username, email, password, name } = req.body;
     if (!email || !password || !username) {
       res.status(400).json({
         message: "Please provide email and password",
       });
       return;
     }
-    
+
     const token = await authLib.registerUser(email, username, password, name);
 
     res.status(200).json({
-      message: "Register successful!", 
+      message: "Register successful!",
       token: token,
     });
   } catch (err) {
@@ -72,6 +75,76 @@ app.get("/user/:id?", authLib.validateAuthorization, (req, res) => {
   } else {
     delete req.userData.hashedPassword;
     res.json(req.userData);
+  }
+});
+
+app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
+  const { title, subject, summary } = req.body;
+
+  console.log(title, subject, summary, req.userData.userId);
+
+  if (!title || !subject || !summary) {
+    res.status(400).json({
+      message: "Please provide title, subject and summary",
+    });
+    return;
+  }
+
+  try {
+    const newSummary = await createSummary(
+      summary,
+      title,
+      subject,
+      req.userData.userId
+    );
+    res.status(200).json({
+      message: "Summary created successfully!",
+      summary: newSummary,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
+    console.log(err.message);
+  }
+});
+
+app.post("/quiz", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const { title, questions } = req.body;
+    if (!title || !questions) {
+      res.status(400).json({
+        message: "Please provide title and questions",
+      });
+      return;
+    }
+    const newQuiz = await createQuiz({ title, questions }, req.userData.userId);
+    res.status(200).json({
+      message: "Quiz created successfully!",
+      quiz: newQuiz,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
+
+app.post("/deck", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const { title, flashcards } = req.body;
+    if (!title || !flashcards) {
+      res.status(400).json({
+        message: "Please provide title and flashcards",
+      });
+      return;
+    }
+    const newDeck = await createDeck(
+      { title, flashcards },
+      req.userData.userId
+    );
+    res.status(200).json({
+      message: "Deck created successfully!",
+      deck: newDeck,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
   }
 });
 
