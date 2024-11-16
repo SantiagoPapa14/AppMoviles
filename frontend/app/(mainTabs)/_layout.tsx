@@ -117,7 +117,13 @@ function DrawerNavigator() {
   );
 }
 
+import { useEffect } from "react";
+
 export default function RootLayout() {
+  useEffect(() => {
+    console.log("RootLayout loaded");
+  }, []);
+
   return (
     <NavigationContainer independent={true}>
       <DrawerNavigator />

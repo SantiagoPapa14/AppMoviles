@@ -21,8 +21,9 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       {profile ? (
         <>
-          <Text style={styles.text}>Name: {profile.username}</Text>
+          <Text style={styles.text}>Username: {profile.username}</Text>
           <Text style={styles.text}>Email: {profile.email}</Text>
+          <Text style={styles.text}>Name: {profile.name}</Text>
         </>
       ) : (
         <Text style={styles.text}>No profile information available.</Text>

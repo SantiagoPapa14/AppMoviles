@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:8081",
+    origin: "http://localhost:8082",
     credentials: true,
   })
 );
@@ -93,7 +93,7 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     });
     return;
   }
-  const hashPassword = await bcrypt.hash(req.body.password, 10);
+  const hashPassword = await hash(req.body.password, 10);
   const user = await updateUser(
     req.userData.userId,
     email,
@@ -101,7 +101,7 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     hashPassword,
     name
   );
-
+  const newToken = await authLib.loginUser(user.email, req.body.password);
   if (!user) {
     res.status(500).json({
       message: "User not found",
@@ -110,6 +110,7 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     res.status(200).json({
       message: "User updated successfully!",
       user: user,
+      newToken: newToken,
     });
   }
 });

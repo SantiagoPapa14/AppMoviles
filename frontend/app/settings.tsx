@@ -6,6 +6,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import { Alert } from "react-native";
 
 import { Modal, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
 
 const AccountSettings: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -36,7 +37,6 @@ const AccountSettings: React.FC = () => {
   }, []);
 
   const handleSave = async () => {
-    // Add logic to save account details
     const token = await AsyncStorage.getItem("userToken");
     const response = await fetch(`${API_BASE_URL}/user`, {
       method: "PATCH",
@@ -51,9 +51,19 @@ const AccountSettings: React.FC = () => {
         name: name,
       }),
     });
-
+    
     if (response.ok) {
+      const data = await response.json();
+      if (data.newToken) {
+        await AsyncStorage.setItem("userToken", data.newToken);
+        console.log("New token saved:", data.newToken);
+      }
+      console.log(data.newToken);
       Alert.alert("Success", "Account details saved successfully!");
+      console.log("Account details updated:", { username, email, name });
+      router.replace("/");
+    } else {
+      Alert.alert("Error", "Failed to save account details.");
     }
   };
 
