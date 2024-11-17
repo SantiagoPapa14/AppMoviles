@@ -22,7 +22,7 @@ model User {
 }
 
 model Summary {
-  id        Int      @id @default(autoincrement())
+  projectId        Int      @id @default(autoincrement())
   title     String
   subject   String
   content   String
@@ -33,7 +33,7 @@ model Summary {
 }
 
 model Quiz {
-  quizId    Int            @id @default(autoincrement())
+  projectId    Int            @id @default(autoincrement())
   title     String
   questions QuizQuestion[]
   createdAt DateTime       @default(now())
@@ -45,7 +45,7 @@ model Quiz {
 model QuizQuestion {
   id       Int    @id @default(autoincrement()) // Add the id field
   quizId   Int
-  quiz     Quiz   @relation(fields: [quizId], references: [quizId])
+  quiz     Quiz   @relation(fields: [quizId], references: [projectId])
   question String
   answer   String
   decoy1   String 
@@ -54,7 +54,7 @@ model QuizQuestion {
 }
 
 model Deck {
-  deckId         Int              @id @default(autoincrement())
+  projectId         Int              @id @default(autoincrement())
   title          String
   flashcards     Flashcard[]
   createdAt      DateTime         @default(now())
@@ -68,7 +68,7 @@ model Flashcard {
   front       String
   back        String
   deckId      Int       
-  deck        Deck      @relation(fields: [deckId], references: [deckId])
+  deck        Deck      @relation(fields: [deckId], references: [projectId])
 }
 
 

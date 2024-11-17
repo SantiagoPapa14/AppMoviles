@@ -16,15 +16,14 @@ const HomeTab = () => {
     const router = useRouter();
     const isFocused = useIsFocused();
 
-    const [quizzes, setQuizzes] = useState<{ id: string; title: string ;type:string}[]>([]);
-    const [flashcards, setFlashcards] = useState<{ id: string; title: string;type:string }[]>(
+    const [quizzes, setQuizzes] = useState<{ projectId: string; title: string ;type:string}[]>([]);
+    const [flashcards, setFlashcards] = useState<{ projectId: string; title: string;type:string }[]>(
       []
     );
-    const [summaries, setSummaries] = useState<{ id: string; title: string;type:string }[]>(
+    const [summaries, setSummaries] = useState<{ projectId: string; title: string;type:string }[]>(
       []
     );
-    
-    
+  
     const combinedProjects = [...quizzes, ...flashcards, ...summaries];
     const shuffleArray = (array: any[]) => {
       for (let i = array.length - 1; i > 0; i--) {
@@ -72,7 +71,7 @@ const HomeTab = () => {
             key={index}
             title={project.title}
             creator="By you"
-            projectId={parseInt(project.id, 10)}
+            projectId={parseInt(project.projectId)}
             type={project.type}
           />
         ))}

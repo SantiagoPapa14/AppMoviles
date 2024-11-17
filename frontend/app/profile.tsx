@@ -11,28 +11,21 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useUserAuth } from "@/hooks/userAuth";
-import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 
-type RootStackParamList = {
-  Home: undefined;
-  Profile: undefined;
-};
 
 const ProfileScreen = () => {
   const isFocused = useIsFocused();
   const profile = useUserAuth();
-  const [quizzes, setQuizzes] = useState<{ id: string; title: string;type:string }[]>([]);
-  const [flashcards, setFlashcards] = useState<{ id: string; title: string;type:string }[]>(
+  const [quizzes, setQuizzes] = useState<{ projectId: string; title: string;type:string }[]>([]);
+  const [flashcards, setFlashcards] = useState<{ projectId: string; title: string;type:string }[]>(
     []
   );
-  const [summaries, setSummaries] = useState<{ id: string; title: string;type:string }[]>(
+  const [summaries, setSummaries] = useState<{ projectId: string; title: string;type:string }[]>(
     []
   );
 
@@ -216,11 +209,11 @@ const ProfileScreen = () => {
               {quizzes && quizzes.length > 0 ? (
                 quizzes.map((quiz, index) => (
                   <Card
-                    key={`${quiz.id}-${index}`}
+                    key={`${quiz.projectId}-${index}`}
                     title={quiz.title}
                     creator="By you"
                     color="#f9f9f9"
-                    projectId={parseInt(quiz.id, 10)}
+                    projectId={parseInt(quiz.projectId, 10)}
                     type={quiz.type}
                   />
                 ))
@@ -235,12 +228,12 @@ const ProfileScreen = () => {
               {flashcards && flashcards.length > 0 ? (
                 flashcards.map((flashcard, index) => (
                   <Card
-                    key={`${flashcard.id}-${index}`}
+                    key={`${flashcard.projectId}-${index}`}
                     title={flashcard.title}
                     creator={profile.username}
                     color="#f9f9f9"
-                    projectId={parseInt(flashcard.id, 10)}
-                    type="Flashcard"
+                    projectId={parseInt(flashcard.projectId, 10)}
+                    type={flashcard.type}
                   />
                 ))
               ) : (
@@ -254,12 +247,12 @@ const ProfileScreen = () => {
               {summaries && summaries.length > 0 ? (
                 summaries.map((summary, index) => (
                   <Card
-                    key={`${summary.id}-${index}`}
+                    key={`${summary.projectId}-${index}`}
                     title={summary.title}
                     creator={profile.username}
                     color="#f9f9f9"
-                    projectId={parseInt(summary.id, 10)}
-                    type="Summary"
+                    projectId={parseInt(summary.projectId, 10)}
+                    type={summary.type}
                   />
                 ))
               ) : (

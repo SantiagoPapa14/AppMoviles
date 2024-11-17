@@ -14,13 +14,12 @@ export interface CardProps {
 export const Card = ({ title = '', creator = '', projectId, type }: CardProps) => {
     const [pressed, setPressed] = useState(false)
     const backgroundColor = pressed ? '#253C46' : '#4682B4'
-
+    const linkParams = { [`${type}Id`]: projectId };
+    console.log(linkParams)
     return (
         <Link href={{
-            pathname: `/displayTabs/[summaryId]`,
-            params: {
-                summaryId: projectId,
-            }
+            pathname: `/displayTabs/${type}/[${type}Id]`,
+            params: linkParams
         }} asChild>
             <Pressable style={{ ...styles.carouselBox, backgroundColor }}
                 onPress={() => setPressed((prev) => !prev)}

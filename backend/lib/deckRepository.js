@@ -34,7 +34,7 @@ const getUserDecks = async (userId) => {
     });
     
     decks.forEach((deck) => {
-      deck.type = "flashcards";
+      deck.type = "flashcard";
     });
 
     return decks;
