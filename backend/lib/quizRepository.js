@@ -36,6 +36,7 @@ const getUserQuizzes = async (userId) => {
         questions: true,
       },
     });
+    console.log("User quizzes fetched successfully:", quizzes);
     return quizzes;
   } catch (error) {
     console.error("Error fetching quizzes:", error);

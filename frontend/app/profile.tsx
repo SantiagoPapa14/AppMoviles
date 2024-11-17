@@ -7,6 +7,7 @@ import { useUserAuth } from "@/hooks/userAuth";
 import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { Card } from "@/components/Card";
+import { useIsFocused } from "@react-navigation/native";
 
 type RootStackParamList = {
   Home: undefined;
@@ -14,13 +15,13 @@ type RootStackParamList = {
 };
 
 const ProfileScreen = () => {
+  const isFocused = useIsFocused();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const profile = useUserAuth();
   const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([]);
   const [flashcards, setFlashcards] = useState<{ id: string; title: string }[]>([]);
   const [summaries, setSummaries] = useState<{ id: string; title: string }[]>([]);
 
-  useEffect(() => {
     const fetchUserContent = async () => {
       try {
         const token = await AsyncStorage.getItem("userToken");
@@ -32,22 +33,26 @@ const ProfileScreen = () => {
         });
         const data = await response.json();
         setQuizzes(data.quizzes);
-        setFlashcards(data.flashcards);
+        setFlashcards(data.decks);
         setSummaries(data.summaries);
       } catch (error) {
         console.error("Failed to fetch user content:", error);
       }
     };
 
-    fetchUserContent();
-  }, []);
+  useEffect(() => {
+    if (isFocused) {
+      fetchUserContent();
+    }
+  }, [isFocused]);
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {profile ? (
         <>
             <View style={styles.profileContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <TouchableOpacity onPress={() => router.push('/')}>
               <View style={styles.profileImageContainer}>
               {profile.profilePicture ? (
                 <Image source={{ uri: profile.profilePicture }} style={styles.profileImage} />
