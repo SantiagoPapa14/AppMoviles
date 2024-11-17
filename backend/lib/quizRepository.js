@@ -18,8 +18,6 @@ const createQuiz = async (quiz, userId) => {
         },
       },
     });
-
-    console.log("Quiz saved successfully:", savedQuiz);
     return savedQuiz;
   } catch (error) {
     console.error("Error saving quiz:", error);
@@ -36,7 +34,6 @@ const getUserQuizzes = async (userId) => {
         questions: true,
       },
     });
-    console.log("User quizzes fetched successfully:", quizzes);
     return quizzes;
   } catch (error) {
     console.error("Error fetching quizzes:", error);

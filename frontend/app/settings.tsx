@@ -57,7 +57,7 @@ const AccountSettings: React.FC = () => {
         name: name,
       }),
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       if (data.newToken) {

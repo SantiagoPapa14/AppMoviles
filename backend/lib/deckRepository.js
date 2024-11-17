@@ -16,7 +16,6 @@ const createDeck = async (deck, userId) => {
       },
     });
 
-    console.log("Deck saved successfully:", savedDeck);
     return savedDeck;
   } catch (error) {
     console.error("Error saving deck:", error);
@@ -33,13 +32,11 @@ const getUserDecks = async (userId) => {
         flashcards: true,
       },
     });
-    console.log("User decks fetched successfully:", decks);
     return decks;
   } catch (error) {
     console.error("Error fetching decks:", error);
     return null;
   }
-  
 };
 
 module.exports = {

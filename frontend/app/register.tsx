@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { Text, TextInput, View, Button, Alert, Dimensions } from "react-native";
+import {
+  Text,
+  TextInput,
+  View,
+  Button,
+  Alert,
+  Dimensions,
+  Image,
+  Modal,
+} from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "@/constants/API-IP";
+import * as ImagePicker from "expo-image-picker";
 
 export default function App() {
   const [name, setName] = useState("");
@@ -13,13 +23,75 @@ export default function App() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
+  const requestPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "You need to grant permission to access the gallery."
+      );
+    }
+  };
 
-  
+  const pickImage = async () => {
+    await requestPermission();
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets![0].uri); // Get the image URI
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!imageUri) {
+      Alert.alert("Error", "Please select an image first.");
+      return;
+    }
+
+    const formData = new FormData();
+    const file = {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: `profile_picture.jpg`,
+    };
+    formData.append("profile_picture", file);
+
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload-profile-picture`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: "Bearer " + token,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload profile picture.");
+    }
+  };
+
   const handleRegister = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (username === "" || password === "" || email === "" || name === "") {
+    if (
+      username === "" ||
+      password === "" ||
+      email === "" ||
+      name === "" ||
+      !imageUri
+    ) {
       Alert.alert("Error", "Please fill in all fields.");
     } else if (!emailRegex.test(email)) {
       Alert.alert("Error", "Please enter a valid email address.");
@@ -38,8 +110,9 @@ export default function App() {
       });
 
       const data = await response.json();
-      await AsyncStorage.setItem("token", data.token);
-      router.replace("./login");
+      await AsyncStorage.setItem("userToken", data.token);
+      await uploadImage();
+      router.replace("./createTab");
     }
   };
 
@@ -53,6 +126,25 @@ export default function App() {
 
       <View style={styles.container}>
         <Text style={styles.title}>Register</Text>
+        <TouchableOpacity onPress={pickImage}>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: 150,
+                height: 150,
+                borderWidth: 1,
+                borderColor: "black",
+                borderRadius: 75,
+              }}
+            />
+          ) : (
+            <>
+              <Ionicons name="person-circle-outline" size={100} color="black" />
+              <Text>No Image Selected</Text>
+            </>
+          )}
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -79,7 +171,6 @@ export default function App() {
           onChangeText={setPassword}
           secureTextEntry
         />
-
         <Button title="Register" onPress={handleRegister} color="#B49F84" />
       </View>
     </>

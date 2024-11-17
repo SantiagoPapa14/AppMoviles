@@ -16,7 +16,6 @@ model User {
   username       String
   hashedPassword String
   name           String      @default("")
-  profileImage   String?
   summaries      Summary[]
   quizzes        Quiz[]
   decks          Deck[]

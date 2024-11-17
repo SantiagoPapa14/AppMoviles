@@ -39,14 +39,19 @@ const loginUser = async (email, password) => {
   return generateToken(user);
 };
 
-const registerUser = async (email, username, password,name) => {
+const registerUser = async (email, username, password, name) => {
   const hashedPass = await bcrypt.hash(password, 10);
-  const user = userRepository.createUser(email, username, hashedPass,name);
+  const user = await userRepository.createUser(
+    email,
+    username,
+    hashedPass,
+    name
+  );
   if (!user) {
-    return null;
+    return false;
   }
-  console.log("User has succesfully registered!");
-  return user;
+  delete user.hashedPassword;
+  return generateToken(user);
 };
 
 module.exports = {

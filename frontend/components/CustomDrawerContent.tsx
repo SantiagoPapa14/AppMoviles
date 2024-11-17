@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useUserAuth } from "@/hooks/userAuth";
+import { API_BASE_URL } from "@/constants/API-IP";
 
 export default function CustomDrawerContent(props: any) {
   const user = useUserAuth();
@@ -17,15 +18,15 @@ export default function CustomDrawerContent(props: any) {
         onPress={() => props.navigation.navigate("Profile")}
         style={{ alignItems: "center", marginVertical: 20 }}
       >
-        {user?.profileImage ? (
-          <Image
-            source={{ uri: user.profileImage }}
-            style={{ width: 60, height: 60, borderRadius: 30 }}
-            resizeMode="cover"
-          />
-        ) : (
-          <Ionicons name="person-circle-outline" size={60} color="white" />
-        )}
+        <Image
+          source={{
+            uri: user
+              ? `${API_BASE_URL}/uploads/profile_pictures/${user.userId}.jpg`
+              : "https://via.placeholder.com/150",
+          }}
+          style={{ width: 60, height: 60, borderRadius: 30 }}
+          resizeMode="cover"
+        />
         <Text
           style={{
             color: "white",

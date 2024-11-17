@@ -25,7 +25,6 @@ async function getUserSummaries(userId) {
         userId: Number(userId),
       },
     });
-    console.log("User summaries fetched successfully:", summaries);
     return summaries;
   } catch (error) {
     console.log(error);
