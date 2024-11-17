@@ -23,6 +23,24 @@ const createDeck = async (deck, userId) => {
   }
 };
 
+const getUserDecks = async (userId) => {
+  try {
+    const decks = await prisma.deck.findMany({
+      where: {
+        userId: Number(userId),
+      },
+      include: {
+        flashcards: true,
+      },
+    });
+    return decks;
+  } catch (error) {
+    console.error("Error fetching decks:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createDeck,
+  getUserDecks,
 };

@@ -5,22 +5,22 @@ import { ViewStyle, TextStyle } from 'react-native';
 export interface CardProps {
     title: string
     creator: string
-    color: string
-    projectId: number
+    color?: string
+    projectId?: number
 }
 
-export const Card = ({ title }: CardProps) => {
+export const Card = ({ title = '', creator = '' }: CardProps) => {
     const [pressed, setPressed] = useState(false)
     const backgroundColor = pressed ? '#253C46' : '#4682B4'
     return (
-                <Pressable style={[styles.carouselBox, { backgroundColor }]}
-                onPress={() => setPressed((prev) => !prev)}
-                >
-                <Text style={styles.carouselText}>{title}</Text>
-                </Pressable>
+        <Pressable style={[styles.carouselBox, { backgroundColor }]}
+            onPress={() => setPressed((prev) => !prev)}
+        >
+            <Text style={styles.carouselText}>{title}</Text>
+            <Text style={styles.creatorText}>{creator}</Text>
+        </Pressable>
     )
 }
-
 
 const styles: { [key: string]: ViewStyle | TextStyle } = {
     carouselBox: {
@@ -35,6 +35,11 @@ const styles: { [key: string]: ViewStyle | TextStyle } = {
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+        textAlign: "center",
+    },
+    creatorText: {
+        color: "#fff",
+        fontSize: 12,
         textAlign: "center",
     },
 }

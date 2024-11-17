@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, ActivityIndicator } from 'react-native';
-import HomeScreen from './(mainTabs)/createTab'; // Ensure this path is correct
-import LoginScreen from './login'; // Ensure this path is correct
-import RegisterScreen from './register'; // Ensure this path is correct
+import { View, ActivityIndicator } from 'react-native'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from 'expo-router';
 
@@ -46,4 +42,4 @@ const App = () => {
 };
 
 export default App;
-  
+

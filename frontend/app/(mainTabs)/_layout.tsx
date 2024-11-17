@@ -119,7 +119,7 @@ function DrawerNavigator() {
 
 import { useEffect } from "react";
 
-export default function RootLayout() {
+export default function HomeLayout() {
   useEffect(() => {
     console.log("RootLayout loaded");
   }, []);

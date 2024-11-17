@@ -18,6 +18,21 @@ async function createSummary(summary, title, subject, userId) {
   }
 }
 
+async function getUserSummaries(userId) {
+  try {
+    const summaries = await prisma.summary.findMany({
+      where: {
+        userId: Number(userId),
+      },
+    });
+    return summaries;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 module.exports = {
   createSummary,
+  getUserSummaries,
 };

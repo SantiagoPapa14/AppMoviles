@@ -4,11 +4,13 @@ import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { Alert } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 
 import { Modal, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 
 const AccountSettings: React.FC = () => {
+  const isFocused = useIsFocused();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,21 +22,25 @@ const AccountSettings: React.FC = () => {
   >(null);
   const [tempValue, setTempValue] = useState("");
 
+  const fetchUserData = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    const response = await fetch(`${API_BASE_URL}/user`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    const data = await response.json();
+    setUsername(data.username);
+    setEmail(data.email);
+    setName(data.name);
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      const data = await response.json();
-      setUsername(data.username);
-      setEmail(data.email);
-      setName(data.name);
-    };
-    fetchUserData();
-  }, []);
+    if (isFocused) {
+      fetchUserData();
+    }
+  }, [isFocused]);
 
   const handleSave = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -177,6 +183,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 5,
+    paddingVertical: 10,
   },
   modalContainer: {
     flex: 1,

@@ -3,18 +3,18 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
-const { createSummary } = require("./lib/summaryRepository");
-const { createQuiz } = require("./lib/quizRepository");
+const { createSummary, getUserSummaries } = require("./lib/summaryRepository");
+const { createQuiz, getUserQuizzes } = require("./lib/quizRepository");
 const { updateUser } = require("./lib/userRepository");
 const e = require("express");
-const { createDeck } = require("./lib/deckRepository");
+const { createDeck, getUserDecks } = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
 
 app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:8082",
+    origin: "http://localhost:8081",
     credentials: true,
   })
 );
@@ -182,6 +182,26 @@ app.post("/deck", authLib.validateAuthorization, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json(err.message);
+  }
+});
+
+app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const userId = req.userData.userId;
+    const summaries = await getUserSummaries(userId);
+    const quizzes = await getUserQuizzes(userId);
+    const decks = await getUserDecks(userId);
+
+    res.status(200).json({
+      summaries: summaries,
+      quizzes: quizzes,
+      decks: decks,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch user content",
+      error: err.message,
+    });
   }
 });
 

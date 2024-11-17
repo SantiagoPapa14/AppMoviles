@@ -26,6 +26,24 @@ const createQuiz = async (quiz, userId) => {
   }
 };
 
+const getUserQuizzes = async (userId) => {
+  try {
+    const quizzes = await prisma.quiz.findMany({
+      where: {
+        userId: Number(userId),
+      },
+      include: {
+        questions: true,
+      },
+    });
+    return quizzes;
+  } catch (error) {
+    console.error("Error fetching quizzes:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createQuiz,
+  getUserQuizzes,
 };
