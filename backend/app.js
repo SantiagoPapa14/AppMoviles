@@ -34,12 +34,23 @@ app.post("/login", async (req, res) => {
       });
       return;
     }
-    const token = await authLib.loginUser(email, password);
 
-    res.status(200).json({
-      message: "Login successful!",
-      token: token,
-    });
+    const token = await authLib.loginUser(email, password);
+    console.log(token)
+    if (token=== false) {
+      res.status(401).json({
+        message: "Invalid credentials",
+      });
+
+    }
+    
+    else{
+      res.status(200).json({
+        message: "Login successful!",
+        token: token,
+      });
+    }
+    
   } catch (err) {
     res.status(500).json(err.message);
   }
