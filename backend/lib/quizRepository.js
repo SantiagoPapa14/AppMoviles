@@ -34,6 +34,9 @@ const getUserQuizzes = async (userId) => {
         questions: true,
       },
     });
+    quizzes.forEach((quiz) => {
+      quiz.type = "quiz";
+    });
     return quizzes;
   } catch (error) {
     console.error("Error fetching quizzes:", error);

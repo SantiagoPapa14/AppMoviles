@@ -19,7 +19,6 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const fileExtension = path.extname(file.originalname); // Extract file extension
-    // cb(null, req.userData.userId + fileExtension); // Name the file with a unique suffix
     cb(null, req.userData.userId + ".jpg");
   },
 });

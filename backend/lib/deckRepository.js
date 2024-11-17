@@ -32,7 +32,14 @@ const getUserDecks = async (userId) => {
         flashcards: true,
       },
     });
+    
+    decks.forEach((deck) => {
+      deck.type = "flashcards";
+    });
+
     return decks;
+    
+
   } catch (error) {
     console.error("Error fetching decks:", error);
     return null;

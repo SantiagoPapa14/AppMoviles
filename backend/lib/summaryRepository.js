@@ -25,6 +25,11 @@ async function getUserSummaries(userId) {
         userId: Number(userId),
       },
     });
+
+    summaries.forEach((summary) => {
+      summary.type = "summary";
+    });
+    
     return summaries;
   } catch (error) {
     console.log(error);

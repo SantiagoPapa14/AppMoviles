@@ -27,13 +27,12 @@ type RootStackParamList = {
 
 const ProfileScreen = () => {
   const isFocused = useIsFocused();
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const profile = useUserAuth();
-  const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([]);
-  const [flashcards, setFlashcards] = useState<{ id: string; title: string }[]>(
+  const [quizzes, setQuizzes] = useState<{ id: string; title: string;type:string }[]>([]);
+  const [flashcards, setFlashcards] = useState<{ id: string; title: string;type:string }[]>(
     []
   );
-  const [summaries, setSummaries] = useState<{ id: string; title: string }[]>(
+  const [summaries, setSummaries] = useState<{ id: string; title: string;type:string }[]>(
     []
   );
 
@@ -97,12 +96,9 @@ const ProfileScreen = () => {
     setLoading(true);
 
     const formData = new FormData();
-    const file = {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: `profile_picture.jpg`,
-    };
-    formData.append("profile_picture", file);
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+    formData.append("profile_picture", blob, `profile_picture.jpg`);
 
     const token = await AsyncStorage.getItem("userToken");
     try {
@@ -222,9 +218,10 @@ const ProfileScreen = () => {
                   <Card
                     key={`${quiz.id}-${index}`}
                     title={quiz.title}
-                    creator={profile.username}
+                    creator="By you"
                     color="#f9f9f9"
                     projectId={parseInt(quiz.id, 10)}
+                    type={quiz.type}
                   />
                 ))
               ) : (
@@ -243,6 +240,7 @@ const ProfileScreen = () => {
                     creator={profile.username}
                     color="#f9f9f9"
                     projectId={parseInt(flashcard.id, 10)}
+                    type="Flashcard"
                   />
                 ))
               ) : (
@@ -261,6 +259,7 @@ const ProfileScreen = () => {
                     creator={profile.username}
                     color="#f9f9f9"
                     projectId={parseInt(summary.id, 10)}
+                    type="Summary"
                   />
                 ))
               ) : (

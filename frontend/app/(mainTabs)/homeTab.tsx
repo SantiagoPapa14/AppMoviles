@@ -3,28 +3,79 @@ import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 import { PressableCustom } from '@/components/PressableCustom';
 import { Card } from '@/components/Card';
 const { width: viewportWidth } = Dimensions.get('window');
+import { useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@/constants/API-IP';
 
 
 const HomeTab = () => {
     const router = useRouter();
+    const isFocused = useIsFocused();
+
+    const [quizzes, setQuizzes] = useState<{ id: string; title: string ;type:string}[]>([]);
+    const [flashcards, setFlashcards] = useState<{ id: string; title: string;type:string }[]>(
+      []
+    );
+    const [summaries, setSummaries] = useState<{ id: string; title: string;type:string }[]>(
+      []
+    );
+    
+    
+    const combinedProjects = [...quizzes, ...flashcards, ...summaries];
+    const shuffleArray = (array: any[]) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    };
+
+    //const shuffledProjects = shuffleArray(combinedProjects);
+    const shuffledProjects = combinedProjects
+    console.log(shuffledProjects)
+
+    const fetchUserContent = async () => {
+      try {
+        const token = await AsyncStorage.getItem("userToken");
+        const response = await fetch(`${API_BASE_URL}/user-content`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
+        setFlashcards(Array.isArray(data.decks) ? data.decks : []);
+        setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
+      } catch (error) {
+        console.error("Failed to fetch user content:", error);
+      }
+    };
+
+    useEffect(() => {
+      if (isFocused) {
+        fetchUserContent();
+      }
+    }, [isFocused]);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Your projects</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {Array.from({ length: 3 }).map((_, index) => (
-            <Card
-                title={'Tarjeta ' + (index + 1)}
-                key={index}
-                color='red'
-                creator="Creator Name"
-                projectId={index + 1}
-            />
-            ))}
+        {shuffledProjects.map((project, index) => (
+          <Card
+            key={index}
+            title={project.title}
+            creator="By you"
+            projectId={parseInt(project.id, 10)}
+            type={project.type}
+          />
+        ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <View style={styles.buttonContainer}></View>
@@ -43,6 +94,7 @@ const HomeTab = () => {
                 color='red'
                 creator="Creator Name"
                 projectId={index + 1}
+                type='draft'
             />
             ))}
         </ScrollView>
@@ -63,6 +115,7 @@ const HomeTab = () => {
                 color='red'
                 creator="Creator Name"
                 projectId={index + 1}
+                type='draft'
             />
             ))}
         </ScrollView>
