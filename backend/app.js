@@ -12,6 +12,7 @@ const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
 const { createDeck, getUserDecks } = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
+const bcrypt = require("bcrypt");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -49,7 +50,8 @@ app.post("/login", async (req, res) => {
       });
       return;
     }
-
+    console.log("Email:", email);
+    console.log("Password:", password);
     const token = await authLib.loginUser(email, password);
     if (token === false) {
       res.status(401).json({
@@ -107,7 +109,7 @@ app.get("/user", authLib.validateAuthorization, (req, res) => {
 });
 
 app.patch("/user", authLib.validateAuthorization, async (req, res) => {
-  const { email, username, password, name } = req.body;
+  let { email, username, password, name, currentPassword } = req.body;
 
   if (!email && !username && !password && !name) {
     res.status(400).json({
@@ -115,24 +117,43 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     });
     return;
   }
-  const hashPassword = await hash(req.body.password, 10);
-  const user = await updateUser(
-    req.userData.userId,
-    email,
-    username,
-    hashPassword,
-    name
-  );
-  const newToken = await authLib.loginUser(user.email, req.body.password);
-  if (!user) {
-    res.status(500).json({
-      message: "User not found",
-    });
+  console.log("Email:", email);
+  console.log("Username:", username);
+  console.log("Password:", password);
+  console.log("Name:", name);
+  console.log("Current Password:", currentPassword);
+
+  if (!password) {
+    password = currentPassword;
+  }
+
+  if (req.userData.hashedPassword && await bcrypt.compare(currentPassword, req.userData.hashedPassword)) {
+    console.log(currentPassword);
+    const hashPassword = await hash(password, 10);
+    const user = await updateUser(
+      req.userData.userId,
+      email,
+      username,
+      hashPassword,
+      name
+    );
+
+    const newToken = await authLib.loginUser(user.email, password);
+
+    if (!user) {
+      res.status(500).json({
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        message: "User updated successfully!",
+        user: user,
+        newToken: newToken,
+      });
+    }
   } else {
-    res.status(200).json({
-      message: "User updated successfully!",
-      user: user,
-      newToken: newToken,
+    res.status(401).json({
+      message: "Invalid credentials, cannot update user",
     });
   }
 });

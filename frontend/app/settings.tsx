@@ -15,6 +15,7 @@ const AccountSettings: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
   const [currentField, setCurrentField] = useState<
@@ -55,6 +56,7 @@ const AccountSettings: React.FC = () => {
         email: email,
         password: password,
         name: name,
+        currentPassword: currentPassword,
       }),
     });
 
@@ -69,7 +71,8 @@ const AccountSettings: React.FC = () => {
       console.log("Account details updated:", { username, email, name });
       router.replace("/");
     } else {
-      Alert.alert("Error", "Failed to save account details.");
+      const errorData = await response.json();
+      Alert.alert("Error", errorData.message || "Failed to save account details.");
     }
   };
 
@@ -117,7 +120,7 @@ const AccountSettings: React.FC = () => {
           style={styles.inputGroup}
           onPress={() => openModal("password")}
         >
-          <Text style={styles.label}>Password:</Text>
+          <Text style={styles.label}>New password:</Text>
           <Text style={styles.input}>
             {password ? Array(password.length).fill("*").join("") : ""}
           </Text>
@@ -129,6 +132,13 @@ const AccountSettings: React.FC = () => {
           <Text style={styles.label}>Name:</Text>
           <Text style={styles.input}>{name}</Text>
         </TouchableOpacity>
+        <Text style={styles.label}>Current Password:</Text>
+        <TextInput
+          style={styles.input}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry={true}
+        />
         <PressableCustom label="Save" onPress={handleSave} />
       </View>
 
