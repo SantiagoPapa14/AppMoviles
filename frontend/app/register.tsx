@@ -55,9 +55,13 @@ export default function App() {
     }
 
     const formData = new FormData();
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
-    formData.append("profile_picture", blob, "profile_picture.jpg");
+    const file = {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: `profile_picture.jpg`,
+    };
+
+    formData.append("profile_picture", file);
 
     const token = await AsyncStorage.getItem("userToken");
     try {
@@ -78,7 +82,6 @@ export default function App() {
       Alert.alert("Error", "Failed to upload profile picture.");
     }
   };
-
   const handleRegister = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
