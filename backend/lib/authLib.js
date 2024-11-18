@@ -49,7 +49,7 @@ const registerUser = async (email, username, password, name) => {
   if (!user) {
     return false;
   }
-  delete user.hashedPassword;
+  // delete user.hashedPassword; PIERDO CONTRASEÑA EN EL TOKEN :(
   return generateToken(user);
 };
 

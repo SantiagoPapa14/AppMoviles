@@ -117,18 +117,14 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     });
     return;
   }
-  console.log("Email:", email);
-  console.log("Username:", username);
-  console.log("Password:", password);
-  console.log("Name:", name);
-  console.log("Current Password:", currentPassword);
+
 
   if (!password) {
     password = currentPassword;
   }
 
-  if (req.userData.hashedPassword && await bcrypt.compare(currentPassword, req.userData.hashedPassword)) {
-    console.log(currentPassword);
+
+  if (currentPassword && req.userData.hashedPassword && await bcrypt.compare(currentPassword, req.userData.hashedPassword)) {
     const hashPassword = await hash(password, 10);
     const user = await updateUser(
       req.userData.userId,

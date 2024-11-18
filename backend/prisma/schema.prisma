@@ -29,7 +29,7 @@ model Summary {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    Int
-  user      User     @relation(fields: [userId], references: [userId])
+  user      User     @relation(fields: [userId], references: [userId],onDelete: Cascade)
 }
 
 model Quiz {
@@ -39,13 +39,13 @@ model Quiz {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   userId    Int
-  user      User           @relation(fields: [userId], references: [userId])
+  user      User           @relation(fields: [userId], references: [userId],onDelete: Cascade)
 }
 
 model QuizQuestion {
   id       Int    @id @default(autoincrement()) // Add the id field
   quizId   Int
-  quiz     Quiz   @relation(fields: [quizId], references: [projectId])
+  quiz     Quiz   @relation(fields: [quizId], references: [projectId],onDelete: Cascade)
   question String
   answer   String
   decoy1   String 
@@ -60,7 +60,7 @@ model Deck {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   userId         Int
-  user           User             @relation(fields: [userId], references: [userId])
+  user           User             @relation(fields: [userId], references: [userId],onDelete: Cascade)
 }
 
 model Flashcard {
@@ -68,7 +68,7 @@ model Flashcard {
   front       String
   back        String
   deckId      Int       
-  deck        Deck      @relation(fields: [deckId], references: [projectId])
+  deck        Deck      @relation(fields: [deckId], references: [projectId],onDelete: Cascade)
 }
 
 
