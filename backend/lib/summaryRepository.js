@@ -37,7 +37,21 @@ async function getUserSummaries(userId) {
   }
 }
 
+async function getSummaryById(id) {
+  try {
+    const summary = await prisma.summary.findUnique({
+      where: { projectId: Number(id) },
+      include: { user: true },
+    });
+    return summary;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 module.exports = {
   createSummary,
   getUserSummaries,
+  getSummaryById,
 };

@@ -46,7 +46,21 @@ const getUserDecks = async (userId) => {
   }
 };
 
+const getFlashcardById = async (id) => {
+  try {
+    const flashcard = await prisma.flashcard.findUnique({
+      where: { id: Number(id) },
+      include: { deck: { include: { user: true } } },
+    });
+    return flashcard;
+  } catch (error) {
+    console.error("Error fetching flashcard:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createDeck,
   getUserDecks,
+  getFlashcardById,
 };

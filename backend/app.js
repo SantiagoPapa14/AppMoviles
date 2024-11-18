@@ -6,11 +6,11 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
-const { createSummary, getUserSummaries } = require("./lib/summaryRepository");
-const { createQuiz, getUserQuizzes } = require("./lib/quizRepository");
+const { createSummary, getUserSummaries, getSummaryById } = require("./lib/summaryRepository");
+const { createQuiz, getUserQuizzes, getQuizById } = require("./lib/quizRepository");
 const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
-const { createDeck, getUserDecks } = require("./lib/deckRepository");
+const { createDeck, getUserDecks, getFlashcardById } = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 
@@ -197,6 +197,20 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
+  console.log("Getting summary with id:", req.params.id);
+  try {
+    const summary = await getSummaryById(req.params.id);
+    if (!summary) {
+      res.status(404).json({ message: "Summary not found" });
+      return;
+    }
+    res.status(200).json(summary);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch summary", error: err.message });
+  }
+});
+
 app.post("/quiz", authLib.validateAuthorization, async (req, res) => {
   try {
     const { title, questions } = req.body;
@@ -213,6 +227,19 @@ app.post("/quiz", authLib.validateAuthorization, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json(err.message);
+  }
+});
+
+app.get("/quiz/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const quiz = await getQuizById(req.params.id);
+    if (!quiz) {
+      res.status(404).json({ message: "Quiz not found" });
+      return;
+    }
+    res.status(200).json(quiz);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch quiz", error: err.message });
   }
 });
 
@@ -238,6 +265,19 @@ app.post("/deck", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+app.get("/flashcard/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const flashcard = await getFlashcardById(req.params.id);
+    if (!flashcard) {
+      res.status(404).json({ message: "Flashcard not found" });
+      return;
+    }
+    res.status(200).json(flashcard);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch flashcard", error: err.message });
+  }
+});
+
 app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
   try {
     const userId = req.userData.userId;
@@ -258,8 +298,12 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+
+
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
 
 module.exports = app;

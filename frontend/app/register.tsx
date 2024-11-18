@@ -55,12 +55,9 @@ export default function App() {
     }
 
     const formData = new FormData();
-    const file = {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: `profile_picture.jpg`,
-    };
-    formData.append("profile_picture", file);
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+    formData.append("profile_picture", blob, "profile_picture.jpg");
 
     const token = await AsyncStorage.getItem("userToken");
     try {
