@@ -23,8 +23,9 @@ const CreateSummary: React.FC = () => {
       if (!profile) {
         Alert.alert("Error", "No se pudo obtener el perfil del usuario");
       } else {
-        console.log(profile);
-        await saveSummaryToAPI(summary, title, subject);
+
+        await saveSummaryToAPI(title,subject,summary);
+        console.log(title,subject,summary);
         Alert.alert("Éxito", "Resumen guardado correctamente");
         setTitle("");
         setSummary("");
@@ -107,10 +108,12 @@ const styles = StyleSheet.create({
 export default CreateSummary;
 
 async function saveSummaryToAPI(
+  title: string,
   subject: string,
   summary: string,
-  title: string
 ): Promise<void> {
+  
+  console.log(title, subject, summary);
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summaries`, {
     method: "POST",
@@ -118,7 +121,7 @@ async function saveSummaryToAPI(
       "Content-Type": "application/json",
       Authorization: "Bearer " + token,
     },
-    body: JSON.stringify({ summary, title, subject }),
+    body: JSON.stringify({ title, subject, summary}),
   });
 
   if (!response.ok) {

@@ -172,6 +172,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
   const { title, subject, summary } = req.body;
+  console.log({ title, subject, summary });
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -182,9 +183,9 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
 
   try {
     const newSummary = await createSummary(
-      summary,
       title,
       subject,
+      summary,
       req.userData.userId
     );
     res.status(200).json({
