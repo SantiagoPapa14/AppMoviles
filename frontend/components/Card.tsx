@@ -22,7 +22,7 @@ export const Card = ({
   return (
     <Link
       href={{
-        pathname: `/displayTabs/${type}/${projectId}`,
+        pathname: `/displayTabs/${type}/${projectId}` as any,
       }}
       asChild
     >

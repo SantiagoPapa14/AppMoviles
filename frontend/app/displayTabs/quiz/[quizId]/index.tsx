@@ -1,32 +1,120 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE_URL } from "@/constants/API-IP";
+import { useFocusEffect } from "@react-navigation/native";
 
 const QuizPage = () => {
-    const { quizId = '' } = useLocalSearchParams<{ quizId?: string }>();
-    const parsedQuizId = parseInt(quizId || '');
+    const { quizId = "" } = useLocalSearchParams<{ quizId?: string }>();
+    const parsedQuizId = parseInt(quizId || "");
+    const [quiz, setQuiz] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+
+    const fetchQuiz = async () => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/quiz/${parsedQuizId}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch quiz");
+            }
+            const data = await response.json();
+            setQuiz(data);
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchQuiz();
+    }, [parsedQuizId]);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchQuiz();
+        }, [parsedQuizId])
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={styles.container}>
+                <Text>Error: {error}</Text>
+            </View>
+        );
+    }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Quiz Page</Text>
-            <Text>This is a simple quiz page.</Text>
-            {<Text>Quiz ID: {parsedQuizId}</Text>}
-        </View>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+            <Text style={styles.title}>{quiz.title}</Text>
+            <Text>
+                Amount of Questions: {quiz.questions.length}
+            </Text>
+            <Text style={styles.usernameSubtitle}>Made by: {quiz.user.username}</Text>
+            <Text>{quiz.content}</Text>
+            <Button
+                onPress={() => {
+                    router.navigate(
+                        `/displayTabs/quiz/${parsedQuizId}/editQuiz`
+                    );
+                }}
+                title="Edit"
+            ></Button>
+
+            <Button
+                onPress={() => {
+                    router.navigate(
+                        `/displayTabs/quiz/${parsedQuizId}/playQuiz`
+                    );
+                }}
+                title="Play"
+            ></Button>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: "#f5f5f5",
+        marginHorizontal: 16,
+        marginVertical: 8,
+    },
+    contentContainer: {
+        justifyContent: "center",
+        alignItems: "center",
     },
     title: {
         fontSize: 24,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         marginBottom: 20,
     },
+    usernameSubtitle: {
+        fontSize: 16,
+        marginBottom: 20,
+    }
 });
 
 export default QuizPage;

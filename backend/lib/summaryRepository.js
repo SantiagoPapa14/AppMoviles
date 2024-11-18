@@ -1,17 +1,36 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function createSummary(summary, title, subject, userId) {
+async function createSummary(title, subject, summaryContent,userId) {
   try {
     const insertedSummary = await prisma.summary.create({
       data: {
         title: title,
-        content: summary,
+        content: summaryContent,
         subject: subject,
         userId: Number(userId),
       },
     });
     return insertedSummary;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+async function EditSummary(title, subject, summaryContent,projectId) {
+  try {
+    const updatedSummary = await prisma.summary.update({
+      where: {
+        projectId: Number(projectId),
+      },
+      data: {
+        title: title,
+        content: summaryContent,
+        subject: subject,
+      },
+    });
+    return updatedSummary;
   } catch (error) {
     console.log(error);
     return null;
@@ -54,4 +73,5 @@ module.exports = {
   createSummary,
   getUserSummaries,
   getSummaryById,
+  EditSummary,
 };

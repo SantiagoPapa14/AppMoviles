@@ -6,8 +6,8 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
-const { createSummary, getUserSummaries, getSummaryById } = require("./lib/summaryRepository");
-const { createQuiz, getUserQuizzes, getQuizById } = require("./lib/quizRepository");
+const { createSummary, getUserSummaries, getSummaryById,EditSummary } = require("./lib/summaryRepository");
+const { createQuiz, getUserQuizzes, getQuizById, updateQuiz } = require("./lib/quizRepository");
 const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
 const { createDeck, getUserDecks, getFlashcardById } = require("./lib/deckRepository");
@@ -170,8 +170,12 @@ app.post(
 
 app.use("/uploads", express.static("uploads"));
 
+
+// SUMMARY ENDPOINTS
+
 app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
   const { title, subject, summary } = req.body;
+  console.log({ title, subject, summary });
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -182,9 +186,9 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
 
   try {
     const newSummary = await createSummary(
-      summary,
       title,
       subject,
+      summary,
       req.userData.userId
     );
     res.status(200).json({
@@ -196,6 +200,35 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
     console.log(err.message);
   }
 });
+
+app.patch("/summary/:id", authLib.validateAuthorization, async (req, res) => {
+  const { title, subject, summary } = req.body;
+  console.log({ title, subject, summary });
+
+  if (!title || !subject || !summary) {
+    res.status(400).json({
+      message: "Please provide title, subject and summary",
+    });
+    return;
+  }
+  try {
+    const newSummary = await EditSummary(
+      title,
+      subject,
+      summary,
+      req.params.id
+    );
+
+    res.status(200).json({
+      message: "Summary updated successfully!",
+      summary: newSummary,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
+    console.log(err.message);
+  }
+});
+
 
 app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
   console.log("Getting summary with id:", req.params.id);
@@ -210,6 +243,9 @@ app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch summary", error: err.message });
   }
 });
+
+//QUIZ ENDPOINTS 
+
 
 app.post("/quiz", authLib.validateAuthorization, async (req, res) => {
   try {
@@ -242,6 +278,31 @@ app.get("/quiz/:id", authLib.validateAuthorization, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch quiz", error: err.message });
   }
 });
+
+app.patch("/editQuiz/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const { title, questions } = req.body;
+    if (!title || !questions) {
+      res.status(400).json({
+        message: "Please provide title and questions",
+      });
+      return;
+    }
+    const updatedQuiz = await updateQuiz(req.params.id, { title, questions });
+    if (!updatedQuiz) {
+      res.status(404).json({ message: "Quiz not found" });
+      return;
+    }
+    res.status(200).json({
+      message: "Quiz updated successfully!",
+      quiz: updatedQuiz,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
+
+//DECK ENDPOINTS 
 
 app.post("/deck", authLib.validateAuthorization, async (req, res) => {
   try {
@@ -297,7 +358,6 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
     });
   }
 });
-
 
 
 

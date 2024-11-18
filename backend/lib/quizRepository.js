@@ -57,8 +57,35 @@ const getQuizById = async (id) => {
   }
 };
 
+const updateQuiz = async (id, quizContent) => {
+  console.log(quizContent)
+  try {
+    const updatedQuiz = await prisma.quiz.update({
+      where: { projectId: Number(id) },
+      data: {
+        title: quizContent.title,
+        questions: {
+          deleteMany: {}, // Delete existing questions
+          create: quizContent.questions.map((q) => ({
+            question: q.question,
+            answer: q.answer,
+            decoy1: q.decoy1,
+            decoy2: q.decoy2,
+            decoy3: q.decoy3,
+          })),
+        },
+      },
+    });
+    return updatedQuiz;
+  } catch (error) {
+    console.error("Error updating quiz:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createQuiz,
   getUserQuizzes,
   getQuizById,
+  updateQuiz,
 };
