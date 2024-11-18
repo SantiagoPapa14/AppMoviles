@@ -18,6 +18,25 @@ async function createSummary(title, subject, summaryContent,userId) {
   }
 }
 
+async function EditSummary(title, subject, summaryContent,projectId) {
+  try {
+    const updatedSummary = await prisma.summary.update({
+      where: {
+        projectId: Number(projectId),
+      },
+      data: {
+        title: title,
+        content: summaryContent,
+        subject: subject,
+      },
+    });
+    return updatedSummary;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 async function getUserSummaries(userId) {
   try {
     const summaries = await prisma.summary.findMany({
@@ -54,4 +73,5 @@ module.exports = {
   createSummary,
   getUserSummaries,
   getSummaryById,
+  EditSummary,
 };

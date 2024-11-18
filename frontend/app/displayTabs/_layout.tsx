@@ -11,7 +11,11 @@ export default function CreationTabsLayout() {
         <Stack
             screenOptions={{
                 headerLeft: () => (
-                    <TouchableOpacity onPress={() => router.back()}>
+                    <TouchableOpacity onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        }
+                    }}>
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
                 ),
