@@ -101,6 +101,18 @@ const AccountSettings: React.FC = () => {
     setShowModalPassword(false);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleCurrentPasswordVisibility = () => {
+    setShowCurrentPassword(!showCurrentPassword);
+  };
+
+  const toggleModalPasswordVisibility = () => {
+    setShowModalPassword(!showModalPassword);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Account Settings</Text>
@@ -136,7 +148,7 @@ const AccountSettings: React.FC = () => {
               name={showPassword ? "eye-off" : "eye"}
               size={24}
               color="black"
-              onPress={() => setShowPassword(!showPassword)}
+              onPress={togglePasswordVisibility}
             />
           </View>
         </TouchableOpacity>
@@ -155,7 +167,13 @@ const AccountSettings: React.FC = () => {
             onChangeText={setCurrentPassword}
             secureTextEntry={!showCurrentPassword}
           />
-
+          <Ionicons
+            style={styles.eyeIcon}
+            name={showCurrentPassword ? "eye-off" : "eye"}
+            size={24}
+            color="black"
+            onPress={toggleCurrentPasswordVisibility}
+          />
         </View>
         <PressableCustom label="Save" onPress={handleSave} />
       </View>
@@ -164,15 +182,24 @@ const AccountSettings: React.FC = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.label}>Enter new {currentField}:</Text>
-            <TextInput
-              style={styles.input}
-              value={tempValue}
-              onChangeText={setTempValue}
-              secureTextEntry={currentField === "password"}
-              keyboardType={
-                currentField === "email" ? "email-address" : "default"
-              }
-            />
+
+            {currentField === "password" && (
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  value={tempValue}
+                  onChangeText={setTempValue}
+                  secureTextEntry={!showModalPassword}
+                />
+                <Ionicons
+                  style={styles.eyeIcon}
+                  name={showModalPassword ? "eye-off" : "eye"}
+                  size={24}
+                  color="black"
+                  onPress={toggleModalPasswordVisibility}
+                />
+              </View>
+            )}
             <Button title="Save" onPress={saveModalValue} />
             <Button title="Cancel" onPress={() => setModalVisible(false)} />
           </View>
