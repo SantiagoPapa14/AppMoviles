@@ -144,7 +144,7 @@ const AccountSettings: React.FC = () => {
               editable={false}
             />
             <Ionicons
-              style={styles.eyeIcon}
+              style={styles.eyeIconInside}
               name={showPassword ? "eye-off" : "eye"}
               size={24}
               color="black"
@@ -168,7 +168,7 @@ const AccountSettings: React.FC = () => {
             secureTextEntry={!showCurrentPassword}
           />
           <Ionicons
-            style={styles.eyeIcon}
+            style={styles.eyeIconInside}
             name={showCurrentPassword ? "eye-off" : "eye"}
             size={24}
             color="black"
@@ -182,17 +182,19 @@ const AccountSettings: React.FC = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.label}>Enter new {currentField}:</Text>
-
+            <TextInput
+              style={styles.input}
+              value={tempValue}
+              onChangeText={setTempValue}
+              secureTextEntry={currentField === "password" && !showModalPassword}
+              keyboardType={
+                currentField === "email" ? "email-address" : "default"
+              }
+            />
             {currentField === "password" && (
               <View style={styles.passwordContainer}>
-                <TextInput
-                  style={[styles.input, styles.passwordInput]}
-                  value={tempValue}
-                  onChangeText={setTempValue}
-                  secureTextEntry={!showModalPassword}
-                />
                 <Ionicons
-                  style={styles.eyeIcon}
+                  style={styles.eyeIconInside}
                   name={showModalPassword ? "eye-off" : "eye"}
                   size={24}
                   color="black"
@@ -264,5 +266,10 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 10,
+  },
+  eyeIconInside: {
+    position: "absolute",
+    right: 10,
+    top: 10,
   },
 });
