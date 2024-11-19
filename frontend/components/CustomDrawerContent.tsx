@@ -64,6 +64,7 @@ export default function CustomDrawerContent(props: any) {
           // Add your logout logic here
           console.log("User logged out");
           AsyncStorage.removeItem("userId");
+          AsyncStorage.removeItem("recentSearches")
           AsyncStorage.removeItem("userToken").then(() => {
             router.replace("/");
           });

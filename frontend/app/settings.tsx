@@ -8,6 +8,7 @@ import { useIsFocused } from "@react-navigation/native";
 
 import { Modal, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const AccountSettings: React.FC = () => {
   const isFocused = useIsFocused();
@@ -22,6 +23,8 @@ const AccountSettings: React.FC = () => {
     "username" | "email" | "password" | "name" | null
   >(null);
   const [tempValue, setTempValue] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   const fetchUserData = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -119,9 +122,17 @@ const AccountSettings: React.FC = () => {
           onPress={() => openModal("password")}
         >
           <Text style={styles.label}>New password:</Text>
-          <Text style={styles.input}>
-            {password ? Array(password.length).fill("*").join("") : ""}
-          </Text>
+          <View style={styles.passwordContainer}>
+            <Text style={styles.input}>
+              {password ? Array(password.length).fill("*").join("") : ""}
+            </Text>
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color="black"
+              onPress={() => setShowPassword(!showPassword)}
+            />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.inputGroup}
@@ -131,12 +142,20 @@ const AccountSettings: React.FC = () => {
           <Text style={styles.input}>{name}</Text>
         </TouchableOpacity>
         <Text style={styles.label}>Current Password:</Text>
-        <TextInput
-          style={styles.input}
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          secureTextEntry={true}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            secureTextEntry={!showCurrentPassword}
+          />
+          <Ionicons
+            name={showCurrentPassword ? "eye-off" : "eye"}
+            size={24}
+            color="black"
+            onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+          />
+        </View>
         <PressableCustom label="Save" onPress={handleSave} />
       </View>
 
@@ -204,5 +223,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 10,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
