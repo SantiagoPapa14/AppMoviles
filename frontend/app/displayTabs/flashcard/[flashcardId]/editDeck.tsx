@@ -51,7 +51,7 @@ const FlashcardAddComponent = ({
     );
 };
 
-const EditFlashcard = () => {
+const editDeck = () => {
     const { flashcardId = "" } = useLocalSearchParams<{ flashcardId?: string }>();
     const parsedFlashcardId = parseInt(flashcardId || "");
     const [deck, setDeck] = useState<Deck>({ title: "", flashcards: [] });
@@ -90,7 +90,7 @@ const EditFlashcard = () => {
     const handleSave = async () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
-            const response = await fetch(`${API_BASE_URL}/deck/${parsedFlashcardId}`, {
+            const response = await fetch(`${API_BASE_URL}/editDeck/${parsedFlashcardId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -198,4 +198,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EditFlashcard;
+export default editDeck;

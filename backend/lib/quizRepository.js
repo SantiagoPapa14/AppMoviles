@@ -58,7 +58,6 @@ const getQuizById = async (id) => {
 };
 
 const updateQuiz = async (id, quizContent) => {
-  console.log(quizContent)
   try {
     const updatedQuiz = await prisma.quiz.update({
       where: { projectId: Number(id) },

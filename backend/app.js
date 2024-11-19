@@ -10,7 +10,7 @@ const { createSummary, getUserSummaries, getSummaryById,EditSummary } = require(
 const { createQuiz, getUserQuizzes, getQuizById, updateQuiz } = require("./lib/quizRepository");
 const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
-const { createDeck, getUserDecks, getDeckById, getFlashcardById } = require("./lib/deckRepository");
+const { createDeck, getUserDecks, getDeckById, getFlashcardById, updateDeck } = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 
@@ -175,7 +175,6 @@ app.use("/uploads", express.static("uploads"));
 
 app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
   const { title, subject, summary } = req.body;
-  console.log({ title, subject, summary });
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -203,7 +202,6 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
 
 app.patch("/summary/:id", authLib.validateAuthorization, async (req, res) => {
   const { title, subject, summary } = req.body;
-  console.log({ title, subject, summary });
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -351,7 +349,29 @@ app.get("/flashcard/:id", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+app.patch("/editDeck/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const { title, flashcards } = req.body;
+    if (!title || !flashcards) {
+      res.status(400).json({
+        message: "Please provide title and flashcards",
+      });
+      return;
+    }
 
+    const updatedDeck = await updateDeck(req.params.id, { title, flashcards });
+    if (!updatedDeck) {
+      res.status(404).json({ message: "Deck not found" });
+      return;
+    }
+    res.status(200).json({
+      message: "Deck updated successfully!",
+      deck: updatedDeck,
+    });
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
 
 
 app.get("/user-content", authLib.validateAuthorization, async (req, res) => {

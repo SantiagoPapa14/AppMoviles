@@ -72,9 +72,32 @@ const getDeckById = async (id) => {
   }
 };
 
+const updateDeck = async (id, deckContent) => {
+  try {
+    const updatedDeck = await prisma.deck.update({
+      where: { projectId: Number(id) },
+      data: {
+        title: deckContent.title,
+        flashcards: {
+          deleteMany: {}, // Delete existing flashcards
+          create: deckContent.flashcards.map((f) => ({
+            front: f.front,
+            back: f.back,
+          })),
+        },
+      },
+    });
+    return updatedDeck;
+  } catch (error) {
+    console.error("Error updating deck:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createDeck,
   getUserDecks,
   getDeckById,
   getFlashcardById,
+  updateDeck,
 };
