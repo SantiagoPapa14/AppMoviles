@@ -30,6 +30,7 @@ const getUserDecks = async (userId) => {
       },
       include: {
         flashcards: true,
+        user: true,
       },
     });
     

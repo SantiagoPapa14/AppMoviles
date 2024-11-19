@@ -32,6 +32,7 @@ const getUserQuizzes = async (userId) => {
       },
       include: {
         questions: true,
+        user: true,
       },
     });
     quizzes.forEach((quiz) => {

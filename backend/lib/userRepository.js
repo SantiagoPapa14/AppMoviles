@@ -32,6 +32,20 @@ async function getUserByEmail(email) {
   }
 }
 
+async function getProfileById(userId) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 async function updateUser(userId, email, username, password, name) {
   try {
     const user = await prisma.user.update({
@@ -56,4 +70,5 @@ module.exports = {
   createUser,
   getUserByEmail,
   updateUser,
+  getProfileById
 };

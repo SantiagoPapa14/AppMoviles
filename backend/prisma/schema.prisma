@@ -11,64 +11,76 @@ datasource db {
 }
 
 model User {
-  userId         Int         @id @default(autoincrement())
-  email          String      @unique
+  userId         Int       @id @default(autoincrement())
+  email          String    @unique
   username       String
   hashedPassword String
-  name           String      @default("")
+  name           String    @default("")
   summaries      Summary[]
   quizzes        Quiz[]
   decks          Deck[]
+  followers      Follows[] @relation("following")
+  following      Follows[] @relation("follower")
+}
+
+model Follows {
+  follower    User @relation("follower", fields: [followerId], references: [userId])
+  followerId  Int
+  following   User @relation("following", fields: [followingId], references: [userId])
+  followingId Int
+
+  @@id([followerId, followingId])
 }
 
 model Summary {
-  projectId        Int      @id @default(autoincrement())
+  projectId Int      @id @default(autoincrement())
   title     String
   subject   String
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    Int
-  user      User     @relation(fields: [userId], references: [userId],onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  views     Int      @default(0)
 }
 
 model Quiz {
-  projectId    Int            @id @default(autoincrement())
+  projectId Int            @id @default(autoincrement())
   title     String
   questions QuizQuestion[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   userId    Int
-  user      User           @relation(fields: [userId], references: [userId],onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  views     Int            @default(0)
 }
 
 model QuizQuestion {
   id       Int    @id @default(autoincrement()) // Add the id field
   quizId   Int
-  quiz     Quiz   @relation(fields: [quizId], references: [projectId],onDelete: Cascade)
+  quiz     Quiz   @relation(fields: [quizId], references: [projectId], onDelete: Cascade)
   question String
   answer   String
-  decoy1   String 
-  decoy2   String 
-  decoy3   String 
+  decoy1   String
+  decoy2   String
+  decoy3   String
 }
 
 model Deck {
-  projectId         Int              @id @default(autoincrement())
-  title          String
-  flashcards     Flashcard[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  userId         Int
-  user           User             @relation(fields: [userId], references: [userId],onDelete: Cascade)
+  projectId  Int         @id @default(autoincrement())
+  title      String
+  flashcards Flashcard[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  userId     Int
+  user       User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  views      Int         @default(0)
 }
 
 model Flashcard {
-  id          Int       @id @default(autoincrement()) // Add the id field
-  front       String
-  back        String
-  deckId      Int       
-  deck        Deck      @relation(fields: [deckId], references: [projectId],onDelete: Cascade)
+  id     Int    @id @default(autoincrement()) // Add the id field
+  front  String
+  back   String
+  deckId Int
+  deck   Deck   @relation(fields: [deckId], references: [projectId], onDelete: Cascade)
 }
-
-

@@ -14,6 +14,7 @@ export default function CreationTabsLayout() {
                     <TouchableOpacity onPress={() => {
                         if (router.canGoBack()) {
                             router.back();
+
                         }
                     }}>
                         <Ionicons name="arrow-back" size={24} color="black" />

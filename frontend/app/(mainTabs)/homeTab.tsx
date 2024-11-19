@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { TextInput } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
@@ -21,7 +21,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 const HomeTab = () => {
   const router = useRouter();
   const isFocused = useIsFocused();
-//USER SPECIFIC 
+//USER SPECIFIC PROJECTS
   const [quizzes, setQuizzes] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
@@ -32,7 +32,7 @@ const HomeTab = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-//GLOBAL
+//GLOBAL PROJECTS
   const [allQuizzes, setAllQuizzes] = useState<
   { projectId: string; title: string; type: string }[]
 >([]);
@@ -43,6 +43,18 @@ const [allSummaries, setAllSummaries] = useState<
   { projectId: string; title: string; type: string }[]
 >([]);
 
+//Following PROJECTS
+const [followingQuizzes, setFollowingQuizzes] = useState<
+{ projectId: string; title: string; type: string }[]
+>([]);
+const [followingFlashcards, setFollowingFlashcards] = useState<
+{ projectId: string; title: string; type: string }[]
+>([]);
+const [followingSummaries, setFollowingSummaries] = useState<
+{ projectId: string; title: string; type: string }[]
+>([]);
+
+
   
   const combinedProjects = [...quizzes, ...flashcards, ...summaries];
   //const shuffledProjects = shuffleArray(combinedProjects);
@@ -52,6 +64,10 @@ const [allSummaries, setAllSummaries] = useState<
   const combinedAllProjects = [ ...allQuizzes, ...allFlashcards, ...allSummaries];
   //const shuffledAllProjects = shuffleArray(combinedAllProjects);
   const shuffledAllProjects = combinedAllProjects
+
+  const combinedFollowingProjects = [ ...followingQuizzes, ...followingFlashcards, ...followingSummaries];
+  //const shuffledAllProjects = shuffleArray(combinedAllProjects);
+  const shuffledFollowingProjects = combinedFollowingProjects
 
   const fetchUserContent = async () => {
     try {
@@ -85,9 +101,28 @@ const [allSummaries, setAllSummaries] = useState<
       setAllFlashcards(Array.isArray(data.decks) ? data.decks : []);
       setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
 
-      console.log(allQuizzes, allFlashcards, allSummaries);
     } catch (error) {
       console.error("Failed to fetch all projects:", error);
+    }
+  };
+
+
+  const fetchFollowingProjects = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await fetch(`${API_BASE_URL}/following-projects`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const dataFollowers = await response.json();
+      setFollowingQuizzes(Array.isArray(dataFollowers.quizzes) ? dataFollowers.quizzes : []);
+      setFollowingFlashcards(Array.isArray(dataFollowers.decks) ? dataFollowers.decks : []);
+      setFollowingSummaries(Array.isArray(dataFollowers.summaries) ? dataFollowers.summaries : []);
+      
+    } catch (error) {
+      console.error("Failed to fetch following' projects:", error);
     }
   };
 
@@ -95,9 +130,22 @@ const [allSummaries, setAllSummaries] = useState<
     if (isFocused) {
       fetchUserContent();
       fetchAllProjects();
+      fetchFollowingProjects();
     }
   }, [isFocused]);
 
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        await fetchUserContent();
+        await fetchAllProjects();
+        await fetchFollowingProjects();
+      };
+
+      fetchData();
+    }, [])
+);
 
   return (
     <ScrollView style={styles.container}>
@@ -144,16 +192,15 @@ const [allSummaries, setAllSummaries] = useState<
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Followed</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {Array.from({ length: 3 }).map((_, index) => (
+            {shuffledFollowingProjects.map((project, index) => (
             <Card
-              title={"Tarjeta " + (index + 1)}
               key={index}
-              color="red"
-              creator="Creator Name"
-              projectId={index + 1}
-              type="draft"
+              title={project.title}
+              creator={project.user.username}
+              projectId={parseInt(project.projectId)}
+              type={project.type}
             />
-          ))}
+            ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <PressableCustom

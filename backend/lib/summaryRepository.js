@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function createSummary(title, subject, summaryContent,userId) {
+async function createSummary(title, subject, summaryContent, userId) {
   try {
     const insertedSummary = await prisma.summary.create({
       data: {
@@ -18,7 +18,7 @@ async function createSummary(title, subject, summaryContent,userId) {
   }
 }
 
-async function EditSummary(title, subject, summaryContent,projectId) {
+async function EditSummary(title, subject, summaryContent, projectId) {
   try {
     const updatedSummary = await prisma.summary.update({
       where: {
@@ -42,13 +42,13 @@ async function getUserSummaries(userId) {
     const summaries = await prisma.summary.findMany({
       where: {
         userId: Number(userId),
-      },
+      }, include: { user: true }
     });
 
     summaries.forEach((summary) => {
       summary.type = "summary";
     });
-    
+
     return summaries;
   } catch (error) {
     console.log(error);
@@ -61,7 +61,7 @@ async function getAllSummaries() {
     const summaries = await prisma.summary.findMany({
       include: { user: true },
     });
-    
+
     summaries.forEach((summary) => {
       summary.type = "summary";
     });

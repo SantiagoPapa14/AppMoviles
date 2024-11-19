@@ -87,6 +87,13 @@ const QuizPage = () => {
 
             <Button
                 onPress={() => {
+                    router.navigate(`/userProfile/${quiz.user.userId}`);
+                }}
+                title="View Profile"
+            />
+
+            <Button
+                onPress={() => {
                     router.navigate(
                         `/displayTabs/quiz/${parsedQuizId}/playQuiz`
                     );

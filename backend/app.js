@@ -8,9 +8,10 @@ const port = 3000;
 const authLib = require("./lib/authLib");
 const { createSummary, getUserSummaries, getSummaryById,EditSummary,getAllSummaries} = require("./lib/summaryRepository");
 const { createQuiz, getUserQuizzes, getQuizById, updateQuiz,getAllQuizzes } = require("./lib/quizRepository");
-const { updateUser, updatePicture } = require("./lib/userRepository");
-const e = require("express");
+const { updateUser, updatePicture,getProfileById } = require("./lib/userRepository");
+const {getFollowData,generateSubscription,deleteSubscription,getFollowingIds} = require("./lib/followerRepository");
 const { createDeck, getUserDecks, getDeckById, getFlashcardById, updateDeck,getAllDecks} = require("./lib/deckRepository");
+const e = require("express");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 
@@ -393,6 +394,31 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+app.get("/user-content/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const summaries = await getUserSummaries(userId);
+    const quizzes = await getUserQuizzes(userId);
+    const decks = await getUserDecks(userId);
+    const profile = await getProfileById(userId);
+    const followData = await getFollowData(req.userData.userId,userId);
+
+    res.status(200).json({
+      summaries: summaries,
+      quizzes: quizzes,
+      decks: decks,
+      profile: profile,
+      followData: followData,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch user content",
+      error: err.message,
+    });
+  }
+});
+
+
 app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
   try {
     const allSummaries = await getAllSummaries();
@@ -412,6 +438,84 @@ app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
+app.get("/following-projects", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const userId = req.userData.userId;
+    const followingIds = await getFollowingIds(userId);
+
+    const summaries = [];
+    const quizzes = [];
+    const decks = [];
+
+    for (const id of followingIds) {
+      const userSummaries = await getUserSummaries(id);
+      const userQuizzes = await getUserQuizzes(id);
+      const userDecks = await getUserDecks(id);
+
+      summaries.push(...userSummaries);
+      quizzes.push(...userQuizzes);
+      decks.push(...userDecks);
+    }
+    
+    res.status(200).json({
+      summaries: summaries,
+      quizzes: quizzes,
+      decks: decks,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch following projects",
+      error: err.message,
+    });
+  }
+});
+
+//SUSCRIPTIONS ENDPOINTS
+
+app.post("/subscribe/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const userId = req.userData.userId;
+    const followingId = parseInt(req.params.id, 10);
+
+    if (userId === followingId) {
+      res.status(400).json({ message: "You cannot subscribe to yourself" });
+      return;
+    }
+
+    const followData = await generateSubscription(userId, followingId);
+
+    res.status(200).json({
+      message: "Subscribed successfully!",
+      followData: followData,
+    });
+  } catch (err) {
+    console.error("Error subscribing to user:", err);
+    res.status(500).json({ message: "Failed to subscribe to user", error: err.message });
+  }
+});
+
+
+app.delete("/unsubscribe/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const userId = req.userData.userId;
+    const followingId = parseInt(req.params.id, 10);
+
+    if (userId === followingId) {
+      res.status(400).json({ message: "You cannot subscribe to yourself" });
+      return;
+    }
+
+    const followData = await deleteSubscription(userId, followingId);
+
+    res.status(200).json({
+      message: "Subscribed successfully!",
+      followData: followData,
+    });
+  } catch (err) {
+    console.error("Error subscribing to user:", err);
+    res.status(500).json({ message: "Failed to subscribe to user", error: err.message });
+  }
+});
 
 
 app.listen(port, () => {
