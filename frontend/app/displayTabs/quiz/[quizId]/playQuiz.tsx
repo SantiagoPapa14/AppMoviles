@@ -51,6 +51,13 @@ const PlayQuiz = () => {
             fetchQuiz();
         }, [parsedQuizId])
     );
+
+    useEffect(() => {
+        const saveScore = async () => {
+            await AsyncStorage.setItem("quizScore", cont.toString());
+        };
+        saveScore();
+    }, [cont]);
     
     const increase = () => {
         setCont((prev) => {
@@ -67,8 +74,6 @@ const PlayQuiz = () => {
             setGameFinished(true);
             Alert.alert("Quiz Completed", `Your score is ${cont}`);
             console.log("Quiz Completed", `Your score is ${cont}`);
-            console.log(answersCorrect);
-            await AsyncStorage.setItem("quizScore", cont.toString());
             setTimeout(() => {
                 router.replace(`/displayTabs/quiz/${parsedQuizId}/scorePage`);
             }, 1000); 
