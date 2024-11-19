@@ -71,7 +71,6 @@ const PlayQuiz = () => {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {
             setGameFinished(true);
-            Alert.alert("Quiz Completed", `Your score is ${cont}`);
             console.log("Quiz Completed", `Your score is ${cont}`);
             setTimeout(() => {
                 router.replace(`/displayTabs/quiz/${parsedQuizId}/scorePage`);

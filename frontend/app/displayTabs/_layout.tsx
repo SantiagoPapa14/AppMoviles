@@ -19,9 +19,20 @@ export default function CreationTabsLayout() {
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
                 ),
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                    fontFamily: 'Mondapick',
+                },
             }}
         >
-            
+            <Stack.Screen name="flashcard/[flashcardId]/index" options={{ title: 'Flashcard' }} />
+            <Stack.Screen name="flashcard/[flashcardId]/editFlashcard" options={{ title: 'Edit Flashcard' }} />
+            <Stack.Screen name="quiz/[quizId]/index" options={{ title: 'Quiz' }} />
+            <Stack.Screen name="quiz/[quizId]/editQuiz" options={{ title: 'Edit Quiz' }} />
+            <Stack.Screen name="quiz/[quizId]/playQuiz" options={{ title: 'Play Quiz' }} />
+            <Stack.Screen name="quiz/[quizId]/scorePage" options={{ title: 'Quiz Score' }} />
+            <Stack.Screen name="summary/[summaryId]/index" options={{ title: 'Summary' }} />
+            <Stack.Screen name="summary/[summaryId]/editSummary" options={{ title: 'Edit Summary' }} />
         </Stack>
     );
 }

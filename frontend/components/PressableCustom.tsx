@@ -14,7 +14,8 @@ export function PressableCustom({ label, onPress }: PressableCustomProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
   const changeState = () => {
-    changePressed(prevState => !prevState);
+    if (pressed) return;
+    changePressed(true);
     setTimeout(() => {
       changePressed(false);
     }, 150); // Reset state after animation duration
@@ -35,7 +36,7 @@ export function PressableCustom({ label, onPress }: PressableCustomProps) {
   }, [pressed]);
 
   return (
-    <Pressable onPress={changeState}>
+    <Pressable onPress={changeState} disabled={pressed}>
       <Animated.View style={[styles.pressableStyle, { backgroundColor: fadeAnim.interpolate({
         inputRange: [0, 1],
         outputRange: ['#D9D9D9', '#8D602D']

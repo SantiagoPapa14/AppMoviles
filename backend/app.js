@@ -231,7 +231,6 @@ app.patch("/summary/:id", authLib.validateAuthorization, async (req, res) => {
 
 
 app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
-  console.log("Getting summary with id:", req.params.id);
   try {
     const summary = await getSummaryById(req.params.id);
     if (!summary) {

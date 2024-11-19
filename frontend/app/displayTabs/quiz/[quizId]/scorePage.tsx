@@ -13,6 +13,7 @@ const ScorePage = () => {
         const getScore = async () => {
             try {
                 const storedScore = await AsyncStorage.getItem(`quizScore`);
+                await AsyncStorage.removeItem(`quizScore`);
                 if (storedScore !== null) {
                     setScore(JSON.parse(storedScore));
                 }
