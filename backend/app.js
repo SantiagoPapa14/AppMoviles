@@ -10,7 +10,7 @@ const { createSummary, getUserSummaries, getSummaryById,EditSummary } = require(
 const { createQuiz, getUserQuizzes, getQuizById, updateQuiz } = require("./lib/quizRepository");
 const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
-const { createDeck, getUserDecks, getFlashcardById } = require("./lib/deckRepository");
+const { createDeck, getUserDecks, getDeckById, getFlashcardById } = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 
@@ -323,6 +323,19 @@ app.post("/deck", authLib.validateAuthorization, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json(err.message);
+  }
+});
+
+app.get("/deck/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const deck = await getDeckById(req.params.id);
+    if (!deck) {
+      res.status(404).json({ message: "Deck not found" });
+      return;
+    }
+    res.status(200).json(deck);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch deck", error: err.message });
   }
 });
 
