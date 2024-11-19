@@ -25,6 +25,7 @@ const AccountSettings: React.FC = () => {
   const [tempValue, setTempValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showModalPassword, setShowModalPassword] = useState(false);
 
   const fetchUserData = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -97,6 +98,7 @@ const AccountSettings: React.FC = () => {
     if (currentField === "password") setPassword(tempValue);
     if (currentField === "name") setName(tempValue);
     setModalVisible(false);
+    setShowModalPassword(false);
   };
 
   return (
@@ -123,10 +125,14 @@ const AccountSettings: React.FC = () => {
         >
           <Text style={styles.label}>New password:</Text>
           <View style={styles.passwordContainer}>
-            <Text style={styles.input}>
-              {password ? Array(password.length).fill("*").join("") : ""}
-            </Text>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              value={password}
+              secureTextEntry={!showPassword}
+              editable={false}
+            />
             <Ionicons
+              style={styles.eyeIcon}
               name={showPassword ? "eye-off" : "eye"}
               size={24}
               color="black"
@@ -144,17 +150,12 @@ const AccountSettings: React.FC = () => {
         <Text style={styles.label}>Current Password:</Text>
         <View style={styles.passwordContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.passwordInput]}
             value={currentPassword}
             onChangeText={setCurrentPassword}
             secureTextEntry={!showCurrentPassword}
           />
-          <Ionicons
-            name={showCurrentPassword ? "eye-off" : "eye"}
-            size={24}
-            color="black"
-            onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-          />
+
         </View>
         <PressableCustom label="Save" onPress={handleSave} />
       </View>
@@ -227,5 +228,14 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
+    position: "relative",
+  },
+  passwordInput: {
+    flex: 1,
+
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
   },
 });
