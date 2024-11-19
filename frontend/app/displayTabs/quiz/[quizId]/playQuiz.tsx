@@ -67,7 +67,6 @@ const PlayQuiz = () => {
     };
 
     const handleSkip = async () => {
-        console.log("Pressed handleSkip");
         if (quiz && currentQuestionIndex < quiz.questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {

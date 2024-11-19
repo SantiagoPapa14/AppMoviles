@@ -106,7 +106,6 @@ const handleSave = async (quiz: Quiz) => {
     });
 
     const data = await response.json();
-    console.log("Quiz saved successfully:", data);
     if (!response.ok) {
       throw new Error("Failed to save the quiz");
     }

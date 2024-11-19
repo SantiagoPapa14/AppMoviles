@@ -64,11 +64,9 @@ const AccountSettings: React.FC = () => {
       const data = await response.json();
       if (data.newToken) {
         await AsyncStorage.setItem("userToken", data.newToken);
-        console.log("New token saved:", data.newToken);
       }
       console.log(data.newToken);
       Alert.alert("Success", "Account details saved successfully!");
-      console.log("Account details updated:", { username, email, name });
       router.replace("/");
     } else {
       const errorData = await response.json();

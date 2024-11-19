@@ -95,7 +95,6 @@ import {
   };
   
   const handleSave = async (quiz: Quiz, parsedQuizId: number) => {
-    console.log()
     try {
       const token = await AsyncStorage.getItem("userToken");
       const response = await fetch(`${API_BASE_URL}/editQuiz/${parsedQuizId}`, {
@@ -112,7 +111,6 @@ import {
       if (!response.ok) {
         throw new Error("Failed to save the quiz");
       }
-      console.log("Quiz saved successfully:", data);
     } catch (error) {
       console.error("Failed to save the quiz:", error);
       Alert.alert("Error", "Failed to save the quiz.");

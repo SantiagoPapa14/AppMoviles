@@ -12,7 +12,6 @@ const DeckPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    console.log(parsedFlashcardId);
     const fetchDeck = async () => {
         try {
             const response = await fetch(
@@ -65,7 +64,6 @@ const DeckPage = () => {
             </View>
         );
     }
-console.log(deck);
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Text style={styles.title}>{deck.title}</Text>

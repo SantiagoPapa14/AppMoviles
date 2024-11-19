@@ -64,7 +64,6 @@ const handleSave = async () => {
     }
     try {
         await saveEditedSummaryToAPI(title, subject, summaryContent, parsedSummaryId);
-        console.log(title, subject, summaryContent);
         Alert.alert("Éxito", "Resumen guardado correctamente", [
             {
                 text: "OK",
@@ -151,7 +150,6 @@ async function saveEditedSummaryToAPI(
   summaryId: number
 ): Promise<void> {
   
-  console.log(title, subject, summary);
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summary/${summaryId}`, {
     method: "PATCH",

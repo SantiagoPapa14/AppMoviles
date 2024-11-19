@@ -121,7 +121,6 @@ import { useEffect } from "react";
 
 export default function HomeLayout() {
   useEffect(() => {
-    console.log("RootLayout loaded");
   }, []);
 
   return (

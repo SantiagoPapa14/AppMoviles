@@ -25,7 +25,6 @@ const CreateSummary: React.FC = () => {
       } else {
 
         await saveSummaryToAPI(title,subject,summary);
-        console.log(title,subject,summary);
         Alert.alert("Éxito", "Resumen guardado correctamente");
         setTitle("");
         setSummary("");
@@ -113,7 +112,6 @@ async function saveSummaryToAPI(
   summary: string,
 ): Promise<void> {
   
-  console.log(title, subject, summary);
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summaries`, {
     method: "POST",

@@ -43,7 +43,6 @@ const HomeTab = () => {
 
   //const shuffledProjects = shuffleArray(combinedProjects);
   const shuffledProjects = combinedProjects;
-  console.log(shuffledProjects);
 
   const fetchUserContent = async () => {
     try {
