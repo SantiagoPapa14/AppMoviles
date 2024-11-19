@@ -44,6 +44,25 @@ const getUserQuizzes = async (userId) => {
   }
 };
 
+const getAllQuizzes = async() => {
+  try {
+    const quizzes = await prisma.quiz.findMany({
+      include: {
+        user: true,
+        questions: true,
+      },
+    });
+    quizzes.forEach((quiz) => {
+      quiz.type = "quiz";
+    });
+    return quizzes;
+    
+  } catch (error) {
+    console.error("Error fetching quizzes:", error);
+    return null;
+  }
+};
+
 const getQuizById = async (id) => {
   try {
     const quiz = await prisma.quiz.findUnique({
@@ -87,4 +106,5 @@ module.exports = {
   getUserQuizzes,
   getQuizById,
   updateQuiz,
+  getAllQuizzes
 };

@@ -56,6 +56,23 @@ async function getUserSummaries(userId) {
   }
 }
 
+async function getAllSummaries() {
+  try {
+    const summaries = await prisma.summary.findMany({
+      include: { user: true },
+    });
+    
+    summaries.forEach((summary) => {
+      summary.type = "summary";
+    });
+
+    return summaries;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 async function getSummaryById(id) {
   try {
     const summary = await prisma.summary.findUnique({
@@ -74,4 +91,5 @@ module.exports = {
   getUserSummaries,
   getSummaryById,
   EditSummary,
+  getAllSummaries
 };

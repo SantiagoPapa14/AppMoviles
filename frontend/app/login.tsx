@@ -26,10 +26,13 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         await AsyncStorage.setItem("userToken", data.token);
+        await AsyncStorage.setItem("userId", String(data.userId));
         router.replace("./createTab");
       } else {
         Alert.alert("Error", "Login failed.");
       }
+
+      
     }
   };
 

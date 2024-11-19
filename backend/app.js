@@ -6,11 +6,11 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
-const { createSummary, getUserSummaries, getSummaryById,EditSummary } = require("./lib/summaryRepository");
-const { createQuiz, getUserQuizzes, getQuizById, updateQuiz } = require("./lib/quizRepository");
+const { createSummary, getUserSummaries, getSummaryById,EditSummary,getAllSummaries} = require("./lib/summaryRepository");
+const { createQuiz, getUserQuizzes, getQuizById, updateQuiz,getAllQuizzes } = require("./lib/quizRepository");
 const { updateUser, updatePicture } = require("./lib/userRepository");
 const e = require("express");
-const { createDeck, getUserDecks, getDeckById, getFlashcardById, updateDeck } = require("./lib/deckRepository");
+const { createDeck, getUserDecks, getDeckById, getFlashcardById, updateDeck,getAllDecks} = require("./lib/deckRepository");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 
@@ -52,7 +52,8 @@ app.post("/login", async (req, res) => {
     }
     console.log("Email:", email);
     console.log("Password:", password);
-    const token = await authLib.loginUser(email, password);
+    const [ token, userId ] = await authLib.loginUser(email, password);
+
     if (token === false) {
       res.status(401).json({
         message: "Invalid credentials",
@@ -61,6 +62,7 @@ app.post("/login", async (req, res) => {
       res.status(200).json({
         message: "Login successful!",
         token: token,
+        userId : userId
       });
     }
   } catch (err) {
@@ -118,11 +120,9 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     return;
   }
 
-
   if (!password) {
     password = currentPassword;
   }
-
 
   if (currentPassword && req.userData.hashedPassword && await bcrypt.compare(currentPassword, req.userData.hashedPassword)) {
     const hashPassword = await hash(password, 10);
@@ -134,7 +134,7 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
       name
     );
 
-    const newToken = await authLib.loginUser(user.email, password);
+    const [ newToken, userId ] = await authLib.loginUser(user.email, password);
 
     if (!user) {
       res.status(500).json({
@@ -373,7 +373,6 @@ app.patch("/editDeck/:id", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
-
 app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
   try {
     const userId = req.userData.userId;
@@ -385,6 +384,25 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
       summaries: summaries,
       quizzes: quizzes,
       decks: decks,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch user content",
+      error: err.message,
+    });
+  }
+});
+
+app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const allSummaries = await getAllSummaries();
+    const allQuizzes = await getAllQuizzes();
+    const allDecks = await getAllDecks();
+    
+    res.status(200).json({
+      summaries: allSummaries,
+      quizzes: allQuizzes,
+      decks: allDecks,
     });
   } catch (err) {
     res.status(500).json({

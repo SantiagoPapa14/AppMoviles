@@ -63,6 +63,7 @@ export default function CustomDrawerContent(props: any) {
         onPress={() => {
           // Add your logout logic here
           console.log("User logged out");
+          AsyncStorage.removeItem("userId");
           AsyncStorage.removeItem("userToken").then(() => {
             router.replace("/");
           });

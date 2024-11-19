@@ -12,6 +12,8 @@ const DeckPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const [idUser, setIdUser] = useState<string | null>(null);
+
     const fetchDeck = async () => {
         try {
             const response = await fetch(
@@ -35,6 +37,7 @@ const DeckPage = () => {
                 setError("An unknown error occurred");
             }
         } finally {
+            setIdUser(await AsyncStorage.getItem("userId"))
             setLoading(false);
         }
     };
@@ -72,14 +75,14 @@ const DeckPage = () => {
             </Text>
             <Text style={styles.usernameSubtitle}>Made by: {deck.user.username}</Text>
             <Text>{deck.content}</Text>
-            <Button
+            {deck.user.userId == (idUser) && (<Button
                 onPress={() => {
                     router.navigate(
                         `/displayTabs/flashcard/${parsedFlashcardId}/editDeck`
                     );
                 }}
                 title="Edit"
-            ></Button>
+            ></Button>)}
 
             <Button
                 onPress={() => {

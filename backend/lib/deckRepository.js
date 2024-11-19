@@ -46,6 +46,25 @@ const getUserDecks = async (userId) => {
   }
 };
 
+
+const getAllDecks = async () => {
+  try {
+    const decks = await prisma.deck.findMany({
+      include: {
+        user: true,
+        flashcards: true,
+      },
+    });
+    decks.forEach((deck) => {
+      deck.type = "flashcard";
+    });
+    return decks;
+  } catch (error) {
+    console.error("Error fetching decks:", error);
+    return null;
+  }
+};
+
 const getFlashcardById = async (id) => {
   try {
     const flashcard = await prisma.flashcard.findUnique({
@@ -100,4 +119,5 @@ module.exports = {
   getDeckById,
   getFlashcardById,
   updateDeck,
+  getAllDecks
 };

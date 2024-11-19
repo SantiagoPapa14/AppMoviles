@@ -12,9 +12,8 @@ const SummaryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-
-
+  const [idUser, setIdUser] = useState<string | null>(null);
+  
   const fetchSummary = async () => {
     try {
       const response = await fetch(
@@ -38,6 +37,8 @@ const SummaryPage = () => {
         setError("An unknown error occurred");
       }
     } finally {
+
+      setIdUser(await AsyncStorage.getItem("userId"));
       setLoading(false);
     }
   };
@@ -76,14 +77,16 @@ const SummaryPage = () => {
       </Text>
       <Text style={styles.usernameSubtitle}>Made by: {summary.user.username}</Text>
       <Text>{summary.content}</Text>
-      <Button
-        onPress={() => {
-          router.navigate(
-            `/displayTabs/summary/${parsedSummaryId}/editSummary`
-          );
-        }}
-        title="Edit"
-      ></Button>
+      {summary.user.userId == (idUser) && (
+        <Button
+          onPress={() => {
+        router.navigate(
+          `/displayTabs/summary/${parsedSummaryId}/editSummary`
+        );
+          }}
+          title="Edit"
+        ></Button>
+      )}
     </ScrollView>
   );
 };

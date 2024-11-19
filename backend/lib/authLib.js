@@ -29,13 +29,16 @@ const validateAuthorization = (req, res, next) => {
 const loginUser = async (email, password) => {
   const user = await userRepository.getUserByEmail(email);
   if (!user) {
-    return false;
+    return [false, null];
+   
   }
   const valid = await bcrypt.compare(password, user.hashedPassword);
   if (!valid) {
-    return false;
+    return [false,null];
   }
-  return generateToken(user);
+  const userId = user.userId;
+
+  return [generateToken(user),userId];
 };
 
 const registerUser = async (email, username, password, name) => {

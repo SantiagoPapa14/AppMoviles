@@ -11,8 +11,9 @@ const QuizPage = () => {
     const [quiz, setQuiz] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [idUser, setIdUser] = useState<string | null>(null);
     const router = useRouter();
-
+    
     const fetchQuiz = async () => {
         try {
             const response = await fetch(
@@ -36,6 +37,7 @@ const QuizPage = () => {
                 setError("An unknown error occurred");
             }
         } finally {
+            setIdUser(await AsyncStorage.getItem("userId"));
             setLoading(false);
         }
     };
@@ -74,14 +76,14 @@ const QuizPage = () => {
             </Text>
             <Text style={styles.usernameSubtitle}>Made by: {quiz.user.username}</Text>
             <Text>{quiz.content}</Text>
-            <Button
+            {quiz.user.userId == (idUser) && (<Button
                 onPress={() => {
                     router.navigate(
                         `/displayTabs/quiz/${parsedQuizId}/editQuiz`
                     );
                 }}
                 title="Edit"
-            ></Button>
+            ></Button>)}
 
             <Button
                 onPress={() => {

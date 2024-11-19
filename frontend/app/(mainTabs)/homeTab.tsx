@@ -21,7 +21,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 const HomeTab = () => {
   const router = useRouter();
   const isFocused = useIsFocused();
-
+//USER SPECIFIC 
   const [quizzes, setQuizzes] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
@@ -32,17 +32,26 @@ const HomeTab = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-  const combinedProjects = [...quizzes, ...flashcards, ...summaries];
-  const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
+//GLOBAL
+  const [allQuizzes, setAllQuizzes] = useState<
+  { projectId: string; title: string; type: string }[]
+>([]);
+const [allFlashcards, setAllFlashcards] = useState<
+  { projectId: string; title: string; type: string }[]
+>([]);
+const [allSummaries, setAllSummaries] = useState<
+  { projectId: string; title: string; type: string }[]
+>([]);
 
+  
+  const combinedProjects = [...quizzes, ...flashcards, ...summaries];
   //const shuffledProjects = shuffleArray(combinedProjects);
   const shuffledProjects = combinedProjects;
+
+
+  const combinedAllProjects = [ ...allQuizzes, ...allFlashcards, ...allSummaries];
+  //const shuffledAllProjects = shuffleArray(combinedAllProjects);
+  const shuffledAllProjects = combinedAllProjects
 
   const fetchUserContent = async () => {
     try {
@@ -62,11 +71,33 @@ const HomeTab = () => {
     }
   };
 
+  const fetchAllProjects = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await fetch(`${API_BASE_URL}/all-projects`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setAllQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
+      setAllFlashcards(Array.isArray(data.decks) ? data.decks : []);
+      setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
+
+      console.log(allQuizzes, allFlashcards, allSummaries);
+    } catch (error) {
+      console.error("Failed to fetch all projects:", error);
+    }
+  };
+
   useEffect(() => {
     if (isFocused) {
       fetchUserContent();
+      fetchAllProjects();
     }
   }, [isFocused]);
+
 
   return (
     <ScrollView style={styles.container}>
@@ -91,16 +122,15 @@ const HomeTab = () => {
         />
       </View>
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>Drafts</Text>
+        <Text style={styles.boxTitle}>All projects</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {Array.from({ length: 3 }).map((_, index) => (
+          {shuffledAllProjects.map((project, index) => (
             <Card
-              title={"Tarjeta " + (index + 1)}
               key={index}
-              color="red"
-              creator="Creator Name"
-              projectId={index + 1}
-              type="draft"
+              title={project.title}
+              creator={project.user.username}
+              projectId={parseInt(project.projectId)}
+              type={project.type}
             />
           ))}
         </ScrollView>
