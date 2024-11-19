@@ -30,6 +30,22 @@ const styles = StyleSheet.create({
         height: 75,
         paddingHorizontal: 30,
         gap: 20
-    }
+    },
+    smallPressableTextStyle: {
+        fontFamily: 'Mondapick', // Ensure this line is correct
+        fontSize: 15,
+        padding: 10,
+        borderRadius: 5,
+    },
+    smallPressableStyle: {
+        backgroundColor: '#D9D9D9',
+        borderWidth: 1,
+        borderRadius: 5,
+        borderColor:'#D9D9D9',
+        padding: 5,
+        margin: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 });
 export default styles;

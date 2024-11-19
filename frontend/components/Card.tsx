@@ -8,7 +8,7 @@ export interface CardProps {
   creator: string;
   color?: string;
   projectId: number;
-  type: string;
+  type?: string;
 }
 
 const getColorByType = (type: string) => {

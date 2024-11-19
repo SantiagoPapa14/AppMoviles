@@ -75,7 +75,7 @@ const DeckPage = () => {
             <Button
                 onPress={() => {
                     router.navigate(
-                        `/displayTabs/deck/${parsedFlashcardId}/editDeck`
+                        `/displayTabs/flashcard/${parsedFlashcardId}/editDeck`
                     );
                 }}
                 title="Edit"
@@ -84,7 +84,7 @@ const DeckPage = () => {
             <Button
                 onPress={() => {
                     router.navigate(
-                        `/displayTabs/deck/${parsedFlashcardId}/playDeck`
+                        `/displayTabs/flashcard/${parsedFlashcardId}/playDeck`
                     );
                 }}
                 title="Play"
