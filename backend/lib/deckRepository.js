@@ -33,20 +33,17 @@ const getUserDecks = async (userId) => {
         user: true,
       },
     });
-    
+
     decks.forEach((deck) => {
       deck.type = "flashcard";
     });
 
     return decks;
-    
-
   } catch (error) {
     console.error("Error fetching decks:", error);
     return null;
   }
 };
-
 
 const getAllDecks = async () => {
   try {
@@ -54,6 +51,9 @@ const getAllDecks = async () => {
       include: {
         user: true,
         flashcards: true,
+      },
+      orderBy: {
+        views: "desc",
       },
     });
     decks.forEach((deck) => {
@@ -81,8 +81,13 @@ const getFlashcardById = async (id) => {
 
 const getDeckById = async (id) => {
   try {
-    const deck = await prisma.deck.findUnique({
+    const deck = await prisma.deck.update({
       where: { projectId: Number(id) },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
       include: { flashcards: true, user: true },
     });
     return deck;
@@ -120,5 +125,5 @@ module.exports = {
   getDeckById,
   getFlashcardById,
   updateDeck,
-  getAllDecks
+  getAllDecks,
 };

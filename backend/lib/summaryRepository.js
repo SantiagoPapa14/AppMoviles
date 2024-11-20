@@ -42,7 +42,8 @@ async function getUserSummaries(userId) {
     const summaries = await prisma.summary.findMany({
       where: {
         userId: Number(userId),
-      }, include: { user: true }
+      },
+      include: { user: true },
     });
 
     summaries.forEach((summary) => {
@@ -60,6 +61,9 @@ async function getAllSummaries() {
   try {
     const summaries = await prisma.summary.findMany({
       include: { user: true },
+      orderBy: {
+        views: "desc",
+      },
     });
 
     summaries.forEach((summary) => {
@@ -75,8 +79,13 @@ async function getAllSummaries() {
 
 async function getSummaryById(id) {
   try {
-    const summary = await prisma.summary.findUnique({
+    const summary = await prisma.summary.update({
       where: { projectId: Number(id) },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
       include: { user: true },
     });
     return summary;
@@ -91,5 +100,5 @@ module.exports = {
   getUserSummaries,
   getSummaryById,
   EditSummary,
-  getAllSummaries
+  getAllSummaries,
 };
