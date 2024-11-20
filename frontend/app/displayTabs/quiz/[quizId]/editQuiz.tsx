@@ -160,6 +160,29 @@ const EditQuiz: React.FC = () => {
   const handleSave = async (quiz: Quiz, parsedQuizId: number) => {
     if (isSaving) return;
     setIsSaving(true);
+
+    if (!quiz.title.trim()) {
+      Alert.alert("Error", "El título del quiz no puede estar vacío.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (quiz.questions.length === 0) {
+      Alert.alert("Error", "Debe agregar al menos una pregunta.");
+      setIsSaving(false);
+      return;
+    }
+
+    const hasValidQuestion = quiz.questions.some(
+      (q) => q.question.trim() && q.answer.trim() && (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
+    );
+
+    if (!hasValidQuestion) {
+      Alert.alert("Error", "Cada pregunta debe tener contenido y no estar vacía.");
+      setIsSaving(false);
+      return;
+    }
+    
     try {
       const token = await AsyncStorage.getItem("userToken");
       const response = await fetch(`${API_BASE_URL}/editQuiz/${parsedQuizId}`, {

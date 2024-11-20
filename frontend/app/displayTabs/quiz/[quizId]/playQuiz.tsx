@@ -59,6 +59,14 @@ const PlayQuiz = () => {
         saveScore();
     }, [cont]);
     
+    const shuffleArray = (array: any[]) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
     const increase = () => {
         setCont((prev) => {
             let updated = prev + 1;
@@ -76,7 +84,6 @@ const PlayQuiz = () => {
                 router.replace(`/displayTabs/quiz/${parsedQuizId}/scorePage`);
             }, 1000); 
         }
-        
     };
 
     const handleSave = async (selectedAnswer: string) => {
@@ -89,6 +96,7 @@ const PlayQuiz = () => {
         }
         handleSkip();
     };
+
 
 
     if (loading) {
@@ -106,17 +114,21 @@ const PlayQuiz = () => {
             </View>
         );
     }
-
-    const currentQuestion = quiz.questions[currentQuestionIndex];
     
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+    console.log(currentQuestion)
+
+    const allAnswers = shuffleArray(
+        [currentQuestion.answer, currentQuestion.decoy1, currentQuestion.decoy2, currentQuestion.decoy3].filter(answer => answer !== "")
+    );
+
     return (
         <View style={styles.container}>
             <Text>Current Score: {cont}</Text>
             <Text style={styles.question}>{currentQuestion.question}</Text>
-            <PressableCustom label={currentQuestion.answer} onPress={() => handleSave(currentQuestion.answer)} />
-            <PressableCustom label={currentQuestion.decoy1} onPress={() => handleSave(currentQuestion.decoy1)} />
-            <PressableCustom label={currentQuestion.decoy2} onPress={() => handleSave(currentQuestion.decoy2)} />
-            <PressableCustom label={currentQuestion.decoy3} onPress={() => handleSave(currentQuestion.decoy3)} />
+            {allAnswers.map((answer, index) => (
+                <PressableCustom key={index} label={answer} onPress={() => handleSave(answer)} />
+            ))}
             <View style={styles.buttonContainer}> 
                 <PressableCustom label="Skip" onPress={handleSkip} />
             </View>

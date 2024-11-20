@@ -87,6 +87,28 @@ const CreateFlashcard: React.FC = () => {
   const handleSave = async (deck: Deck) => {
     if (isSaving) return;
     setIsSaving(true);
+
+    if (!deck.title.trim()) {
+      Alert.alert("Error", "El título del maso no puede estar vacío.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (deck.flashcards.length === 0) {
+      Alert.alert("Error", "Debe agregar al menos una flashcard.");
+      setIsSaving(false);
+      return;
+    }
+
+    for (const flashcard of deck.flashcards) {
+      if (!flashcard.front.trim() || !flashcard.back.trim()) {
+        Alert.alert("Error", "Todas las flashcards deben tener ambos lados llenos.");
+        setIsSaving(false);
+        return;
+      }
+    }
+
+
     try {
       const token = await AsyncStorage.getItem("userToken");
       const response = await fetch(`${API_BASE_URL}/deck`, {

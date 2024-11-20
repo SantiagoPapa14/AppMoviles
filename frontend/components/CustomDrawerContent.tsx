@@ -55,7 +55,7 @@ export default function CustomDrawerContent(props: any) {
             textAlign: "center",
           }}
         >
-          {user?.followerCount} Followers
+          {user?.followerCount || "0"} Followers
         </Text>
       </TouchableOpacity>
       <DrawerItemList {...props} />
