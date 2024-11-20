@@ -32,7 +32,6 @@ const SearchResult = () => {
           },
         });
         const data = await response.json();
-        console.log(data);
         setQuizzes(data.quizzes);
         setDecks(data.decks);
         setSummaries(data.summaries);

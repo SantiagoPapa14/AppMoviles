@@ -39,7 +39,6 @@ const SummaryPage = () => {
         setError("An unknown error occurred");
       }
     } finally {
-
       setIdUser(await AsyncStorage.getItem("userId"));
       setLoading(false);
     }
@@ -71,6 +70,8 @@ const SummaryPage = () => {
     );
   }
 
+
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.summaryContainer}>
@@ -82,12 +83,12 @@ const SummaryPage = () => {
       <SmallPressableCustom
         onPress={() => {
           router.navigate(
-            summary.user.userId === idUser
+            summary.user.userId == idUser
               ? `/displayTabs/summary/${parsedSummaryId}/editSummary`
               : `/userProfile/${summary.user.userId}`
           );
         }}
-        label={summary.user.userId === idUser ? "Edit" : "View Profile"}
+        label={summary.user.userId == idUser ? "Edit" : "View Profile"}
       />
     </ScrollView>
   );

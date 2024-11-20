@@ -110,8 +110,8 @@ const screenWidth = Dimensions.get("window").width;
 
 const styles: { [key: string]: ViewStyle | TextStyle } = {
   carouselBox: {
-    width: screenWidth * 0.67,
-    height: screenWidth * 0.67,
+    width: screenWidth * 0.57,
+    height: screenWidth * 0.57,
     borderRadius: 8,
     margin: 9,
     justifyContent: "center",

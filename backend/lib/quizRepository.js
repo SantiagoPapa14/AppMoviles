@@ -74,6 +74,7 @@ const getAllQuizzes = async () => {
       orderBy: {
         views: "desc",
       },
+      take: 10,
     });
     quizzes.forEach((quiz) => {
       quiz.type = "quiz";
@@ -128,6 +129,18 @@ const updateQuiz = async (id, quizContent) => {
   }
 };
 
+const deleteQuiz = async (id) => {
+  try {
+    const deletedQuiz = await prisma.quiz.delete({
+      where: { projectId: Number(id) },
+    });
+    return deletedQuiz;
+  } catch (error) {
+    console.error("Error deleting quiz:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createQuiz,
   getUserQuizzes,
@@ -135,4 +148,5 @@ module.exports = {
   updateQuiz,
   getAllQuizzes,
   searchQuizzes,
+  deleteQuiz,
 };

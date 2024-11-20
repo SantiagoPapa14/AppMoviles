@@ -18,7 +18,7 @@ export default function CreationTabsLayout() {
                 ),
             }}
         >
-            <Stack.Screen name="index" options={{ title: `${parsedUserId}` }} />
+            <Stack.Screen name="index" options={{ title: `Profile` }} />
         </Stack>
     );
 }

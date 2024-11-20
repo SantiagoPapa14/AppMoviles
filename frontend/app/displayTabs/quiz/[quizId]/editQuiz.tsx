@@ -12,6 +12,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 interface QuizQuestion {
   question: string;
@@ -91,6 +92,7 @@ const EditQuiz: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { setRefresh } = useRefresh();
 
   const fetchQuiz = async () => {
     try {
@@ -200,6 +202,7 @@ const EditQuiz: React.FC = () => {
         throw new Error("Failed to save the quiz");
       }
       Alert.alert("Éxito", "Quiz guardado correctamente");
+      setRefresh(true);
       router.replace("../");
     } catch (error) {
       console.error("Failed to save the quiz:", error);
@@ -207,6 +210,50 @@ const EditQuiz: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDelete = async () => {
+    Alert.alert(
+      "Confirmación",
+      "¿Está seguro de que desea eliminar este quiz?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem("userToken");
+              const response = await fetch(
+                `${API_BASE_URL}/quiz/${parsedQuizId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Failed to delete quiz");
+              } else {
+                Alert.alert("Éxito", "Quiz eliminado correctamente");
+                setRefresh(true);
+                router.replace("/(mainTabs)/createTab");
+              }
+            } catch (error) {
+              console.error("Failed to delete quiz:", error);
+              Alert.alert("Error", "Failed to delete quiz.");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -240,6 +287,10 @@ const EditQuiz: React.FC = () => {
         <PressableCustom
           onPress={() => handleSave({ title, questions }, parsedQuizId)}
           label="Guardar"
+        />
+        <PressableCustom
+          onPress={handleDelete}
+          label="Eliminar"
         />
       </ScrollView>
     </View>

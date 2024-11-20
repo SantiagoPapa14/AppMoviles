@@ -12,6 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 interface Flashcard {
   front: string;
@@ -34,7 +35,6 @@ const FlashcardAddComponent = ({
 }) => {
 return (
     <View style={{ marginBottom: 10 }}>
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>Nueva flashcard:</Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
             <View style={{ flex: 1 }}>
                 <TextInput
@@ -70,6 +70,7 @@ const editDeck = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
+  const { setRefresh } = useRefresh();
 
   const fetchFlashcard = async () => {
     try {
@@ -109,7 +110,6 @@ const editDeck = () => {
       return;
     }
     
-    console.log(deck.flashcards);
     if (deck.flashcards.length === 0) {
       Alert.alert("Error", "Debe agregar al menos una flashcard.");
       setIsSaving(false);
@@ -142,6 +142,7 @@ const editDeck = () => {
         throw new Error("Failed to save flashcard");
       } else {
         Alert.alert("Éxito", "Flashcard guardada correctamente");
+        setRefresh(true);
         router.replace("../");
       }
     } catch (error) {
@@ -150,6 +151,50 @@ const editDeck = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDelete = async () => {
+    Alert.alert(
+      "Confirmación",
+      "¿Está seguro de que desea eliminar este maso?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem("userToken");
+              const response = await fetch(
+                `${API_BASE_URL}/deck/${parsedFlashcardId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Failed to delete deck");
+              } else {
+                Alert.alert("Éxito", "Maso eliminado correctamente");
+                setRefresh(true);
+                router.replace("/(mainTabs)/createTab");
+              }
+            } catch (error) {
+              console.error("Failed to delete deck:", error);
+              Alert.alert("Error", "Failed to delete deck.");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
@@ -215,6 +260,10 @@ const editDeck = () => {
         <PressableCustom
           onPress={() => handleSave(deck)}
           label="Guardar"
+        />
+        <PressableCustom
+          onPress={handleDelete}
+          label="Eliminar"
         />
       </ScrollView>
     </View>

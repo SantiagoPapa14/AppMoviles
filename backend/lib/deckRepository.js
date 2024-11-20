@@ -74,6 +74,7 @@ const getAllDecks = async () => {
       orderBy: {
         views: "desc",
       },
+      take: 10,
     });
     decks.forEach((deck) => {
       deck.type = "flashcard";
@@ -138,6 +139,18 @@ const updateDeck = async (id, deckContent) => {
   }
 };
 
+const deleteDeck = async (id) => {
+  try {
+    const deletedDeck = await prisma.deck.delete({
+      where: { projectId: Number(id) },
+    });
+    return deletedDeck;
+  } catch (error) {
+    console.error("Error deleting deck:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createDeck,
   getUserDecks,
@@ -146,4 +159,5 @@ module.exports = {
   updateDeck,
   getAllDecks,
   searchDecks,
+  deleteDeck,
 };

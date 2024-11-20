@@ -6,22 +6,22 @@ import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 import { API_BASE_URL } from "@/constants/API-IP";
+import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 const HomeTab = () => {
   const router = useRouter();
-  const navigation = useNavigation();
+  const { refresh, setRefresh } = useRefresh();
   //USER SPECIFIC PROJECTS
 
   const [quizzes, setQuizzes] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
   >([]);
   const [flashcards, setFlashcards] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
   >([]);
   const [summaries, setSummaries] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
   >([]);
 
   //Following PROJECTS
@@ -37,12 +37,30 @@ const HomeTab = () => {
 
   const combinedProjects = [...quizzes, ...flashcards, ...summaries];
 
+  combinedProjects.sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+    return dateB - dateA;
+  });
+
+  const topCombinedProjects = combinedProjects.slice(0, 10);
+
+
   const combinedFollowingProjects = [
     ...followingQuizzes,
     ...followingFlashcards,
     ...followingSummaries,
   ];
+
+  combinedFollowingProjects.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA;
+  });
   const shuffledFollowingProjects = combinedFollowingProjects;
+
+
+
 
   const fetchUserContent = async () => {
     try {
@@ -93,9 +111,12 @@ const HomeTab = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUserContent();
-      fetchFollowingProjects();
-    }, []),
+      if (refresh) {
+        fetchUserContent();
+        fetchFollowingProjects();
+        setRefresh(false);
+      }
+    }, [refresh]),
   );
 
   return (
@@ -103,7 +124,7 @@ const HomeTab = () => {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Your projects</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {combinedProjects.map((project, index) => (
+          {topCombinedProjects.map((project, index) => (
             <Card
               key={index}
               title={project.title}
@@ -117,7 +138,7 @@ const HomeTab = () => {
         <View style={styles.buttonContainer}></View>
         <PressableCustom
           label={"View More"}
-          onPress={() => router.push("/homeTab")}
+          onPress={() => router.push("/viewMore/userProjects")}
         />
       </View>
       <View style={styles.box}>
@@ -136,7 +157,7 @@ const HomeTab = () => {
         <View style={styles.buttonContainer}></View>
         <PressableCustom
           label={"View More"}
-          onPress={() => router.push("/homeTab")}
+          onPress={() => router.push("/viewMore/followingProjects")}
         />
       </View>
     </ScrollView>
