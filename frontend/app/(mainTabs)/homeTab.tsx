@@ -1,27 +1,18 @@
-import React, { useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-  Button,
-} from "react-native";
-import Carousel from "react-native-snap-carousel";
-import { TextInput } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+import { useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
-const { width: viewportWidth } = Dimensions.get("window");
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { API_BASE_URL } from "@/constants/API-IP";
 
 const HomeTab = () => {
   const router = useRouter();
-  const isFocused = useIsFocused();
-//USER SPECIFIC PROJECTS
+  const navigation = useNavigation();
+  //USER SPECIFIC PROJECTS
+
   const [quizzes, setQuizzes] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
@@ -32,42 +23,47 @@ const HomeTab = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-//GLOBAL PROJECTS
+  //GLOBAL PROJECTS
   const [allQuizzes, setAllQuizzes] = useState<
-  { projectId: string; title: string; type: string }[]
->([]);
-const [allFlashcards, setAllFlashcards] = useState<
-  { projectId: string; title: string; type: string }[]
->([]);
-const [allSummaries, setAllSummaries] = useState<
-  { projectId: string; title: string; type: string }[]
->([]);
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [allFlashcards, setAllFlashcards] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [allSummaries, setAllSummaries] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
 
-//Following PROJECTS
-const [followingQuizzes, setFollowingQuizzes] = useState<
-{ projectId: string; title: string; type: string }[]
->([]);
-const [followingFlashcards, setFollowingFlashcards] = useState<
-{ projectId: string; title: string; type: string }[]
->([]);
-const [followingSummaries, setFollowingSummaries] = useState<
-{ projectId: string; title: string; type: string }[]
->([]);
+  //Following PROJECTS
+  const [followingQuizzes, setFollowingQuizzes] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [followingFlashcards, setFollowingFlashcards] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [followingSummaries, setFollowingSummaries] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
 
-
-  
   const combinedProjects = [...quizzes, ...flashcards, ...summaries];
   //const shuffledProjects = shuffleArray(combinedProjects);
   const shuffledProjects = combinedProjects;
 
-
-  const combinedAllProjects = [ ...allQuizzes, ...allFlashcards, ...allSummaries];
+  const combinedAllProjects = [
+    ...allQuizzes,
+    ...allFlashcards,
+    ...allSummaries,
+  ];
   //const shuffledAllProjects = shuffleArray(combinedAllProjects);
-  const shuffledAllProjects = combinedAllProjects
+  const shuffledAllProjects = combinedAllProjects;
 
-  const combinedFollowingProjects = [ ...followingQuizzes, ...followingFlashcards, ...followingSummaries];
+  const combinedFollowingProjects = [
+    ...followingQuizzes,
+    ...followingFlashcards,
+    ...followingSummaries,
+  ];
   //const shuffledAllProjects = shuffleArray(combinedAllProjects);
-  const shuffledFollowingProjects = combinedFollowingProjects
+  const shuffledFollowingProjects = combinedFollowingProjects;
 
   const fetchUserContent = async () => {
     try {
@@ -100,12 +96,10 @@ const [followingSummaries, setFollowingSummaries] = useState<
       setAllQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
       setAllFlashcards(Array.isArray(data.decks) ? data.decks : []);
       setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
-
     } catch (error) {
       console.error("Failed to fetch all projects:", error);
     }
   };
-
 
   const fetchFollowingProjects = async () => {
     try {
@@ -117,35 +111,25 @@ const [followingSummaries, setFollowingSummaries] = useState<
         },
       });
       const dataFollowers = await response.json();
-      setFollowingQuizzes(Array.isArray(dataFollowers.quizzes) ? dataFollowers.quizzes : []);
-      setFollowingFlashcards(Array.isArray(dataFollowers.decks) ? dataFollowers.decks : []);
-      setFollowingSummaries(Array.isArray(dataFollowers.summaries) ? dataFollowers.summaries : []);
-      
+      setFollowingQuizzes(
+        Array.isArray(dataFollowers.quizzes) ? dataFollowers.quizzes : [],
+      );
+      setFollowingFlashcards(
+        Array.isArray(dataFollowers.decks) ? dataFollowers.decks : [],
+      );
+      setFollowingSummaries(
+        Array.isArray(dataFollowers.summaries) ? dataFollowers.summaries : [],
+      );
     } catch (error) {
       console.error("Failed to fetch following' projects:", error);
     }
   };
 
   useEffect(() => {
-    if (isFocused) {
-      fetchUserContent();
-      fetchAllProjects();
-      fetchFollowingProjects();
-    }
-  }, [isFocused]);
-
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        await fetchUserContent();
-        await fetchAllProjects();
-        await fetchFollowingProjects();
-      };
-
-      fetchData();
-    }, [])
-);
+    fetchUserContent();
+    fetchAllProjects();
+    fetchFollowingProjects();
+  }, []);
 
   return (
     <ScrollView style={styles.container}>
@@ -192,7 +176,7 @@ const [followingSummaries, setFollowingSummaries] = useState<
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Followed</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {shuffledFollowingProjects.map((project, index) => (
+          {shuffledFollowingProjects.map((project, index) => (
             <Card
               key={index}
               title={project.title}
@@ -200,7 +184,7 @@ const [followingSummaries, setFollowingSummaries] = useState<
               projectId={parseInt(project.projectId)}
               type={project.type}
             />
-            ))}
+          ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <PressableCustom

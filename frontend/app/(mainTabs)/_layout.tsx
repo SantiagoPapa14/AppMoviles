@@ -1,36 +1,11 @@
-import { router, Stack, Tabs } from "expo-router";
-import {
-  createDrawerNavigator,
-  DrawerItem,
-  DrawerContentScrollView,
-  DrawerItemList,
-} from "@react-navigation/drawer";
-import {
-  DrawerNavigationState,
-  NavigationContainer,
-  ParamListBase,
-} from "@react-navigation/native";
+import { Tabs } from "expo-router";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { NavigationContainer } from "@react-navigation/native";
 import ProfileScreen from "@/app/profile";
 import SettingScreen from "@/app/settings";
-import {
-  Image,
-  ScrollView,
-  ScrollViewProps,
-  Text,
-  View,
-  TouchableOpacity,
-} from "react-native";
+import { Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  DrawerNavigationHelpers,
-  DrawerDescriptorMap,
-} from "@react-navigation/drawer/lib/typescript/src/types";
-import { RefAttributes } from "react";
-import { JSX } from "react/jsx-runtime";
 import CustomDrawerContent from "@/components/CustomDrawerContent";
-import CreateScreen from "./createTab";
-
 
 const Drawer = createDrawerNavigator();
 
@@ -107,22 +82,14 @@ function DrawerNavigator() {
         drawerLockMode: "locked-closed", // Lock the drawer
       })}
     >
-      <Drawer.Screen
-        name="Home"
-        component={TabsNavigator}
-      />
+      <Drawer.Screen name="Home" component={TabsNavigator} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="Settings" component={SettingScreen} />
     </Drawer.Navigator>
   );
 }
 
-import { useEffect } from "react";
-
 export default function HomeLayout() {
-  useEffect(() => {
-  }, []);
-
   return (
     <NavigationContainer independent={true}>
       <DrawerNavigator />
