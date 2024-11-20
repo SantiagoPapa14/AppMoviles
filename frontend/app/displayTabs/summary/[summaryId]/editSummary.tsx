@@ -188,7 +188,8 @@ const styles = StyleSheet.create({
     color: "#3A2F23",
   },
   summaryInput: {
-    height: 100,
+    //height: 100,
+    flex: 1,
     borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,

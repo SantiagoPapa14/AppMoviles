@@ -125,10 +125,15 @@ const PlayQuiz = () => {
     return (
         <View style={styles.container}>
             <Text>Current Score: {cont}</Text>
-            <Text style={styles.question}>{currentQuestion.question}</Text>
-            {allAnswers.map((answer, index) => (
-                <PressableCustom key={index} label={answer} onPress={() => handleSave(answer)} />
-            ))}
+            <View style={styles.answersContainer}>
+                {allAnswers.map((answer, index) => (
+                    <PressableCustom
+                        key={index}
+                        label={answer}
+                        onPress={() => handleSave(answer)}
+                    />
+                ))}
+            </View>
             <View style={styles.buttonContainer}> 
                 <PressableCustom label="Skip" onPress={handleSkip} />
             </View>
@@ -148,6 +153,10 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 20,
+    },
+    answersContainer: {
+        marginTop: 20,
+        width: '90%'
     },
     buttonContainer: {
         flexDirection: "row",
