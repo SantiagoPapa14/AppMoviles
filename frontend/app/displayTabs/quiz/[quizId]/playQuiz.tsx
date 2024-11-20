@@ -54,10 +54,10 @@ const PlayQuiz = () => {
 
     useEffect(() => {
         const saveScore = async () => {
-            await AsyncStorage.setItem("quizScore", cont.toString());
+            await AsyncStorage.setItem("quizScore", JSON.stringify(answersCorrect));
         };
         saveScore();
-    }, [cont]);
+    }, [answersCorrect]);
     
     const shuffleArray = (array: any[]) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -91,7 +91,7 @@ const PlayQuiz = () => {
             const isCorrect = selectedAnswer === quiz.questions[currentQuestionIndex].answer;
             setAnswersCorrect((prevAnswersCorrect) => [...prevAnswersCorrect, isCorrect]);
             if (isCorrect) {
-                increase();
+                setCont((prev) => prev + 1);
             }
         }
         handleSkip();

@@ -162,7 +162,6 @@ export default function App() {
           placeholder="Name"
           value={name}
           onChangeText={setName}
-          secureTextEntry
         />
         <TextInput
           style={styles.input}
