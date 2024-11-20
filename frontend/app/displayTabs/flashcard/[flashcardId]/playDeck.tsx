@@ -100,7 +100,9 @@ const PlayDeck = () => {
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
-        onPanResponderMove: Animated.event([null, { dx: slideAnim }], { useNativeDriver: false }),
+        onPanResponderMove: (evt, gestureState) => {
+            slideAnim.setValue(gestureState.dx);
+        },
         onPanResponderRelease: (evt, gestureState) => {
             if (gestureState.dy > 50 || gestureState.dy < -50) {
                 flipCard();
@@ -144,7 +146,7 @@ const PlayDeck = () => {
     });
     const slideInterpolate = slideAnim.interpolate({
         inputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
-        outputRange: ["-100%", "0%", "100%"],
+        outputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
     });
 
     return (
