@@ -116,7 +116,6 @@ const PlayQuiz = () => {
     }
     
     const currentQuestion = quiz.questions[currentQuestionIndex];
-    console.log(currentQuestion)
 
     const allAnswers = shuffleArray(
         [currentQuestion.answer, currentQuestion.decoy1, currentQuestion.decoy2, currentQuestion.decoy3].filter(answer => answer !== "")
@@ -125,6 +124,7 @@ const PlayQuiz = () => {
     return (
         <View style={styles.container}>
             <Text>Current Score: {cont}</Text>
+            <Text style={styles.question}>{currentQuestion.question}</Text>
             <View style={styles.answersContainer}>
                 {allAnswers.map((answer, index) => (
                     <PressableCustom
