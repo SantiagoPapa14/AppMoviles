@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Image source={require("@/assets/images/LOGOS/imagotipo2.png")} style={styles.logo} />
+      <Image source={require("@/assets/images/LOGOS/imagotipo.png")} style={styles.logo} />
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
