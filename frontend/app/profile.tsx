@@ -31,7 +31,7 @@ const ProfileScreen = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-  const [followerData, setFollowers] = useState<number>(0);
+  const [followerData, setFollowers] = useState<{ followersCount: number; followingCount: number }>({ followersCount: 0, followingCount: 0 });
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

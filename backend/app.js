@@ -13,6 +13,7 @@ const {
   EditSummary,
   getAllSummaries,
   searchSummaries,
+  deleteSummary, // Add this line
 } = require("./lib/summaryRepository");
 const {
   createQuiz,
@@ -21,6 +22,7 @@ const {
   updateQuiz,
   getAllQuizzes,
   searchQuizzes,
+  deleteQuiz, // Add this line
 } = require("./lib/quizRepository");
 const {
   updateUser,
@@ -42,6 +44,7 @@ const {
   updateDeck,
   getAllDecks,
   searchDecks,
+  deleteDeck, // Add this line
 } = require("./lib/deckRepository");
 const e = require("express");
 const { hash } = require("bcrypt");
@@ -489,6 +492,48 @@ app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
       message: "Failed to fetch user content",
       error: err.message,
     });
+  }
+});
+
+app.delete("/quiz/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const quizId = req.params.id;
+    const deletedQuiz = await deleteQuiz(quizId);
+    if (!deletedQuiz) {
+      res.status(404).json({ message: "Quiz not found" });
+      return;
+    }
+    res.status(200).json({ message: "Quiz deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete quiz", error: err.message });
+  }
+});
+
+app.delete("/summary/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const summaryId = req.params.id;
+    const deletedSummary = await deleteSummary(summaryId);
+    if (!deletedSummary) {
+      res.status(404).json({ message: "Summary not found" });
+      return;
+    }
+    res.status(200).json({ message: "Summary deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete summary", error: err.message });
+  }
+});
+
+app.delete("/deck/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const deckId = req.params.id;
+    const deletedDeck = await deleteDeck(deckId);
+    if (!deletedDeck) {
+      res.status(404).json({ message: "Deck not found" });
+      return;
+    }
+    res.status(200).json({ message: "Deck deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete deck", error: err.message });
   }
 });
 

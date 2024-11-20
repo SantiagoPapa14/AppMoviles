@@ -144,7 +144,7 @@ const SearchTab = () => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => router.push("/homeTab")}
+            onPress={() => router.push("/viewMore/topSummaries")}
           />
         </View>
         <View style={styles.box}>
@@ -164,7 +164,7 @@ const SearchTab = () => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => router.push("/homeTab")}
+            onPress={() => router.push("/viewMore/topQuizzes")}
           />
         </View>
         <View style={styles.box}>
@@ -184,7 +184,7 @@ const SearchTab = () => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => router.push("/homeTab")}
+            onPress={() => router.push("/viewMore/topDecks")}
           />
         </View>
       </ScrollView>

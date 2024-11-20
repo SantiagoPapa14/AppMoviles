@@ -83,6 +83,7 @@ async function getAllSummaries() {
       orderBy: {
         views: "desc",
       },
+      take: 10,
     });
 
     summaries.forEach((summary) => {
@@ -114,6 +115,18 @@ async function getSummaryById(id) {
   }
 }
 
+const deleteSummary = async (id) => {
+  try {
+    const deletedSummary = await prisma.summary.delete({
+      where: { projectId: Number(id) },
+    });
+    return deletedSummary;
+  } catch (error) {
+    console.error("Error deleting summary:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createSummary,
   getUserSummaries,
@@ -121,4 +134,5 @@ module.exports = {
   EditSummary,
   getAllSummaries,
   searchSummaries,
+  deleteSummary,
 };

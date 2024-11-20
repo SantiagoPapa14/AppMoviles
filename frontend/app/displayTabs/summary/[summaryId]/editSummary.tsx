@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
+import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 const EditSummary: React.FC = () => {
   const [summaryContent, setSummaryContent] = useState("");
@@ -16,6 +17,8 @@ const EditSummary: React.FC = () => {
   const parsedSummaryId = parseInt(summaryId || "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { setRefresh } = useRefresh();
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -69,6 +72,8 @@ const EditSummary: React.FC = () => {
         summaryContent,
         parsedSummaryId
       );
+      setRefresh(true);
+      router.replace(`/summary/${parsedSummaryId}`);
       Alert.alert("Éxito", "Resumen guardado correctamente", [
         {
           text: "OK",
@@ -82,6 +87,50 @@ const EditSummary: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDelete = async () => {
+    Alert.alert(
+      "Confirmación",
+      "¿Está seguro de que desea eliminar este resumen?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem("userToken");
+              const response = await fetch(
+                `${API_BASE_URL}/summary/${parsedSummaryId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Failed to delete summary");
+              } else {
+                Alert.alert("Éxito", "Resumen eliminado correctamente");
+                setRefresh(true);
+                router.replace("/(mainTabs)/createTab");
+              }
+            } catch (error) {
+              console.error("Failed to delete summary:", error);
+              Alert.alert("Error", "Failed to delete summary.");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -109,6 +158,10 @@ const EditSummary: React.FC = () => {
       <PressableCustom
         onPress={handleSave}
         label="Guardar Resumen"
+      />
+      <PressableCustom
+        onPress={handleDelete}
+        label="Eliminar Resumen"
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput, View, Button, Alert, Dimensions } from "react-native";
+import { Text, TextInput, View, Button, Alert, Dimensions, Image } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
@@ -38,6 +38,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Image source={require("@/assets/images/LOGOS/imagotipo2.png")} style={styles.logo} />
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
@@ -71,10 +72,17 @@ const { width } = Dimensions.get("window");
 const styles = {
   container: {
     flex: 1,
-    justifyContent: "center" as "center",
+    justifyContent: "flex-start" as "flex-start",
     alignItems: "center" as "center",
     padding: 16,
     backgroundColor: "#f5f5f5",
+    paddingTop: 50,
+  },
+  logo: {
+    width: width * 0.83, // 60% of the screen width
+    height: width * 0.6, // Maintain aspect ratio
+    resizeMode: "contain",
+    marginBottom: 2,
   },
   title: {
     fontSize: 24,

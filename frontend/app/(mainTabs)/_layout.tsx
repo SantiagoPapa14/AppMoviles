@@ -1,13 +1,30 @@
 import { Tabs } from "expo-router";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import ProfileScreen from "@/app/profile";
 import SettingScreen from "@/app/settings";
 import { Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomDrawerContent from "@/components/CustomDrawerContent";
+import { useEffect, createContext, useContext, useState } from "react";
 
 const Drawer = createDrawerNavigator();
+
+const RefreshContext = createContext({
+  refresh: false,
+  setRefresh: (value: boolean) => {},
+});
+
+export const useRefresh = () => useContext(RefreshContext);
+
+function RefreshProvider({ children }) {
+  const [refresh, setRefresh] = useState(false);
+  return (
+    <RefreshContext.Provider value={{ refresh, setRefresh }}>
+      {children}
+    </RefreshContext.Provider>
+  );
+}
 
 function TabsNavigator() {
   return (
@@ -41,6 +58,24 @@ function TabsNavigator() {
 }
 
 function DrawerNavigator() {
+  const navigation = useNavigation();
+  const { refresh, setRefresh } = useRefresh();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (refresh) {
+        // Refresh the page when navigating back
+        navigation.reset({
+          index: 0,
+          routes: [{ name: navigation.getState().routes[navigation.getState().index].name }],
+        });
+        setRefresh(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, refresh]);
+
   return (
     <Drawer.Navigator
       initialRouteName="Home"
@@ -91,8 +126,10 @@ function DrawerNavigator() {
 
 export default function HomeLayout() {
   return (
-    <NavigationContainer independent={true}>
-      <DrawerNavigator />
-    </NavigationContainer>
+    <RefreshProvider>
+      <NavigationContainer independent={true}>
+        <DrawerNavigator />
+      </NavigationContainer>
+    </RefreshProvider>
   );
 }
