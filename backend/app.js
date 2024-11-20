@@ -428,11 +428,14 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
     const summaries = await getUserSummaries(userId);
     const quizzes = await getUserQuizzes(userId);
     const decks = await getUserDecks(userId);
+    const followers = await getFollowData(userId, userId);
 
     res.status(200).json({
       summaries: summaries,
       quizzes: quizzes,
       decks: decks,
+      deck: decks,
+      followers: followers,
     });
   } catch (err) {
     res.status(500).json({
