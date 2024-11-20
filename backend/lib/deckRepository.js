@@ -22,6 +22,22 @@ const createDeck = async (deck, userId) => {
   }
 };
 
+const searchDecks = async (query) => {
+  try {
+    const decks = await prisma.deck.findMany({
+      where: {
+        title: {
+          contains: query,
+        },
+      },
+    });
+    return decks;
+  } catch (error) {
+    console.error("Error searching decks:", error);
+    return null;
+  }
+};
+
 const getUserDecks = async (userId) => {
   try {
     const decks = await prisma.deck.findMany({
@@ -126,4 +142,5 @@ module.exports = {
   getFlashcardById,
   updateDeck,
   getAllDecks,
+  searchDecks,
 };

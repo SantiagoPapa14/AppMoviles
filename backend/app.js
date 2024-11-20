@@ -12,6 +12,7 @@ const {
   getSummaryById,
   EditSummary,
   getAllSummaries,
+  searchSummaries,
 } = require("./lib/summaryRepository");
 const {
   createQuiz,
@@ -19,6 +20,7 @@ const {
   getQuizById,
   updateQuiz,
   getAllQuizzes,
+  searchQuizzes,
 } = require("./lib/quizRepository");
 const {
   updateUser,
@@ -39,6 +41,7 @@ const {
   getFlashcardById,
   updateDeck,
   getAllDecks,
+  searchDecks,
 } = require("./lib/deckRepository");
 const e = require("express");
 const { hash } = require("bcrypt");
@@ -481,6 +484,28 @@ app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
   } catch (err) {
     res.status(500).json({
       message: "Failed to fetch user content",
+      error: err.message,
+    });
+  }
+});
+
+app.get("/search/:query", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const query = req.params.query;
+    console.log(query);
+    const foundDecks = await searchDecks(query);
+    const foundQuizzes = await searchQuizzes(query);
+    const foundSummaries = await searchSummaries(query);
+    const results = {
+      decks: foundDecks,
+      quizzes: foundQuizzes,
+      summaries: foundSummaries,
+    };
+    console.log(results);
+    res.status(200).json(results);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch search results",
       error: err.message,
     });
   }

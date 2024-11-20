@@ -45,6 +45,22 @@ const getUserQuizzes = async (userId) => {
   }
 };
 
+const searchQuizzes = async (query) => {
+  try {
+    const quizzes = await prisma.quiz.findMany({
+      where: {
+        title: {
+          contains: query,
+        },
+      },
+    });
+    return quizzes;
+  } catch (error) {
+    console.error("Error searching decks:", error);
+    return null;
+  }
+};
+
 const getAllQuizzes = async () => {
   try {
     const quizzes = await prisma.quiz.findMany({
@@ -115,4 +131,5 @@ module.exports = {
   getQuizById,
   updateQuiz,
   getAllQuizzes,
+  searchQuizzes,
 };

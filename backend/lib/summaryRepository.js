@@ -37,6 +37,22 @@ async function EditSummary(title, subject, summaryContent, projectId) {
   }
 }
 
+const searchSummaries = async (query) => {
+  try {
+    const summaries = await prisma.summary.findMany({
+      where: {
+        title: {
+          contains: query,
+        },
+      },
+    });
+    return summaries;
+  } catch (error) {
+    console.error("Error searching decks:", error);
+    return null;
+  }
+};
+
 async function getUserSummaries(userId) {
   try {
     const summaries = await prisma.summary.findMany({
@@ -101,4 +117,5 @@ module.exports = {
   getSummaryById,
   EditSummary,
   getAllSummaries,
+  searchSummaries,
 };

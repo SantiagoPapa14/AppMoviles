@@ -83,7 +83,7 @@ const SearchTab = () => {
         "recentSearches",
         JSON.stringify(updatedSearches),
       );
-      router.push(`/results?query=${searchQuery}`);
+      router.push(`/search/${searchQuery}`);
       setShowDropdown(false);
     }
   };
