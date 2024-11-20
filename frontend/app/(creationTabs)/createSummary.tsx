@@ -12,36 +12,37 @@ const CreateSummary: React.FC = () => {
   const [summary, setSummary] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
-  const profile = useUserAuth(); // Obtener el usuario logueado
+  const [isSaving, setIsSaving] = useState(false);
+  const profile = useUserAuth();
+  const router = useRouter();
 
   const handleSave = async () => {
+    if (isSaving) return;
     if (!title.trim() || !summary.trim() || !subject.trim()) {
       Alert.alert("Error", "El título y el resumen no pueden estar vacíos");
       return;
     }
+    setIsSaving(true);
     try {
       if (!profile) {
         Alert.alert("Error", "No se pudo obtener el perfil del usuario");
       } else {
-
-        await saveSummaryToAPI(title,subject,summary);
+        await saveSummaryToAPI(title, subject, summary);
         Alert.alert("Éxito", "Resumen guardado correctamente");
         setTitle("");
         setSummary("");
         setSubject("");
+        router.push("/homeTab");
       }
     } catch (error) {
       Alert.alert("Error", "Hubo un problema al guardar el resumen");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => router.back()} style={styles.pressableStyle}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-      </Pressable>
       <Text style={styles.label}>Crear Resumen</Text>
       <TextInput
         style={styles.titleInput}
@@ -65,7 +66,7 @@ const CreateSummary: React.FC = () => {
       <PressableCustom
         onPress={handleSave}
         label="Guardar Resumen"
-      ></PressableCustom>
+      />
     </View>
   );
 };
@@ -74,33 +75,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#EFEDE6",
   },
   label: {
     fontSize: 24,
     marginBottom: 16,
+    color: "#3A2F23",
   },
   pressableStyle: {
     padding: 10,
-    backgroundColor: "#DDDDDD",
+    backgroundColor: "#BB8632",
     borderRadius: 5,
+    alignItems: "center",
   },
   titleInput: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
     padding: 8,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   summaryInput: {
     height: 100,
-    borderColor: "gray",
+    borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
     padding: 8,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   presseableTextStyle: {
     fontSize: 16,
-    color: "black",
+    color: "#3A2F23",
   },
 });
 

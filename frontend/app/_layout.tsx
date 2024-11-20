@@ -6,6 +6,11 @@ import * as SplashScreen from "expo-splash-screen";
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'Mondapick': require('../assets/fonts/Mondapick.ttf'),
+    'Roboto-Black': require('../assets/fonts/Roboto-Black.ttf'),
+    'Roboto-BlackItalic': require('../assets/fonts/Roboto-BlackItalic.ttf'),
+    'Roboto-Bold': require('../assets/fonts/Roboto-Bold.ttf'),
+    'Roboto-BoldItalic': require('../assets/fonts/Roboto-BoldItalic.ttf'),
+    'Roboto-Regular': require('../assets/fonts/Roboto-Regular.ttf'),
   });
 
   useEffect(() => {

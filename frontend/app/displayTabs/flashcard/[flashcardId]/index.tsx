@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { useFocusEffect } from "@react-navigation/native";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 
 const DeckPage = () => {
     const { flashcardId = "" } = useLocalSearchParams<{ flashcardId?: string }>();
@@ -69,29 +70,33 @@ const DeckPage = () => {
     }
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-            <Text style={styles.title}>{deck.title}</Text>
-            <Text>
-                Amount of Cards: {deck.flashcards.length}
-            </Text>
-            <Text style={styles.usernameSubtitle}>Made by: {deck.user.username}</Text>
-            <Text>{deck.content}</Text>
-            {deck.user.userId == (idUser) && (<Button
+            <View style={styles.deckContainer}>
+                <Text style={styles.title}>{deck.title}</Text>
+                <Text style={styles.cardCount}>
+                    Amount of Cards: {deck.flashcards.length}
+                </Text>
+                <Text style={styles.usernameSubtitle}>Made by: {deck.user.username}</Text>
+            </View>
+            
+            <SmallPressableCustom
                 onPress={() => {
                     router.navigate(
-                        `/displayTabs/flashcard/${parsedFlashcardId}/editDeck`
+                        deck.user.userId == idUser
+                            ? `/displayTabs/flashcard/${parsedFlashcardId}/editDeck`
+                            : `/userProfile/${deck.user.userId}`
                     );
                 }}
-                title="Edit"
-            ></Button>)}
+                label={deck.user.userId == idUser ? "Edit" : "View Profile"}
+            />
 
-            <Button
+            <SmallPressableCustom
                 onPress={() => {
                     router.navigate(
                         `/displayTabs/flashcard/${parsedFlashcardId}/playDeck`
                     );
                 }}
-                title="Play"
-            ></Button>
+                label="Play"
+            />
         </ScrollView>
     );
 };
@@ -102,17 +107,32 @@ const styles = StyleSheet.create({
         backgroundColor: "#f5f5f5",
         marginHorizontal: 16,
         marginVertical: 8,
+        
     },
     contentContainer: {
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center", // Center horizontally
+        flexGrow: 1, // Ensure the content container takes full height
     },
     title: {
         fontSize: 24,
-        fontWeight: "bold",
         marginBottom: 20,
+        fontFamily: "Mondapick"
     },
     usernameSubtitle: {
+        fontSize: 16,
+        marginBottom: 20,
+        fontFamily: "Roboto-Bold"
+    },
+    deckContainer: {
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        padding: 16,
+        alignItems: "center",
+        width: '90%', 
+    },
+    cardCount: {
         fontSize: 16,
         marginBottom: 20,
     }

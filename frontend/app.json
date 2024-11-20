@@ -33,7 +33,12 @@
         {
           "fonts": [
             {
-              "Mondapick": "./assets/fonts/Mondapick.ttf"
+              "Mondapick": "./assets/fonts/Mondapick.ttf",
+              "Roboto-Black" : "./assets/fonts/Roboto-Black.ttf",
+              "Roboto-BlackItalic" : "./assets/fonts/Roboto-BlackItalic.ttf",
+              "Roboto-Bold" : "./assets/fonts/Roboto-Bold.ttf",
+              "Roboto-BoldItalic" : "./assets/fonts/Roboto-BoldItalic.ttf",
+              "Roboto-Regular" : "./assets/fonts/Roboto-Regular.ttf"
             }
           ]
         }

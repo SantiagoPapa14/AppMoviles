@@ -1,16 +1,16 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useUserAuth } from "@/hooks/userAuth";
-import { useLocalSearchParams } from "expo-router";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
 
 const EditSummary: React.FC = () => {
-const [summaryContent, setSummaryContent] = useState("");
+  const [summaryContent, setSummaryContent] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const { summaryId = "" } = useLocalSearchParams<{ summaryId?: string }>();
   const parsedSummaryId = parseInt(summaryId || "");
@@ -38,8 +38,7 @@ const [summaryContent, setSummaryContent] = useState("");
 
         setTitle(data.title);
         setSubject(data.subject);
-        setSummaryContent(data.content)
-
+        setSummaryContent(data.content);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -54,32 +53,40 @@ const [summaryContent, setSummaryContent] = useState("");
     fetchSummary();
   }, [parsedSummaryId]);
 
-  
-const router = useRouter();
+  const router = useRouter();
 
-const handleSave = async () => {
+  const handleSave = async () => {
+    if (isSaving) return;
     if (!title.trim() || !summaryContent.trim() || !subject.trim()) {
-        Alert.alert("Error", "El título y el resumen no pueden estar vacíos");
-        return;
+      Alert.alert("Error", "El título y el resumen no pueden estar vacíos");
+      return;
     }
+    setIsSaving(true);
     try {
-        await saveEditedSummaryToAPI(title, subject, summaryContent, parsedSummaryId);
-        Alert.alert("Éxito", "Resumen guardado correctamente", [
-            {
-                text: "OK",
-                onPress: () => {
-                    router.replace(`/summary/${parsedSummaryId}`);
-                },
-            },
-        ]);
+      await saveEditedSummaryToAPI(
+        title,
+        subject,
+        summaryContent,
+        parsedSummaryId
+      );
+      Alert.alert("Éxito", "Resumen guardado correctamente", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.replace(`/summary/${parsedSummaryId}`);
+          },
+        },
+      ]);
     } catch (error) {
-        Alert.alert("Error", "Hubo un problema al guardar el resumen");
+      Alert.alert("Error", "Hubo un problema al guardar el resumen");
+    } finally {
+      setIsSaving(false);
     }
-};
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Crear Resumen</Text>
+      <Text style={styles.label}>Editar Resumen</Text>
       <TextInput
         style={styles.titleInput}
         value={title}
@@ -102,7 +109,7 @@ const handleSave = async () => {
       <PressableCustom
         onPress={handleSave}
         label="Guardar Resumen"
-      ></PressableCustom>
+      />
     </View>
   );
 };
@@ -111,33 +118,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#EFEDE6",
   },
   label: {
     fontSize: 24,
     marginBottom: 16,
-  },
-  pressableStyle: {
-    padding: 10,
-    backgroundColor: "#DDDDDD",
-    borderRadius: 5,
+    color: "#3A2F23",
   },
   titleInput: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
     padding: 8,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   summaryInput: {
     height: 100,
-    borderColor: "gray",
+    borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
     padding: 8,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   presseableTextStyle: {
     fontSize: 16,
-    color: "black",
+    color: "#3A2F23",
   },
 });
 
@@ -149,7 +157,6 @@ async function saveEditedSummaryToAPI(
   summary: string,
   summaryId: number
 ): Promise<void> {
-  
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summary/${summaryId}`, {
     method: "PATCH",
@@ -157,7 +164,7 @@ async function saveEditedSummaryToAPI(
       "Content-Type": "application/json",
       Authorization: "Bearer " + token,
     },
-    body: JSON.stringify({ title, subject, summary}),
+    body: JSON.stringify({ title, subject, summary }),
   });
 
   if (!response.ok) {

@@ -15,6 +15,7 @@ export default function CreationTabsLayout() {
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
                 ),
+                headerTitleAlign: 'center',
             }}
         >
             <Stack.Screen name="createFlashcard" options={{ title: 'Create Flashcard' }} />

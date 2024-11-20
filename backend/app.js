@@ -68,10 +68,10 @@ app.use(
   }),
 );
 
-app.use((req, res, next) => {
-  console.log(req.method, req.url);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.method, req.url);
+//   next();
+// });
 
 app.get("/", authLib.validateAuthorization, (req, res) => {
   const message = "Welcome to the secret backend " + req.userData.username;

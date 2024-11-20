@@ -4,6 +4,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { useFocusEffect } from "@react-navigation/native";
+import { PressableCustom } from "@/components/PressableCustom";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 
 const SummaryPage = () => {
   const { summaryId = "" } = useLocalSearchParams<{ summaryId?: string }>();
@@ -71,22 +73,22 @@ const SummaryPage = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>{summary.title}</Text>
-      <Text>
-        Subject: {summary.subject}
-      </Text>
-      <Text style={styles.usernameSubtitle}>Made by: {summary.user.username}</Text>
-      <Text>{summary.content}</Text>
-      {summary.user.userId == (idUser) && (
-        <Button
-          onPress={() => {
-        router.navigate(
-          `/displayTabs/summary/${parsedSummaryId}/editSummary`
-        );
-          }}
-          title="Edit"
-        ></Button>
-      )}
+      <View style={styles.summaryContainer}>
+        <Text style={styles.title}>{summary.title}</Text>
+        <Text>Subject: {summary.subject}</Text>
+        <Text style={styles.usernameSubtitle}>Made by: {summary.user.username}</Text>
+        <Text>{summary.content}</Text>
+      </View>
+      <SmallPressableCustom
+        onPress={() => {
+          router.navigate(
+            summary.user.userId === idUser
+              ? `/displayTabs/summary/${parsedSummaryId}/editSummary`
+              : `/userProfile/${summary.user.userId}`
+          );
+        }}
+        label={summary.user.userId === idUser ? "Edit" : "View Profile"}
+      />
     </ScrollView>
   );
 };
@@ -100,20 +102,27 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center", // Center horizontally
+    flexGrow: 1, // Ensure the content container takes full height
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 20,
+    fontFamily: "Mondapick" // Use the same font as flashcard index
   },
-  
-
-  usernameSubtitle:{
+  usernameSubtitle: {
     fontSize: 16,
     marginBottom: 20,
-
-  }
+    fontFamily: "Roboto-Bold" // Use the same font as flashcard index
+  },
+  summaryContainer: {
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 16,
+    alignItems: "center",
+    width: '90%', 
+  },
 });
 
 export default SummaryPage;
