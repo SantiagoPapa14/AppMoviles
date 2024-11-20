@@ -53,6 +53,9 @@ const searchQuizzes = async (query) => {
           contains: query,
         },
       },
+      include: {
+        user: true,
+      },
     });
     return quizzes;
   } catch (error) {

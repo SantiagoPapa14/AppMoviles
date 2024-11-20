@@ -134,7 +134,7 @@ const SearchTab = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={project.type}
               />
@@ -154,7 +154,7 @@ const SearchTab = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={project.type}
               />
@@ -174,7 +174,7 @@ const SearchTab = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={project.type}
               />

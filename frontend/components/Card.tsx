@@ -35,7 +35,7 @@ const getActiveColorByType = (type: string) => {
     default:
       return "#2B4F72"; // DarkSteelBlue
   }
-}
+};
 
 export const Card = ({
   title = "",
@@ -87,11 +87,13 @@ export const Card = ({
   });
 
   return (
-    <Pressable
-      onPress={handlePress}
-      disabled={pressed}
-    >
-      <Animated.View style={[styles.carouselBox, { backgroundColor, transform: [{ scale: scaleValue }] }]}>
+    <Pressable onPress={handlePress} disabled={pressed}>
+      <Animated.View
+        style={[
+          styles.carouselBox,
+          { backgroundColor, transform: [{ scale: scaleValue }] },
+        ]}
+      >
         {type && (
           <Text style={styles.typeText}>
             {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}

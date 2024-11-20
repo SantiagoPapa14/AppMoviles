@@ -44,7 +44,12 @@ const SearchResult = () => {
     fetchProjects();
   }, [searchQuery]);
 
-  const handleSearch = () => {};
+  const handleSearch = async () => {
+    if (searchQuery.trim()) {
+      router.push(`/search/${searchQuery}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchInputContainer}>
@@ -72,9 +77,9 @@ const SearchResult = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
-                type={project.type}
+                type={"summary"}
               />
             ))}
           </ScrollView>
@@ -86,9 +91,9 @@ const SearchResult = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
-                type={project.type}
+                type={"quiz"}
               />
             ))}
           </ScrollView>
@@ -100,9 +105,9 @@ const SearchResult = () => {
               <Card
                 key={index}
                 title={project.title}
-                creator="By you"
+                creator={project.user.username}
                 projectId={parseInt(project.projectId)}
-                type={project.type}
+                type={"flashcard"}
               />
             ))}
           </ScrollView>

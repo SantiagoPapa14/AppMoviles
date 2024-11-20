@@ -45,6 +45,9 @@ const searchSummaries = async (query) => {
           contains: query,
         },
       },
+      include: {
+        user: true,
+      },
     });
     return summaries;
   } catch (error) {

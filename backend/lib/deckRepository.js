@@ -30,6 +30,9 @@ const searchDecks = async (query) => {
           contains: query,
         },
       },
+      include: {
+        user: true,
+      },
     });
     return decks;
   } catch (error) {
