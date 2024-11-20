@@ -55,16 +55,15 @@ export default function CustomDrawerContent(props: any) {
             textAlign: "center",
           }}
         >
-          1,234 Followers
+          {user?.followerCount} Followers
         </Text>
       </TouchableOpacity>
       <DrawerItemList {...props} />
       <TouchableOpacity
         onPress={() => {
           // Add your logout logic here
-          console.log("User logged out");
           AsyncStorage.removeItem("userId");
-          AsyncStorage.removeItem("recentSearches")
+          AsyncStorage.removeItem("recentSearches");
           AsyncStorage.removeItem("userToken").then(() => {
             router.replace("/");
           });

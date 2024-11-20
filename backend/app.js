@@ -6,11 +6,40 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const authLib = require("./lib/authLib");
-const { createSummary, getUserSummaries, getSummaryById,EditSummary,getAllSummaries} = require("./lib/summaryRepository");
-const { createQuiz, getUserQuizzes, getQuizById, updateQuiz,getAllQuizzes } = require("./lib/quizRepository");
-const { updateUser, updatePicture,getProfileById } = require("./lib/userRepository");
-const {getFollowData,generateSubscription,deleteSubscription,getFollowingIds} = require("./lib/followerRepository");
-const { createDeck, getUserDecks, getDeckById, getFlashcardById, updateDeck,getAllDecks} = require("./lib/deckRepository");
+const {
+  createSummary,
+  getUserSummaries,
+  getSummaryById,
+  EditSummary,
+  getAllSummaries,
+} = require("./lib/summaryRepository");
+const {
+  createQuiz,
+  getUserQuizzes,
+  getQuizById,
+  updateQuiz,
+  getAllQuizzes,
+} = require("./lib/quizRepository");
+const {
+  updateUser,
+  updatePicture,
+  getProfileById,
+} = require("./lib/userRepository");
+const {
+  getFollowData,
+  getFollowers,
+  generateSubscription,
+  deleteSubscription,
+  getFollowingIds,
+} = require("./lib/followerRepository");
+const {
+  createDeck,
+  getUserDecks,
+  getDeckById,
+  getFlashcardById,
+  updateDeck,
+  getAllDecks,
+} = require("./lib/deckRepository");
 const e = require("express");
 const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
@@ -33,8 +62,13 @@ app.use(
   cors({
     origin: "http://localhost:8081",
     credentials: true,
-  })
+  }),
 );
+
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 
 app.get("/", authLib.validateAuthorization, (req, res) => {
   const message = "Welcome to the secret backend " + req.userData.username;
@@ -53,7 +87,7 @@ app.post("/login", async (req, res) => {
     }
     console.log("Email:", email);
     console.log("Password:", password);
-    const [ token, userId ] = await authLib.loginUser(email, password);
+    const [token, userId] = await authLib.loginUser(email, password);
 
     if (token === false) {
       res.status(401).json({
@@ -63,7 +97,7 @@ app.post("/login", async (req, res) => {
       res.status(200).json({
         message: "Login successful!",
         token: token,
-        userId : userId
+        userId: userId,
       });
     }
   } catch (err) {
@@ -95,7 +129,8 @@ app.post("/register", async (req, res) => {
 });
 
 //Get user data
-app.get("/user/:id?", authLib.validateAuthorization, (req, res) => {
+app.get("/user/:id", authLib.validateAuthorization, (req, res) => {
+  console.log("llego al otro endpoint q no tiene q llegar");
   if (req.params.id) {
     //TODO: Para cuando necesitemos ver los datos de otros usuarios.
     res.json({
@@ -107,8 +142,9 @@ app.get("/user/:id?", authLib.validateAuthorization, (req, res) => {
   }
 });
 
-app.get("/user", authLib.validateAuthorization, (req, res) => {
-  res.json(req.userData);
+app.get("/user", authLib.validateAuthorization, async (req, res) => {
+  const followers = await getFollowers(req.userData.userId);
+  res.json({ followerCount: followers.length, ...req.userData });
 });
 
 app.patch("/user", authLib.validateAuthorization, async (req, res) => {
@@ -125,17 +161,21 @@ app.patch("/user", authLib.validateAuthorization, async (req, res) => {
     password = currentPassword;
   }
 
-  if (currentPassword && req.userData.hashedPassword && await bcrypt.compare(currentPassword, req.userData.hashedPassword)) {
+  if (
+    currentPassword &&
+    req.userData.hashedPassword &&
+    (await bcrypt.compare(currentPassword, req.userData.hashedPassword))
+  ) {
     const hashPassword = await hash(password, 10);
     const user = await updateUser(
       req.userData.userId,
       email,
       username,
       hashPassword,
-      name
+      name,
     );
 
-    const [ newToken, userId ] = await authLib.loginUser(user.email, password);
+    const [newToken, userId] = await authLib.loginUser(user.email, password);
 
     if (!user) {
       res.status(500).json({
@@ -166,11 +206,10 @@ app.post(
       console.error("Error uploading profile picture:", error);
       res.status(500).json({ message: "Error uploading profile picture" });
     }
-  }
+  },
 );
 
 app.use("/uploads", express.static("uploads"));
-
 
 // SUMMARY ENDPOINTS
 
@@ -189,7 +228,7 @@ app.post("/summaries", authLib.validateAuthorization, async (req, res) => {
       title,
       subject,
       summary,
-      req.userData.userId
+      req.userData.userId,
     );
     res.status(200).json({
       message: "Summary created successfully!",
@@ -215,7 +254,7 @@ app.patch("/summary/:id", authLib.validateAuthorization, async (req, res) => {
       title,
       subject,
       summary,
-      req.params.id
+      req.params.id,
     );
 
     res.status(200).json({
@@ -228,7 +267,6 @@ app.patch("/summary/:id", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
-
 app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
   try {
     const summary = await getSummaryById(req.params.id);
@@ -238,12 +276,13 @@ app.get("/summary/:id", authLib.validateAuthorization, async (req, res) => {
     }
     res.status(200).json(summary);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch summary", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch summary", error: err.message });
   }
 });
 
-//QUIZ ENDPOINTS 
-
+//QUIZ ENDPOINTS
 
 app.post("/quiz", authLib.validateAuthorization, async (req, res) => {
   try {
@@ -273,7 +312,9 @@ app.get("/quiz/:id", authLib.validateAuthorization, async (req, res) => {
     }
     res.status(200).json(quiz);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch quiz", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch quiz", error: err.message });
   }
 });
 
@@ -300,7 +341,7 @@ app.patch("/editQuiz/:id", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
-//DECK ENDPOINTS 
+//DECK ENDPOINTS
 
 app.post("/deck", authLib.validateAuthorization, async (req, res) => {
   try {
@@ -313,7 +354,7 @@ app.post("/deck", authLib.validateAuthorization, async (req, res) => {
     }
     const newDeck = await createDeck(
       { title, flashcards },
-      req.userData.userId
+      req.userData.userId,
     );
     res.status(200).json({
       message: "Deck created successfully!",
@@ -333,7 +374,9 @@ app.get("/deck/:id", authLib.validateAuthorization, async (req, res) => {
     }
     res.status(200).json(deck);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch deck", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch deck", error: err.message });
   }
 });
 
@@ -346,7 +389,9 @@ app.get("/flashcard/:id", authLib.validateAuthorization, async (req, res) => {
     }
     res.status(200).json(flashcard);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch flashcard", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch flashcard", error: err.message });
   }
 });
 
@@ -394,37 +439,40 @@ app.get("/user-content", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
-app.get("/user-content/:id", authLib.validateAuthorization, async (req, res) => {
-  try {
-    const userId = parseInt(req.params.id, 10);
-    const summaries = await getUserSummaries(userId);
-    const quizzes = await getUserQuizzes(userId);
-    const decks = await getUserDecks(userId);
-    const profile = await getProfileById(userId);
-    const followData = await getFollowData(req.userData.userId,userId);
+app.get(
+  "/user-content/:id",
+  authLib.validateAuthorization,
+  async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id, 10);
+      const summaries = await getUserSummaries(userId);
+      const quizzes = await getUserQuizzes(userId);
+      const decks = await getUserDecks(userId);
+      const profile = await getProfileById(userId);
+      const followData = await getFollowData(req.userData.userId, userId);
 
-    res.status(200).json({
-      summaries: summaries,
-      quizzes: quizzes,
-      decks: decks,
-      profile: profile,
-      followData: followData,
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Failed to fetch user content",
-      error: err.message,
-    });
-  }
-});
-
+      res.status(200).json({
+        summaries: summaries,
+        quizzes: quizzes,
+        decks: decks,
+        profile: profile,
+        followData: followData,
+      });
+    } catch (err) {
+      res.status(500).json({
+        message: "Failed to fetch user content",
+        error: err.message,
+      });
+    }
+  },
+);
 
 app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
   try {
     const allSummaries = await getAllSummaries();
     const allQuizzes = await getAllQuizzes();
     const allDecks = await getAllDecks();
-    
+
     res.status(200).json({
       summaries: allSummaries,
       quizzes: allQuizzes,
@@ -438,37 +486,41 @@ app.get("/all-projects", authLib.validateAuthorization, async (req, res) => {
   }
 });
 
-app.get("/following-projects", authLib.validateAuthorization, async (req, res) => {
-  try {
-    const userId = req.userData.userId;
-    const followingIds = await getFollowingIds(userId);
+app.get(
+  "/following-projects",
+  authLib.validateAuthorization,
+  async (req, res) => {
+    try {
+      const userId = req.userData.userId;
+      const followingIds = await getFollowingIds(userId);
 
-    const summaries = [];
-    const quizzes = [];
-    const decks = [];
+      const summaries = [];
+      const quizzes = [];
+      const decks = [];
 
-    for (const id of followingIds) {
-      const userSummaries = await getUserSummaries(id);
-      const userQuizzes = await getUserQuizzes(id);
-      const userDecks = await getUserDecks(id);
+      for (const id of followingIds) {
+        const userSummaries = await getUserSummaries(id);
+        const userQuizzes = await getUserQuizzes(id);
+        const userDecks = await getUserDecks(id);
 
-      summaries.push(...userSummaries);
-      quizzes.push(...userQuizzes);
-      decks.push(...userDecks);
+        summaries.push(...userSummaries);
+        quizzes.push(...userQuizzes);
+        decks.push(...userDecks);
+      }
+
+      res.status(200).json({
+        summaries: summaries,
+        quizzes: quizzes,
+        decks: decks,
+      });
+    } catch (err) {
+      res.status(500).json({
+        message: "Failed to fetch following projects",
+        error: err.message,
+      });
     }
-    
-    res.status(200).json({
-      summaries: summaries,
-      quizzes: quizzes,
-      decks: decks,
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Failed to fetch following projects",
-      error: err.message,
-    });
-  }
-});
+  },
+);
 
 //SUSCRIPTIONS ENDPOINTS
 
@@ -490,37 +542,42 @@ app.post("/subscribe/:id", authLib.validateAuthorization, async (req, res) => {
     });
   } catch (err) {
     console.error("Error subscribing to user:", err);
-    res.status(500).json({ message: "Failed to subscribe to user", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to subscribe to user", error: err.message });
   }
 });
 
+app.delete(
+  "/unsubscribe/:id",
+  authLib.validateAuthorization,
+  async (req, res) => {
+    try {
+      const userId = req.userData.userId;
+      const followingId = parseInt(req.params.id, 10);
 
-app.delete("/unsubscribe/:id", authLib.validateAuthorization, async (req, res) => {
-  try {
-    const userId = req.userData.userId;
-    const followingId = parseInt(req.params.id, 10);
+      if (userId === followingId) {
+        res.status(400).json({ message: "You cannot subscribe to yourself" });
+        return;
+      }
 
-    if (userId === followingId) {
-      res.status(400).json({ message: "You cannot subscribe to yourself" });
-      return;
+      const followData = await deleteSubscription(userId, followingId);
+
+      res.status(200).json({
+        message: "Subscribed successfully!",
+        followData: followData,
+      });
+    } catch (err) {
+      console.error("Error subscribing to user:", err);
+      res
+        .status(500)
+        .json({ message: "Failed to subscribe to user", error: err.message });
     }
-
-    const followData = await deleteSubscription(userId, followingId);
-
-    res.status(200).json({
-      message: "Subscribed successfully!",
-      followData: followData,
-    });
-  } catch (err) {
-    console.error("Error subscribing to user:", err);
-    res.status(500).json({ message: "Failed to subscribe to user", error: err.message });
-  }
-});
-
+  },
+);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
-
 
 module.exports = app;

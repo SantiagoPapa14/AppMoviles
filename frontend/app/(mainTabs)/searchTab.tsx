@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Animated } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card"; // Adjust the path as necessary
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
+import { Ionicons } from "@expo/vector-icons"; // Import Ionicons
+import { API_BASE_URL } from "@/constants/API-IP";
 
 const SearchTab = () => {
   const router = useRouter();
@@ -12,6 +21,34 @@ const SearchTab = () => {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownHeight = useRef(new Animated.Value(0)).current;
+  //GLOBAL PROJECTS
+  const [allQuizzes, setAllQuizzes] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [allFlashcards, setAllFlashcards] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+  const [allSummaries, setAllSummaries] = useState<
+    { projectId: string; title: string; type: string }[]
+  >([]);
+
+  const fetchAllProjects = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await fetch(`${API_BASE_URL}/all-projects`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setAllQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
+      setAllFlashcards(Array.isArray(data.decks) ? data.decks : []);
+      setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
+    } catch (error) {
+      console.error("Failed to fetch all projects:", error);
+    }
+  };
 
   useEffect(() => {
     const loadRecentSearches = async () => {
@@ -24,7 +61,10 @@ const SearchTab = () => {
   }, []);
 
   useEffect(() => {
-    const targetHeight = showDropdown ? Math.min(recentSearches.length * 40, 200) : 0;
+    fetchAllProjects();
+    const targetHeight = showDropdown
+      ? Math.min(recentSearches.length * 40, 200)
+      : 0;
     Animated.timing(dropdownHeight, {
       toValue: targetHeight,
       duration: 300,
@@ -34,9 +74,15 @@ const SearchTab = () => {
 
   const handleSearch = async () => {
     if (searchQuery.trim()) {
-      const updatedSearches = [searchQuery, ...recentSearches.filter(q => q !== searchQuery)].slice(0, 5);
+      const updatedSearches = [
+        searchQuery,
+        ...recentSearches.filter((q) => q !== searchQuery),
+      ].slice(0, 5);
       setRecentSearches(updatedSearches);
-      await AsyncStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+      await AsyncStorage.setItem(
+        "recentSearches",
+        JSON.stringify(updatedSearches),
+      );
       router.push(`/results?query=${searchQuery}`);
       setShowDropdown(false);
     }
@@ -55,7 +101,12 @@ const SearchTab = () => {
             onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
             onSubmitEditing={handleSearch}
           />
-          <Ionicons name="search" size={24} color="black" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={24}
+            color="black"
+            style={styles.searchIcon}
+          />
         </View>
         {showDropdown && (
           <Animated.View style={[styles.dropdown, { height: dropdownHeight }]}>
@@ -77,15 +128,15 @@ const SearchTab = () => {
       </View>
       <ScrollView>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Top of the week</Text>
+          <Text style={styles.boxTitle}>Most Popular Summaries</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Array.from({ length: 3 }).map((_, index) => (
+            {allSummaries.map((project, index) => (
               <Card
-                title={'Tarjeta ' + (index + 1)}
                 key={index}
-                color='red'
-                creator="Creator Name"
-                projectId={index + 1}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
               />
             ))}
           </ScrollView>
@@ -97,38 +148,39 @@ const SearchTab = () => {
           />
         </View>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Might interest you</Text>
+          <Text style={styles.boxTitle}>Most Popular Quizes</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Array.from({ length: 3 }).map((_, index) => (
+            {allQuizzes.map((project, index) => (
               <Card
-                title={'Tarjeta ' + (index + 1)}
                 key={index}
-                color='red'
-                creator="Creator Name"
-                projectId={index + 1}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
               />
             ))}
           </ScrollView>
-          <View style={styles.buttonContainer}>
-            <PressableCustom
-              label={"View More"}
-              onPress={() => router.push("/homeTab")}
-            />
-          </View>
+          <View style={styles.buttonContainer}></View>
+          <View style={styles.buttonContainer}></View>
+          <PressableCustom
+            label={"View More"}
+            onPress={() => router.push("/homeTab")}
+          />
         </View>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Recently viewed</Text>
+          <Text style={styles.boxTitle}>Most Popular Decks</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Array.from({ length: 3 }).map((_, index) => (
+            {allFlashcards.map((project, index) => (
               <Card
-                title={'Tarjeta ' + (index + 1)}
                 key={index}
-                color='red'
-                creator="Creator Name"
-                projectId={index + 1}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
               />
             ))}
           </ScrollView>
+          <View style={styles.buttonContainer}></View>
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
@@ -148,13 +200,13 @@ const styles = StyleSheet.create({
   },
 
   searchInputContainer: {
-    position: 'relative',
+    position: "relative",
     zIndex: 10,
   },
 
   searchInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
@@ -201,7 +253,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
-    zIndex: 0
+    zIndex: 0,
   },
   carouselText: {
     color: "#fff",
@@ -216,21 +268,21 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   dropdown: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 0,
     right: 0,
-    backgroundColor: 'white',
-    borderColor: '#ccc',
+    backgroundColor: "white",
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
     zIndex: 10,
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'black',
+    borderBottomColor: "black",
   },
 });
 

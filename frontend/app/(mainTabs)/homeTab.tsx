@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -23,17 +24,6 @@ const HomeTab = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-  //GLOBAL PROJECTS
-  const [allQuizzes, setAllQuizzes] = useState<
-    { projectId: string; title: string; type: string }[]
-  >([]);
-  const [allFlashcards, setAllFlashcards] = useState<
-    { projectId: string; title: string; type: string }[]
-  >([]);
-  const [allSummaries, setAllSummaries] = useState<
-    { projectId: string; title: string; type: string }[]
-  >([]);
-
   //Following PROJECTS
   const [followingQuizzes, setFollowingQuizzes] = useState<
     { projectId: string; title: string; type: string }[]
@@ -46,23 +36,12 @@ const HomeTab = () => {
   >([]);
 
   const combinedProjects = [...quizzes, ...flashcards, ...summaries];
-  //const shuffledProjects = shuffleArray(combinedProjects);
-  const shuffledProjects = combinedProjects;
-
-  const combinedAllProjects = [
-    ...allQuizzes,
-    ...allFlashcards,
-    ...allSummaries,
-  ];
-  //const shuffledAllProjects = shuffleArray(combinedAllProjects);
-  const shuffledAllProjects = combinedAllProjects;
 
   const combinedFollowingProjects = [
     ...followingQuizzes,
     ...followingFlashcards,
     ...followingSummaries,
   ];
-  //const shuffledAllProjects = shuffleArray(combinedAllProjects);
   const shuffledFollowingProjects = combinedFollowingProjects;
 
   const fetchUserContent = async () => {
@@ -80,24 +59,6 @@ const HomeTab = () => {
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
     } catch (error) {
       console.error("Failed to fetch user content:", error);
-    }
-  };
-
-  const fetchAllProjects = async () => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/all-projects`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setAllQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
-      setAllFlashcards(Array.isArray(data.decks) ? data.decks : []);
-      setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
-    } catch (error) {
-      console.error("Failed to fetch all projects:", error);
     }
   };
 
@@ -127,16 +88,22 @@ const HomeTab = () => {
 
   useEffect(() => {
     fetchUserContent();
-    fetchAllProjects();
     fetchFollowingProjects();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserContent();
+      fetchFollowingProjects();
+    }, []),
+  );
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Your projects</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {shuffledProjects.map((project, index) => (
+          {combinedProjects.map((project, index) => (
             <Card
               key={index}
               title={project.title}
@@ -152,26 +119,6 @@ const HomeTab = () => {
           label={"View More"}
           onPress={() => router.push("/homeTab")}
         />
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>All projects</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {shuffledAllProjects.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator={project.user.username}
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-            />
-          ))}
-        </ScrollView>
-        <View style={styles.buttonContainer}>
-          <PressableCustom
-            label={"View More"}
-            onPress={() => router.push("/homeTab")}
-          />
-        </View>
       </View>
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Followed</Text>

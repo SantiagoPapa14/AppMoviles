@@ -7,11 +7,12 @@ async function fetchUserProfile(): Promise<{
   username: string;
   email: string;
   name: string;
+  followerCount: number;
 } | null> {
   try {
     const token = await AsyncStorage.getItem("userToken");
     if (!token) throw new Error("No token found");
-    const response = await fetch(`${API_BASE_URL}/user/`, {
+    const response = await fetch(`${API_BASE_URL}/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -36,6 +37,7 @@ export function useUserAuth() {
     username: string;
     email: string;
     name: string;
+    followerCount: number;
   } | null>(null);
 
   useEffect(() => {
