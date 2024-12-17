@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Card } from "@/components/Card";
@@ -7,19 +6,34 @@ import { API_BASE_URL } from "@/constants/API-IP";
 
 const FollowingProjects = () => {
   const [followingQuizzes, setFollowingQuizzes] = useState<
-    { projectId: string; title: string; type: string; user: { username: string } }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      user: { username: string };
+    }[]
   >([]);
   const [followingFlashcards, setFollowingFlashcards] = useState<
-    { projectId: string; title: string; type: string; user: { username: string } }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      user: { username: string };
+    }[]
   >([]);
   const [followingSummaries, setFollowingSummaries] = useState<
-    { projectId: string; title: string; type: string; user: { username: string } }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      user: { username: string };
+    }[]
   >([]);
 
   const fetchFollowingProjects = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/following-projects`, {
+      const response = await fetch(`${API_BASE_URL}/user/following-projects`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -118,3 +132,4 @@ const styles = StyleSheet.create({
 });
 
 export default FollowingProjects;
+

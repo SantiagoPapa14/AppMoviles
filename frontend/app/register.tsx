@@ -30,7 +30,7 @@ export default function App() {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "You need to grant permission to access the gallery."
+        "You need to grant permission to access the gallery.",
       );
     }
   };
@@ -65,14 +65,17 @@ export default function App() {
 
     const token = await AsyncStorage.getItem("userToken");
     try {
-      const response = await fetch(`${API_BASE_URL}/upload-profile-picture`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: "Bearer " + token,
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-profile-picture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + token,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to upload image");

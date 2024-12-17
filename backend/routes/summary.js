@@ -11,7 +11,7 @@ const {
   deleteSummary,
 } = require("../lib/summaryRepository");
 
-router.post("/summaries", authLib.validateAuthorization, async (req, res) => {
+router.post("/", authLib.validateAuthorization, async (req, res) => {
   const { title, subject, summary } = req.body;
 
   if (!title || !subject || !summary) {

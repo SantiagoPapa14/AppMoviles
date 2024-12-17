@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { PressableCustom } from "@/components/PressableCustom";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 interface Flashcard {
@@ -33,33 +33,33 @@ const FlashcardAddComponent = ({
   onUpdate: (updatedFlashcard: Flashcard) => void;
   onRemove: () => void;
 }) => {
-return (
+  return (
     <View style={{ marginBottom: 10 }}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <View style={{ flex: 1 }}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Front"
-                    value={flashcardData.front}
-                    onChangeText={(text) => onUpdate({ ...flashcardData, front: text })}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Back"
-                    value={flashcardData.back}
-                    onChangeText={(text) => onUpdate({ ...flashcardData, back: text })}
-                />
-            </View>
-            <Ionicons
-                name="close-circle"
-                size={24}
-                color="red"
-                onPress={onRemove}
-                style={styles.removeIcon}
-            />
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flex: 1 }}>
+          <TextInput
+            style={styles.input}
+            placeholder="Front"
+            value={flashcardData.front}
+            onChangeText={(text) => onUpdate({ ...flashcardData, front: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Back"
+            value={flashcardData.back}
+            onChangeText={(text) => onUpdate({ ...flashcardData, back: text })}
+          />
         </View>
+        <Ionicons
+          name="close-circle"
+          size={24}
+          color="red"
+          onPress={onRemove}
+          style={styles.removeIcon}
+        />
+      </View>
     </View>
-);
+  );
 };
 
 const editDeck = () => {
@@ -74,12 +74,15 @@ const editDeck = () => {
 
   const fetchFlashcard = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/deck/${parsedFlashcardId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+      const response = await fetch(
+        `${API_BASE_URL}/deck/${parsedFlashcardId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch flashcard");
       }
@@ -109,7 +112,7 @@ const editDeck = () => {
       setIsSaving(false);
       return;
     }
-    
+
     if (deck.flashcards.length === 0) {
       Alert.alert("Error", "Debe agregar al menos una flashcard.");
       setIsSaving(false);
@@ -118,7 +121,10 @@ const editDeck = () => {
 
     for (const flashcard of deck.flashcards) {
       if (!flashcard.front.trim() || !flashcard.back.trim()) {
-        Alert.alert("Error", "Todas las flashcards deben tener ambos lados llenos.");
+        Alert.alert(
+          "Error",
+          "Todas las flashcards deben tener ambos lados llenos.",
+        );
         setIsSaving(false);
         return;
       }
@@ -127,7 +133,7 @@ const editDeck = () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
       const response = await fetch(
-        `${API_BASE_URL}/editDeck/${parsedFlashcardId}`,
+        `${API_BASE_URL}/deck/${parsedFlashcardId}`,
         {
           method: "PATCH",
           headers: {
@@ -135,7 +141,7 @@ const editDeck = () => {
             Authorization: "Bearer " + token,
           },
           body: JSON.stringify(deck),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -176,7 +182,7 @@ const editDeck = () => {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                   },
-                }
+                },
               );
 
               if (!response.ok) {
@@ -193,7 +199,7 @@ const editDeck = () => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -257,14 +263,8 @@ const editDeck = () => {
           }
           label="Agregar"
         />
-        <PressableCustom
-          onPress={() => handleSave(deck)}
-          label="Guardar"
-        />
-        <PressableCustom
-          onPress={handleDelete}
-          label="Eliminar"
-        />
+        <PressableCustom onPress={() => handleSave(deck)} label="Guardar" />
+        <PressableCustom onPress={handleDelete} label="Eliminar" />
       </ScrollView>
     </View>
   );
@@ -306,3 +306,4 @@ const styles = StyleSheet.create({
 });
 
 export default editDeck;
+

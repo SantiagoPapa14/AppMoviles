@@ -11,7 +11,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRefresh } from "@/app/(mainTabs)/_layout";
 
 interface QuizQuestion {
@@ -125,7 +125,7 @@ const EditQuiz: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       fetchQuiz();
-    }, [parsedQuizId])
+    }, [parsedQuizId]),
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ const EditQuiz: React.FC = () => {
           decoy1: q.decoy1,
           decoy2: q.decoy2,
           decoy3: q.decoy3,
-        }))
+        })),
       );
     }
   }, [quiz]);
@@ -176,18 +176,24 @@ const EditQuiz: React.FC = () => {
     }
 
     const hasValidQuestion = quiz.questions.some(
-      (q) => q.question.trim() && q.answer.trim() && (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
+      (q) =>
+        q.question.trim() &&
+        q.answer.trim() &&
+        (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim()),
     );
 
     if (!hasValidQuestion) {
-      Alert.alert("Error", "Cada pregunta debe tener contenido y no estar vacía.");
+      Alert.alert(
+        "Error",
+        "Cada pregunta debe tener contenido y no estar vacía.",
+      );
       setIsSaving(false);
       return;
     }
-    
+
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/editQuiz/${parsedQuizId}`, {
+      const response = await fetch(`${API_BASE_URL}/quiz/${parsedQuizId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +241,7 @@ const EditQuiz: React.FC = () => {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                   },
-                }
+                },
               );
 
               if (!response.ok) {
@@ -252,7 +258,7 @@ const EditQuiz: React.FC = () => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -288,10 +294,7 @@ const EditQuiz: React.FC = () => {
           onPress={() => handleSave({ title, questions }, parsedQuizId)}
           label="Guardar"
         />
-        <PressableCustom
-          onPress={handleDelete}
-          label="Eliminar"
-        />
+        <PressableCustom onPress={handleDelete} label="Eliminar" />
       </ScrollView>
     </View>
   );

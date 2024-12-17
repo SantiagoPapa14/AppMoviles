@@ -29,10 +29,10 @@ const EditSummary: React.FC = () => {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${await AsyncStorage.getItem(
-                "userToken"
+                "userToken",
               )}`,
             },
-          }
+          },
         );
         if (!response.ok) {
           throw new Error("Failed to fetch summary");
@@ -70,15 +70,15 @@ const EditSummary: React.FC = () => {
         title,
         subject,
         summaryContent,
-        parsedSummaryId
+        parsedSummaryId,
       );
       setRefresh(true);
-      router.replace(`/summary/${parsedSummaryId}`);
+      router.replace(`/displayTabs/summary/${parsedSummaryId}`);
       Alert.alert("Éxito", "Resumen guardado correctamente", [
         {
           text: "OK",
           onPress: () => {
-            router.replace(`/summary/${parsedSummaryId}`);
+            router.replace(`/displayTabs/summary/${parsedSummaryId}`);
           },
         },
       ]);
@@ -112,7 +112,7 @@ const EditSummary: React.FC = () => {
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + token,
                   },
-                }
+                },
               );
 
               if (!response.ok) {
@@ -129,7 +129,7 @@ const EditSummary: React.FC = () => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -155,14 +155,8 @@ const EditSummary: React.FC = () => {
         placeholder="Escribe tu resumen aquí"
         multiline
       />
-      <PressableCustom
-        onPress={handleSave}
-        label="Guardar Resumen"
-      />
-      <PressableCustom
-        onPress={handleDelete}
-        label="Eliminar Resumen"
-      />
+      <PressableCustom onPress={handleSave} label="Guardar Resumen" />
+      <PressableCustom onPress={handleDelete} label="Eliminar Resumen" />
     </View>
   );
 };
@@ -209,7 +203,7 @@ async function saveEditedSummaryToAPI(
   title: string,
   subject: string,
   summary: string,
-  summaryId: number
+  summaryId: number,
 ): Promise<void> {
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summary/${summaryId}`, {

@@ -15,13 +15,31 @@ const HomeTab = () => {
   //USER SPECIFIC PROJECTS
 
   const [quizzes, setQuizzes] = useState<
-    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      updatedAt: string;
+      createdAt: string;
+    }[]
   >([]);
   const [flashcards, setFlashcards] = useState<
-    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      updatedAt: string;
+      createdAt: string;
+    }[]
   >([]);
   const [summaries, setSummaries] = useState<
-    { projectId: string; title: string; type: string; updatedAt: string; createdAt: string }[]
+    {
+      projectId: string;
+      title: string;
+      type: string;
+      updatedAt: string;
+      createdAt: string;
+    }[]
   >([]);
 
   //Following PROJECTS
@@ -45,7 +63,6 @@ const HomeTab = () => {
 
   const topCombinedProjects = combinedProjects.slice(0, 10);
 
-
   const combinedFollowingProjects = [
     ...followingQuizzes,
     ...followingFlashcards,
@@ -59,13 +76,10 @@ const HomeTab = () => {
   });
   const shuffledFollowingProjects = combinedFollowingProjects;
 
-
-
-
   const fetchUserContent = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user-content`, {
+      const response = await fetch(`${API_BASE_URL}/user/user-content`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -83,7 +97,7 @@ const HomeTab = () => {
   const fetchFollowingProjects = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/following-projects`, {
+      const response = await fetch(`${API_BASE_URL}/user/following-projects`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

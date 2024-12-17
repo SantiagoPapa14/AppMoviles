@@ -21,7 +21,7 @@ export default function CustomDrawerContent(props: any) {
         <Image
           source={{
             uri: user
-              ? `${API_BASE_URL}/uploads/profile_pictures/${user.userId}.jpg`
+              ? `${API_BASE_URL}/uploads/profile_pictures/${user.userId}.jpg?timestamp=${Date.now()}`
               : "https://via.placeholder.com/150",
           }}
           style={{ width: 60, height: 60, borderRadius: 30 }}

@@ -18,7 +18,7 @@ const UserProjects = () => {
   const fetchUserContent = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user-content`, {
+      const response = await fetch(`${API_BASE_URL}/user/user-content`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

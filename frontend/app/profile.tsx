@@ -16,7 +16,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import { Card as PaperCard } from 'react-native-paper';
+import { Card as PaperCard } from "react-native-paper";
 
 const ProfileScreen = () => {
   const isFocused = useIsFocused();
@@ -31,7 +31,10 @@ const ProfileScreen = () => {
     { projectId: string; title: string; type: string }[]
   >([]);
 
-  const [followerData, setFollowers] = useState<{ followersCount: number; followingCount: number }>({ followersCount: 0, followingCount: 0 });
+  const [followerData, setFollowers] = useState<{
+    followersCount: number;
+    followingCount: number;
+  }>({ followersCount: 0, followingCount: 0 });
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +43,7 @@ const ProfileScreen = () => {
   const fetchUserContent = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user-content`, {
+      const response = await fetch(`${API_BASE_URL}/user/user-content`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -67,7 +70,7 @@ const ProfileScreen = () => {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "You need to grant permission to access the gallery."
+        "You need to grant permission to access the gallery.",
       );
     }
   };
@@ -103,14 +106,17 @@ const ProfileScreen = () => {
 
     const token = await AsyncStorage.getItem("userToken");
     try {
-      const response = await fetch(`${API_BASE_URL}/upload-profile-picture`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: "Bearer " + token,
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-profile-picture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + token,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to upload image");
@@ -188,7 +194,8 @@ const ProfileScreen = () => {
                         API_BASE_URL +
                         "/uploads/profile_pictures/" +
                         profile.userId +
-                        ".jpg",
+                        ".jpg?timestamp=" +
+                        Date.now(),
                     }}
                     style={styles.profileImage}
                   />
@@ -201,8 +208,8 @@ const ProfileScreen = () => {
               <Text style={styles.text}>Name: {profile.name}</Text>
               <View style={styles.followContainer}>
                 <TouchableOpacity style={styles.followButton}>
-                    <Text style={styles.text}>Followers:</Text>
-                    <Text style={styles.text}>{followerData.followersCount}</Text>
+                  <Text style={styles.text}>Followers:</Text>
+                  <Text style={styles.text}>{followerData.followersCount}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.followButton}>
                   <Text style={styles.text}>Following: </Text>

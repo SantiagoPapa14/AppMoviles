@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Text, TextInput, View, Button, Alert, Dimensions, Image } from "react-native";
+import {
+  Text,
+  TextInput,
+  View,
+  Button,
+  Alert,
+  Dimensions,
+  Image,
+} from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
@@ -13,7 +21,7 @@ export default function App() {
     if (email === "" || password === "") {
       Alert.alert("Error", "Please enter both email and password.");
     } else {
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,14 +39,15 @@ export default function App() {
       } else {
         Alert.alert("Error", "Login failed.");
       }
-
-      
     }
   };
 
   return (
     <View style={styles.container}>
-      <Image source={require("@/assets/images/LOGOS/imagotipo.png")} style={styles.logo} />
+      <Image
+        source={require("@/assets/images/LOGOS/imagotipo.png")}
+        style={styles.logo}
+      />
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}

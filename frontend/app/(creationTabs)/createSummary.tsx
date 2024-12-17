@@ -2,8 +2,6 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import React, { useState } from "react";
 import { useUserAuth } from "@/hooks/userAuth";
 import { useRouter } from "expo-router";
-import { Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { PressableCustom } from "@/components/PressableCustom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
@@ -63,10 +61,7 @@ const CreateSummary: React.FC = () => {
         placeholder="Escribe tu resumen aquí"
         multiline
       />
-      <PressableCustom
-        onPress={handleSave}
-        label="Guardar Resumen"
-      />
+      <PressableCustom onPress={handleSave} label="Guardar Resumen" />
     </View>
   );
 };
@@ -120,15 +115,14 @@ async function saveSummaryToAPI(
   subject: string,
   summary: string,
 ): Promise<void> {
-  
   const token = await AsyncStorage.getItem("userToken");
-  const response = await fetch(`${API_BASE_URL}/summaries`, {
+  const response = await fetch(`${API_BASE_URL}/summary`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + token,
     },
-    body: JSON.stringify({ title, subject, summary}),
+    body: JSON.stringify({ title, subject, summary }),
   });
 
   if (!response.ok) {
