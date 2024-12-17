@@ -1,11 +1,18 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
+import { useEffect, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Linking,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { useFocusEffect } from "@react-navigation/native";
-import { PressableCustom } from "@/components/PressableCustom";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import { Ionicons } from "@expo/vector-icons";
 
 const SummaryPage = () => {
   const { summaryId = "" } = useLocalSearchParams<{ summaryId?: string }>();
@@ -15,7 +22,7 @@ const SummaryPage = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [idUser, setIdUser] = useState<string | null>(null);
-  
+
   const fetchSummary = async () => {
     try {
       const response = await fetch(
@@ -25,7 +32,7 @@ const SummaryPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to fetch summary");
@@ -51,7 +58,7 @@ const SummaryPage = () => {
   useFocusEffect(
     useCallback(() => {
       fetchSummary();
-    }, [parsedSummaryId])
+    }, [parsedSummaryId]),
   );
 
   if (loading) {
@@ -70,22 +77,48 @@ const SummaryPage = () => {
     );
   }
 
-
-
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       <View style={styles.summaryContainer}>
         <Text style={styles.title}>{summary.title}</Text>
         <Text>Subject: {summary.subject}</Text>
-        <Text style={styles.usernameSubtitle}>Made by: {summary.user.username}</Text>
+        <Text style={styles.usernameSubtitle}>
+          Made by: {summary.user.username}
+        </Text>
         <Text>{summary.content}</Text>
+      </View>
+      <View style={styles.summaryContainer}>
+        <Text style={styles.title}>Files: </Text>
+        {summary.files.map((file: any) => (
+          <TouchableOpacity
+            key={file.id}
+            style={styles.fileContainer}
+            onPress={() => {
+              Linking.openURL(
+                `${API_BASE_URL}/uploads/summary_attachments/${file.filename}`,
+              );
+            }}
+          >
+            <Text>{file.filename}</Text>
+            <Ionicons
+              name="download-outline"
+              size={24}
+              color="black"
+              style={{ marginLeft: 8 }}
+            />
+          </TouchableOpacity>
+        ))}
+        {summary.files.length === 0 && <Text>No files</Text>}
       </View>
       <SmallPressableCustom
         onPress={() => {
           router.navigate(
             summary.user.userId == idUser
               ? `/displayTabs/summary/${parsedSummaryId}/editSummary`
-              : `/userProfile/${summary.user.userId}`
+              : `/userProfile/${summary.user.userId}`,
           );
         }}
         label={summary.user.userId == idUser ? "Edit" : "View Profile"}
@@ -109,12 +142,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    fontFamily: "Mondapick" // Use the same font as flashcard index
+    fontFamily: "Mondapick", // Use the same font as flashcard index
   },
   usernameSubtitle: {
     fontSize: 16,
     marginBottom: 20,
-    fontFamily: "Roboto-Bold" // Use the same font as flashcard index
+    fontFamily: "Roboto-Bold", // Use the same font as flashcard index
   },
   summaryContainer: {
     marginBottom: 20,
@@ -122,7 +155,17 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 16,
     alignItems: "center",
-    width: '90%', 
+    width: "90%",
+  },
+  fileContainer: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: "#ccc",
+    padding: 8,
+    alignItems: "center",
   },
 });
 

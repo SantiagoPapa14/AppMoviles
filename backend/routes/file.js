@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
       const extension = path.extname(file.originalname);
       filename = req.userData.userId + extension;
     } else if (req.route.path === "/upload-summary-attachment") {
-      filename = file.originalname;
+      filename = Date.now() + "-" + file.originalname; // Use unique filename
     } else {
       return cb(new Error("Invalid upload route"));
     }

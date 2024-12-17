@@ -1,12 +1,84 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import React, { useState } from "react";
 import { useUserAuth } from "@/hooks/userAuth";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as DocumentPicker from "expo-document-picker";
+import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "@/constants/API-IP";
 
 const CreateSummary: React.FC = () => {
+  const [files, setFiles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const pickFiles = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        multiple: true,
+      });
+      if (result.canceled) return;
+      console.log(JSON.stringify(result));
+      setFiles(result.assets);
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while selecting files.");
+    }
+  };
+
+  const uploadFiles = async () => {
+    if (files.length === 0) {
+      Alert.alert("Error", "Please select some files first.");
+      return;
+    }
+
+    setLoading(true);
+
+    const token = await AsyncStorage.getItem("userToken");
+    const formData = new FormData();
+
+    files.forEach((file, index) => {
+      const fileData = {
+        uri: file.uri,
+        type: file.mimeType || "application/octet-stream",
+        name: file.name || `file_${index}`,
+      };
+      formData.append("files[]", fileData);
+    });
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-summary-attachment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upload files");
+      }
+
+      setLoading(false);
+      setFiles([]); // Clear files after successful upload
+      Alert.alert("Success", "Files uploaded successfully.");
+    } catch (error) {
+      setLoading(false);
+      console.error("Error uploading files:", error);
+      Alert.alert("Error", "Failed to upload files.");
+    }
+  };
+
   const [summary, setSummary] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
@@ -32,6 +104,7 @@ const CreateSummary: React.FC = () => {
         setSubject("");
         router.push("/homeTab");
       }
+      await uploadFiles();
     } catch (error) {
       Alert.alert("Error", "Hubo un problema al guardar el resumen");
     } finally {
@@ -61,6 +134,32 @@ const CreateSummary: React.FC = () => {
         placeholder="Escribe tu resumen aquí"
         multiline
       />
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
+          <Text>Upload Files:</Text>
+          {files.length == 0 && (
+            <Text> Haga click para subir archivos... </Text>
+          )}
+          {files.map((file, index) => (
+            <Text key={index}>{file.uri.split("/").pop()}</Text>
+          ))}
+        </TouchableOpacity>
+        {files.length > 0 && (
+          <TouchableOpacity
+            onPress={() => setFiles([])}
+            style={styles.pressableStyle}
+          >
+            <Ionicons name="trash-outline" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+      </View>
       <PressableCustom onPress={handleSave} label="Guardar Resumen" />
     </View>
   );
@@ -79,6 +178,8 @@ const styles = StyleSheet.create({
   },
   pressableStyle: {
     padding: 10,
+    margin: 5,
+    marginBottom: 20,
     backgroundColor: "#BB8632",
     borderRadius: 5,
     alignItems: "center",
@@ -95,6 +196,15 @@ const styles = StyleSheet.create({
   summaryInput: {
     //height: 100,
     flex: 1,
+    borderColor: "#8D602D",
+    borderWidth: 1,
+    marginBottom: 16,
+    padding: 8,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
+  },
+  fileInput: {
+    width: "90%",
     borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
