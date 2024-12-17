@@ -10,18 +10,17 @@ import {
   Button,
   Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUserAuth } from "@/hooks/userAuth";
+import { API_BASE_URL } from "@/constants/API-IP";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { Card as PaperCard } from "react-native-paper";
-import { useAuth } from "@/app/context/AuthContext";
-import { API_BASE_URL } from "@/constants/API-IP";
 
 const ProfileScreen = () => {
-  const { secureFetch, uploadImage, fetchProfile } = useAuth();
-
   const isFocused = useIsFocused();
-
+  const profile = useUserAuth();
   const [quizzes, setQuizzes] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
@@ -38,13 +37,19 @@ const ProfileScreen = () => {
   }>({ followersCount: 0, followingCount: 0 });
 
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [picModalOpen, setPicModalOpen] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
 
   const fetchUserContent = async () => {
     try {
-      if (!secureFetch) return;
-      const data = await secureFetch(`/user/user-content`);
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await fetch(`${API_BASE_URL}/user/user-content`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
       setQuizzes(data.quizzes);
       setFlashcards(data.decks);
       setSummaries(data.summaries);
@@ -55,15 +60,9 @@ const ProfileScreen = () => {
   };
 
   useEffect(() => {
-    const getProfile = async () => {
-      if (fetchProfile) {
-        setProfile(await fetchProfile());
-      }
-    };
     if (isFocused) {
       fetchUserContent();
     }
-    getProfile();
   }, [isFocused]);
 
   const requestPermission = async () => {
@@ -86,6 +85,49 @@ const ProfileScreen = () => {
 
     if (!result.canceled) {
       setImageUri(result.assets![0].uri); // Get the image URI
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!imageUri) {
+      Alert.alert("Error", "Please select an image first.");
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = new FormData();
+    const file = {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: `profile_picture.jpg`,
+    };
+    formData.append("profile_picture", file);
+
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-profile-picture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + token,
+          },
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+      setLoading(false);
+      Alert.alert("Success", "Profile picture uploaded successfully");
+      setPicModalOpen(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload profile picture.");
     }
   };
 
@@ -124,13 +166,11 @@ const ProfileScreen = () => {
             >
               <Button title="Select Image" onPress={pickImage} />
 
-              <Button
-                title="Save"
-                onPress={() => {
-                  if (uploadImage && imageUri) uploadImage(imageUri);
-                  setPicModalOpen(false);
-                }}
-              />
+              {loading ? (
+                <Text>Uploading...</Text>
+              ) : (
+                <Button title="Save" onPress={uploadImage} />
+              )}
 
               <Button title="Cancel" onPress={() => setPicModalOpen(false)} />
             </View>
@@ -243,9 +283,7 @@ const ProfileScreen = () => {
           </PaperCard>
         </>
       ) : (
-        <Text style={styles.text}>
-          No profile information available. {JSON.stringify(profile)}
-        </Text>
+        <Text style={styles.text}>No profile information available.</Text>
       )}
     </ScrollView>
   );
@@ -315,6 +353,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     marginBottom: 8,
+    fontFamily: "Mondapick",
   },
   cardText: {
     fontSize: 16,

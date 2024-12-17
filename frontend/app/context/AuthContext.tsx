@@ -1,14 +1,23 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { API_TOKEN_KEY } from "@/constants/API-TOKEN";
 
 interface AuthProps {
   authState?: { token: string | null; authenticated: boolean | null };
-  onRegister?: (email: string, password: string) => Promise<void>;
+  fetchProfile?: () => Promise<any>;
+  onRegister?: (
+    email: string,
+    username: string,
+    name: string,
+    password: string,
+    imageUri: string,
+  ) => Promise<void>;
   onLogin?: (email: string, password: string) => Promise<void>;
   onLogout?: () => Promise<void>;
   secureFetch?: (route: string, params?: any) => Promise<any | Array<any>>;
+  uploadImage?: (imageUri: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthProps>({});
@@ -26,9 +35,21 @@ export const AuthProvider = ({ children }: any) => {
     authenticated: null,
   });
 
+  const [profile, setProfile] = useState<any>(null);
+
+  const fetchProfile = async () => {
+    if (!profile) {
+      const userProfile = await secureFetch("/user");
+      setProfile(userProfile);
+      return userProfile;
+    } else {
+      return profile;
+    }
+  };
+
   useEffect(() => {
     const loadToken = async () => {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem(API_TOKEN_KEY);
       if (token) {
         setAuthState({
           token,
@@ -39,24 +60,29 @@ export const AuthProvider = ({ children }: any) => {
     loadToken();
   }, []);
 
-  const register = async (email: string, password: string) => {
+  const register = async (
+    email: string,
+    username: string,
+    name: string,
+    password: string,
+    imageUri: string,
+  ) => {
     const res = await fetch(`${API_BASE_URL}/user/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, username, name, password }),
     });
 
     const data = await res.json();
     if (data.token) {
       setAuthState({
-        token: data.token,
+        token: data.token.toString(),
         authenticated: true,
       });
-
       await AsyncStorage.setItem(API_TOKEN_KEY, data.token.toString());
-
+      await uploadImage(imageUri, data.token.toString());
       return data;
     } else {
       alert(data.message);
@@ -95,6 +121,7 @@ export const AuthProvider = ({ children }: any) => {
       token: null,
       authenticated: false,
     });
+    setProfile(null);
   };
 
   const secureFetch = async (route: string, params?: any) => {
@@ -110,12 +137,55 @@ export const AuthProvider = ({ children }: any) => {
     return data;
   };
 
+  const uploadImage = async (imageUri: string, forceToken?: string) => {
+    if (!imageUri) {
+      Alert.alert("Error", "Please select an image first.");
+      return;
+    }
+
+    const formData = new FormData();
+    const file = {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: `profile_picture.jpg`,
+    };
+
+    //@ts-ignore
+    formData.append("profile_picture", file);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-profile-picture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization:
+              "Bearer " + (forceToken ? forceToken : authState?.token),
+          },
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        Alert.alert(
+          "Error",
+          `Failed to upload image: ${JSON.stringify(response)}`,
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", `Failed to upload image: ${error}`);
+    }
+  };
+
   const value = {
     onRegister: register,
     onLogin: login,
     onLogout: logout,
     authState,
+    fetchProfile,
     secureFetch: secureFetch,
+    uploadImage: uploadImage,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

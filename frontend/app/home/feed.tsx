@@ -5,15 +5,11 @@ import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_BASE_URL } from "@/constants/API-IP";
-import { useRefresh } from "@/app/(mainTabs)/_layout";
+import { useAuth } from "@/app/context/AuthContext";
 
-const HomeTab = () => {
+const FeedScreen = ({ navigation }: { navigation: any }) => {
+  const { secureFetch } = useAuth();
   const router = useRouter();
-  const { refresh, setRefresh } = useRefresh();
-  //USER SPECIFIC PROJECTS
-
   const [quizzes, setQuizzes] = useState<
     {
       projectId: string;
@@ -23,6 +19,7 @@ const HomeTab = () => {
       createdAt: string;
     }[]
   >([]);
+
   const [flashcards, setFlashcards] = useState<
     {
       projectId: string;
@@ -32,6 +29,7 @@ const HomeTab = () => {
       createdAt: string;
     }[]
   >([]);
+
   const [summaries, setSummaries] = useState<
     {
       projectId: string;
@@ -69,7 +67,7 @@ const HomeTab = () => {
     ...followingSummaries,
   ];
 
-  combinedFollowingProjects.sort((a, b) => {
+  combinedFollowingProjects.sort((a: any, b: any) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
     return dateB - dateA;
@@ -78,14 +76,8 @@ const HomeTab = () => {
 
   const fetchUserContent = async () => {
     try {
-      const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user/user-content`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
+      if (!secureFetch) return;
+      const data = await secureFetch(`/user/user-content`);
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
       setFlashcards(Array.isArray(data.decks) ? data.decks : []);
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
@@ -96,14 +88,8 @@ const HomeTab = () => {
 
   const fetchFollowingProjects = async () => {
     try {
-      const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch(`${API_BASE_URL}/user/following-projects`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const dataFollowers = await response.json();
+      if (!secureFetch) return;
+      const dataFollowers = await secureFetch("/user/following-projects");
       setFollowingQuizzes(
         Array.isArray(dataFollowers.quizzes) ? dataFollowers.quizzes : [],
       );
@@ -122,16 +108,6 @@ const HomeTab = () => {
     fetchUserContent();
     fetchFollowingProjects();
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (refresh) {
-        fetchUserContent();
-        fetchFollowingProjects();
-        setRefresh(false);
-      }
-    }, [refresh]),
-  );
 
   return (
     <ScrollView style={styles.container}>
@@ -234,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeTab;
+export default FeedScreen;

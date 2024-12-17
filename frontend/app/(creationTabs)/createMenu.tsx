@@ -1,28 +1,26 @@
-import { View, StyleSheet, Text } from "react-native";
+import { View } from "react-native";
 import { PressableCustom } from "@/components/PressableCustom";
 import styles from "@/components/Styles";
-import { useRouter } from "expo-router";
 
-export default function CreateScreen() {
-  const router = useRouter();
+export default function CreateMenu({ navigation }: { navigation: any }) {
   return (
     <View style={styles.defaultViewStyle}>
       <PressableCustom
         label={"QUIZ"}
         onPress={() => {
-          router.push("/createQuiz");
+          navigation.navigate("CreateQuiz");
         }}
       />
       <PressableCustom
         label={"RESUMEN"}
         onPress={() => {
-          router.push("/createSummary");
+          navigation.navigate("CreateSummary");
         }}
       />
       <PressableCustom
         label={"FLASHCARDS"}
         onPress={() => {
-          router.push("/createFlashcard");
+          navigation.navigate("CreateFlashcard");
         }}
       />
     </View>

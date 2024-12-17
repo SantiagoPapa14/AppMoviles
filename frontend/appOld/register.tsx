@@ -7,7 +7,6 @@ import {
   Alert,
   Dimensions,
   Image,
-  Modal,
 } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "@/constants/API-IP";
 import * as ImagePicker from "expo-image-picker";
 
-export default function App() {
+export default function Register() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

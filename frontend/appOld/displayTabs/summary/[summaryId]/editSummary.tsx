@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "@/constants/API-IP";
-import { useRefresh } from "@/app/(mainTabs)/_layout";
+import { useRefresh } from "@/app/navigation/RefreshProvider";
 
 const EditSummary: React.FC = () => {
   const [summaryContent, setSummaryContent] = useState("");

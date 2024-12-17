@@ -1,45 +1,17 @@
 import { useState } from "react";
-import {
-  Text,
-  TextInput,
-  View,
-  Button,
-  Alert,
-  Dimensions,
-  Image,
-} from "react-native";
+import { Text, TextInput, View, Button, Dimensions, Image } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_BASE_URL } from "@/constants/API-IP";
+import { useAuth } from "@/app/context/AuthContext";
 
-export default function App() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const { onLogin } = useAuth();
   const handleLogin = async () => {
-    if (email === "" || password === "") {
-      Alert.alert("Error", "Please enter both email and password.");
-    } else {
-      const response = await fetch(`${API_BASE_URL}/user/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem("userToken", data.token);
-        await AsyncStorage.setItem("userId", String(data.userId));
-        router.replace("./createTab");
-      } else {
-        Alert.alert("Error", "Login failed.");
-      }
-    }
+    if (onLogin) await onLogin(email, password);
+    else alert("No se pudo iniciar sesión");
   };
 
   return (

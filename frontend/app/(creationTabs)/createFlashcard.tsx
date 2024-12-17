@@ -9,7 +9,6 @@ import {
 import React, { useState } from "react";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -34,9 +33,10 @@ const FlashcardAddComponent = ({
 }) => {
   return (
     <View style={styles.flashcardContainer}>
-
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>Nueva flashcard:</Text>
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+          Nueva flashcard:
+        </Text>
         <TextInput
           style={styles.input}
           placeholder="Front"
@@ -49,7 +49,6 @@ const FlashcardAddComponent = ({
           value={flashcardData.back}
           onChangeText={(text) => onUpdate({ ...flashcardData, back: text })}
         />
-        
       </View>
       <Ionicons
         name="close-circle"
@@ -62,11 +61,10 @@ const FlashcardAddComponent = ({
   );
 };
 
-const CreateFlashcard: React.FC = () => {
+const CreateFlashcard = ({ navigation }: { navigation: any }) => {
   const [title, setTitle] = useState("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const router = useRouter();
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
     setFlashcards((prevFlashcards) => {
@@ -102,12 +100,14 @@ const CreateFlashcard: React.FC = () => {
 
     for (const flashcard of deck.flashcards) {
       if (!flashcard.front.trim() || !flashcard.back.trim()) {
-        Alert.alert("Error", "Todas las flashcards deben tener ambos lados llenos.");
+        Alert.alert(
+          "Error",
+          "Todas las flashcards deben tener ambos lados llenos.",
+        );
         setIsSaving(false);
         return;
       }
     }
-
 
     try {
       const token = await AsyncStorage.getItem("userToken");
@@ -124,7 +124,7 @@ const CreateFlashcard: React.FC = () => {
         throw new Error("Failed to save the deck");
       } else {
         Alert.alert("Éxito", `Deck ${deck.title} guardado correctamente`);
-        router.replace("/homeTab");
+        navigation.navigate("Feed");
       }
     } catch (error) {
       console.error("Failed to save the deck:", error);
@@ -164,6 +164,7 @@ const CreateFlashcard: React.FC = () => {
           label="Guardar"
           disabled={isSaving}
         />
+        <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
       </ScrollView>
     </View>
   );

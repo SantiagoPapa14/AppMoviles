@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 
-export default function SettingsScreen() {
+export default function SearchScreen() {
   return (
     <View>
-      <Text>Settings Screen</Text>
+      <Text>Search Screen</Text>
     </View>
   );
 }

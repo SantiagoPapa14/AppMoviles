@@ -1,17 +1,27 @@
-import React from "react";
 import { Image, Text, TouchableOpacity } from "react-native";
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
-import { useUserAuth } from "@/hooks/userAuth";
+import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
+import { useState, useEffect } from "react";
 
 export default function CustomDrawerContent(props: any) {
-  const user = useUserAuth();
+  const { onLogout, fetchProfile } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (fetchProfile) {
+        const userProfile = await fetchProfile();
+        setProfile(userProfile);
+      }
+    };
+    loadProfile();
+  });
+
   return (
     <DrawerContentScrollView {...props}>
       <TouchableOpacity
@@ -20,8 +30,8 @@ export default function CustomDrawerContent(props: any) {
       >
         <Image
           source={{
-            uri: user
-              ? `${API_BASE_URL}/uploads/profile_pictures/${user.userId}.jpg?timestamp=${Date.now()}`
+            uri: profile
+              ? `${API_BASE_URL}/uploads/profile_pictures/${profile.userId}.jpg?timestamp=${Date.now()}`
               : "https://via.placeholder.com/150",
           }}
           style={{ width: 60, height: 60, borderRadius: 30 }}
@@ -36,7 +46,7 @@ export default function CustomDrawerContent(props: any) {
             marginVertical: 10,
           }}
         >
-          @{user?.username || "User Name"}
+          @{profile?.username || "User Name"}
         </Text>
         <Text
           style={{
@@ -46,7 +56,7 @@ export default function CustomDrawerContent(props: any) {
             marginBottom: 10,
           }}
         >
-          {user?.name || "user@example.com"}
+          {profile?.name || "user@example.com"}
         </Text>
         <Text
           style={{
@@ -55,19 +65,12 @@ export default function CustomDrawerContent(props: any) {
             textAlign: "center",
           }}
         >
-          {user?.followerCount || "0"} Followers
+          {profile?.followerCount || "0"} Followers
         </Text>
       </TouchableOpacity>
       <DrawerItemList {...props} />
       <TouchableOpacity
-        onPress={() => {
-          // Add your logout logic here
-          AsyncStorage.removeItem("userId");
-          AsyncStorage.removeItem("recentSearches");
-          AsyncStorage.removeItem("userToken").then(() => {
-            router.replace("/");
-          });
-        }}
+        onPress={onLogout}
         style={{
           flexDirection: "row",
           alignItems: "center",

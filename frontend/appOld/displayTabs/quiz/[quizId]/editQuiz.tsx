@@ -12,7 +12,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useRefresh } from "@/app/(mainTabs)/_layout";
+import { useRefresh } from "@/app/navigation/RefreshProvider";
 
 interface QuizQuestion {
   question: string;

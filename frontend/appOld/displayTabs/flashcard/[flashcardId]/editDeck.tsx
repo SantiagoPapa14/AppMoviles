@@ -12,7 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useRefresh } from "@/app/(mainTabs)/_layout";
+import { useRefresh } from "@/app/navigation/RefreshProvider";
 
 interface Flashcard {
   front: string;
@@ -306,4 +306,3 @@ const styles = StyleSheet.create({
 });
 
 export default editDeck;
-
