@@ -1,7 +1,13 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function createSummary(title, subject, summaryContent, userId) {
+async function createSummary(
+  title,
+  subject,
+  summaryContent,
+  files = [],
+  userId,
+) {
   try {
     const insertedSummary = await prisma.summary.create({
       data: {
@@ -11,6 +17,17 @@ async function createSummary(title, subject, summaryContent, userId) {
         userId: Number(userId),
       },
     });
+
+    if (files.length > 0) {
+      for (const file of files) {
+        await prisma.summaryFile.create({
+          data: {
+            filename: file.filename,
+            summaryId: insertedSummary.projectId,
+          },
+        });
+      }
+    }
     return insertedSummary;
   } catch (error) {
     console.log(error);

@@ -17,7 +17,6 @@ import { API_BASE_URL } from "@/constants/API-IP";
 
 const CreateSummary: React.FC = () => {
   const [files, setFiles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const pickFiles = async () => {
     try {
@@ -26,56 +25,44 @@ const CreateSummary: React.FC = () => {
       });
       if (result.canceled) return;
       console.log(JSON.stringify(result));
+      console.log(`Selected files: ${JSON.stringify(result.assets)}`);
       setFiles(result.assets);
     } catch (error) {
       Alert.alert("Error", "An error occurred while selecting files.");
     }
   };
 
-  const uploadFiles = async () => {
-    if (files.length === 0) {
-      Alert.alert("Error", "Please select some files first.");
-      return;
-    }
-
-    setLoading(true);
-
-    const token = await AsyncStorage.getItem("userToken");
+  const uploadDocuments = async () => {
     const formData = new FormData();
-
-    files.forEach((file, index) => {
-      const fileData = {
-        uri: file.uri,
-        type: file.mimeType || "application/octet-stream",
-        name: file.name || `file_${index}`,
+    for (const fileRaw of files) {
+      const file = {
+        uri: fileRaw.uri,
+        type: fileRaw.mimeType,
+        name: fileRaw.uri.split("/").pop(),
       };
-      formData.append("files[]", fileData);
-    });
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/file/upload-summary-attachment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+      formData.append("summary_attachment", file);
+      const token = await AsyncStorage.getItem("userToken");
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/file/upload-summary-attachment`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: "Bearer " + token,
+            },
+            body: formData,
           },
-          body: formData,
-        },
-      );
+        );
 
-      if (!response.ok) {
-        throw new Error("Failed to upload files");
+        if (!response.ok) {
+          throw new Error("Failed to upload image");
+        }
+        Alert.alert("Success", "Document uploaded successfully");
+      } catch (error) {
+        console.error("Error uploading document:", error);
+        Alert.alert("Error", "Failed to upload document.");
       }
-
-      setLoading(false);
-      setFiles([]); // Clear files after successful upload
-      Alert.alert("Success", "Files uploaded successfully.");
-    } catch (error) {
-      setLoading(false);
-      console.error("Error uploading files:", error);
-      Alert.alert("Error", "Failed to upload files.");
     }
   };
 
@@ -97,14 +84,21 @@ const CreateSummary: React.FC = () => {
       if (!profile) {
         Alert.alert("Error", "No se pudo obtener el perfil del usuario");
       } else {
-        await saveSummaryToAPI(title, subject, summary);
+        await saveSummaryToAPI(
+          title,
+          subject,
+          summary,
+          files.map((f) => {
+            return { filename: f.uri.split("/").pop() };
+          }),
+        );
+        await uploadDocuments();
         Alert.alert("Éxito", "Resumen guardado correctamente");
         setTitle("");
         setSummary("");
         setSubject("");
         router.push("/homeTab");
       }
-      await uploadFiles();
     } catch (error) {
       Alert.alert("Error", "Hubo un problema al guardar el resumen");
     } finally {
@@ -224,6 +218,7 @@ async function saveSummaryToAPI(
   title: string,
   subject: string,
   summary: string,
+  files: Array<any>,
 ): Promise<void> {
   const token = await AsyncStorage.getItem("userToken");
   const response = await fetch(`${API_BASE_URL}/summary`, {
@@ -232,7 +227,7 @@ async function saveSummaryToAPI(
       "Content-Type": "application/json",
       Authorization: "Bearer " + token,
     },
-    body: JSON.stringify({ title, subject, summary }),
+    body: JSON.stringify({ title, subject, summary, files }),
   });
 
   if (!response.ok) {

@@ -18,13 +18,14 @@ const storage = multer.diskStorage({
     }
     cb(null, uploadPath);
   },
+
   filename: (req, file, cb) => {
     let filename;
     if (req.route.path === "/upload-profile-picture") {
       const extension = path.extname(file.originalname);
       filename = req.userData.userId + extension;
     } else if (req.route.path === "/upload-summary-attachment") {
-      filename = Date.now() + "-" + file.originalname; // Use unique filename
+      filename = file.originalname;
     } else {
       return cb(new Error("Invalid upload route"));
     }
@@ -54,7 +55,7 @@ router.post(
   upload.single("summary_attachment"),
   async (req, res) => {
     try {
-      const uploadedFilename = req.file.filename;
+      //const uploadedFilename = req.file.filename;
       res.json({ message: "Summary attachment uploaded successfully" });
     } catch (error) {
       console.error("Error uploading summary attachment:", error);

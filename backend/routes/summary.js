@@ -12,7 +12,7 @@ const {
 } = require("../lib/summaryRepository");
 
 router.post("/", authLib.validateAuthorization, async (req, res) => {
-  const { title, subject, summary } = req.body;
+  const { title, subject, summary, files } = req.body;
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -26,6 +26,7 @@ router.post("/", authLib.validateAuthorization, async (req, res) => {
       title,
       subject,
       summary,
+      files,
       req.userData.userId,
     );
     res.status(200).json({
