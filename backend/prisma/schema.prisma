@@ -42,6 +42,14 @@ model Summary {
   userId    Int
   user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
   views     Int      @default(0)
+  files     SummaryFile[]
+}
+
+model SummaryFile {
+  id        Int       @id @default(autoincrement())
+  summaryId Int
+  summary   Summary @relation(fields: [summaryId], references: [projectId], onDelete: Cascade)
+  filename  String
 }
 
 model Quiz {

@@ -106,7 +106,7 @@ async function getSummaryById(id) {
           increment: 1,
         },
       },
-      include: { user: true },
+      include: { user: true, files: true },
     });
     return summary;
   } catch (error) {
