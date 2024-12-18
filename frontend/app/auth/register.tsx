@@ -44,7 +44,7 @@ export default function Register({ navigation }: any) {
   };
 
   const handleRegister = async () => {
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (
       username === "" ||
       password === "" ||
@@ -53,11 +53,9 @@ export default function Register({ navigation }: any) {
       !imageUri
     ) {
       Alert.alert("Error", "Please fill in all fields.");
-    }
-    //else if (!emailRegex.test(email)) {
-    //  Alert.alert("Error", "Please enter a valid email address.");
-    //}
-    else {
+    } else if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+    } else {
       if (onRegister) {
         await onRegister(email, username, name, password, imageUri);
       } else Alert.alert("No se pudo registrar");

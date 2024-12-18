@@ -61,7 +61,7 @@ const PlayQuiz = ({ navigation }: any) => {
 
     if (currentQuestionIndex === quiz.questions.length - 1) {
       await AsyncStorage.setItem(`quizAnswers`, JSON.stringify(newAnswers));
-      navigation.navigate("QuizScore", { id });
+      navigation.navigate("Quiz Score", { id });
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }

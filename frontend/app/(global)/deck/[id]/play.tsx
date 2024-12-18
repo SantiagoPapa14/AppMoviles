@@ -15,7 +15,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRoute } from "@react-navigation/native";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-
 const PlayDeck = ({ navigation }: any) => {
   const [deck, setDeck] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -107,7 +106,7 @@ const PlayDeck = ({ navigation }: any) => {
           `Your score is ${answersCorrect.filter(Boolean).length}`,
         );
         setTimeout(() => {
-          navigation.navigate(`DeckScore`, { id });
+          navigation.navigate(`Deck Score`, { id });
         }, 250);
       }
     });
