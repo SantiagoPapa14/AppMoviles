@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { Pressable, Text, View, Dimensions, Animated } from "react-native";
+import { useState, useRef } from "react";
+import { Pressable, Text, Dimensions, Animated } from "react-native";
 import { ViewStyle, TextStyle } from "react-native";
-import { useRouter } from "expo-router";
 
 export interface CardProps {
   title: string;
@@ -9,31 +8,32 @@ export interface CardProps {
   color?: string;
   projectId: number;
   type?: string;
+  navigation?: any;
 }
 
 const getColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#FFD700"; // Gold
+      return "#FFD700";
     case "flashcard":
-      return "#FF69B4"; // HotPink
+      return "#FF69B4";
     case "summary":
-      return "#8A2BE2"; // BlueViolet
+      return "#8A2BE2";
     default:
-      return "#4682B4"; // SteelBlue
+      return "#4682B4";
   }
 };
 
 const getActiveColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#B8860B"; // DarkGoldenRod
+      return "#B8860B";
     case "flashcard":
-      return "#C71585"; // MediumVioletRed
+      return "#C71585";
     case "summary":
-      return "#4B0082"; // Indigo
+      return "#4B0082";
     default:
-      return "#2B4F72"; // DarkSteelBlue
+      return "#2B4F72";
   }
 };
 
@@ -42,11 +42,13 @@ export const Card = ({
   creator = "",
   projectId,
   type = "draft",
+  navigation,
 }: CardProps) => {
+  const typeParsed =
+    type.toLowerCase().charAt(0).toUpperCase() + type.toLowerCase().slice(1);
   const [pressed, setPressed] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
-  const router = useRouter();
 
   const handlePress = () => {
     if (pressed) return;
@@ -63,7 +65,7 @@ export const Card = ({
         speed: 90,
       }),
     ]).start(() => {
-      router.push(`/displayTabs/${type}/${projectId}`);
+      navigation.navigate(typeParsed, { id: projectId });
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -83,7 +85,7 @@ export const Card = ({
 
   const backgroundColor = fadeAnim.interpolate({
     inputRange: [0.5, 1],
-    outputRange: [getActiveColorByType(type), getColorByType(type)],
+    outputRange: [getActiveColorByType(typeParsed), getColorByType(typeParsed)],
   });
 
   return (
@@ -94,7 +96,7 @@ export const Card = ({
           { backgroundColor, transform: [{ scale: scaleValue }] },
         ]}
       >
-        {type && (
+        {typeParsed && (
           <Text style={styles.typeText}>
             {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
           </Text>

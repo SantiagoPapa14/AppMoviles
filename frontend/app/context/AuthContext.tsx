@@ -6,6 +6,7 @@ import { API_TOKEN_KEY } from "@/constants/API-TOKEN";
 
 interface AuthProps {
   authState?: { token: string | null; authenticated: boolean | null };
+  updateToken?: (token: string) => void;
   fetchProfile?: () => Promise<any>;
   onRegister?: (
     email: string,
@@ -18,6 +19,7 @@ interface AuthProps {
   onLogout?: () => Promise<void>;
   secureFetch?: (route: string, params?: any) => Promise<any | Array<any>>;
   uploadImage?: (imageUri: string) => Promise<void>;
+  uploadAttachment?: (file: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthProps>({});
@@ -137,6 +139,14 @@ export const AuthProvider = ({ children }: any) => {
     return data;
   };
 
+  const updateToken = async (token: string) => {
+    await AsyncStorage.setItem(API_TOKEN_KEY, token);
+    setAuthState({
+      token,
+      authenticated: authState?.authenticated,
+    });
+  };
+
   const uploadImage = async (imageUri: string, forceToken?: string) => {
     if (!imageUri) {
       Alert.alert("Error", "Please select an image first.");
@@ -150,8 +160,7 @@ export const AuthProvider = ({ children }: any) => {
       name: `profile_picture.jpg`,
     };
 
-    //@ts-ignore
-    formData.append("profile_picture", file);
+    formData.append("profile_picture", file as any);
 
     try {
       const response = await fetch(
@@ -178,14 +187,45 @@ export const AuthProvider = ({ children }: any) => {
     }
   };
 
+  const uploadAttachment = async (file: any, forceToken?: string) => {
+    const formData = new FormData();
+    formData.append("summary_attachment", file);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/file/upload-summary-attachment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization:
+              "Bearer " + (forceToken ? forceToken : authState?.token),
+          },
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        Alert.alert(
+          "Error",
+          `Failed to upload file: ${JSON.stringify(response)}`,
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", `Failed to upload file: ${error}`);
+    }
+  };
+
   const value = {
     onRegister: register,
     onLogin: login,
     onLogout: logout,
     authState,
+    updateToken: updateToken,
     fetchProfile,
     secureFetch: secureFetch,
     uploadImage: uploadImage,
+    uploadAttachment: uploadAttachment,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

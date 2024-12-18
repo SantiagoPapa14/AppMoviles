@@ -1,5 +1,5 @@
+import { useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -42,13 +42,13 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   //Following PROJECTS
   const [followingQuizzes, setFollowingQuizzes] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; user: any; title: string; type: string }[]
   >([]);
   const [followingFlashcards, setFollowingFlashcards] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; user: any; title: string; type: string }[]
   >([]);
   const [followingSummaries, setFollowingSummaries] = useState<
-    { projectId: string; title: string; type: string }[]
+    { projectId: string; user: any; title: string; type: string }[]
   >([]);
 
   const combinedProjects = [...quizzes, ...flashcards, ...summaries];
@@ -104,10 +104,24 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  useEffect(() => {
-    fetchUserContent();
-    fetchFollowingProjects();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const fetchData = async () => {
+        if (isActive) {
+          await fetchUserContent();
+          await fetchFollowingProjects();
+        }
+      };
+
+      fetchData();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -121,6 +135,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
               creator="By you"
               projectId={parseInt(project.projectId)}
               type={project.type}
+              navigation={navigation}
             />
           ))}
         </ScrollView>
@@ -128,7 +143,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
         <View style={styles.buttonContainer}></View>
         <PressableCustom
           label={"View More"}
-          onPress={() => router.push("/viewMore/userProjects")}
+          onPress={() => navigation.navigate("MyProjects")}
         />
       </View>
       <View style={styles.box}>
@@ -141,13 +156,14 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
               creator={project.user.username}
               projectId={parseInt(project.projectId)}
               type={project.type}
+              navigation={navigation}
             />
           ))}
         </ScrollView>
         <View style={styles.buttonContainer}></View>
         <PressableCustom
           label={"View More"}
-          onPress={() => router.push("/viewMore/followingProjects")}
+          onPress={() => navigation.navigate("FollowingProjects")}
         />
       </View>
     </ScrollView>

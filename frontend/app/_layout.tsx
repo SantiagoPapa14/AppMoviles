@@ -1,6 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import CustomDrawerContent from "@/components/CustomDrawerContent";
 import { Image } from "react-native";
+import { useEffect } from "react";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -19,9 +22,31 @@ import SearchScreen from "./home/search";
 import LoginScreen from "./auth/login";
 import RegisterScreen from "./auth/register";
 
+import SummaryScreen from "./(global)/summary/[id]/index";
+import EditSummary from "./(global)/summary/[id]/edit";
+
+import QuizScreen from "./(global)/quiz/[id]/index";
+import EditQuiz from "./(global)/quiz/[id]/edit";
+import PlayQuiz from "./(global)/quiz/[id]/play";
+import QuizScore from "./(global)/quiz/[id]/score";
+
+import DeckScreen from "./(global)/deck/[id]/index";
+import EditDeck from "./(global)/deck/[id]/edit";
+import PlayDeck from "./(global)/deck/[id]/play";
+import DeckScore from "./(global)/deck/[id]/score";
+
+import UserProfile from "./(global)/user/[id]/index";
+
+import FollowingProjects from "./(global)/viewMore/followingProjects";
+import TopDecks from "./(global)/viewMore/topDecks";
+import TopQuizzes from "./(global)/viewMore/topQuizzes";
+import TopSummaries from "./(global)/viewMore/topSummaries";
+import MyProjects from "./(global)/viewMore/userProjects";
+
 const DrawerNavigator = createDrawerNavigator();
 const TabNavigator = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const AuthStack = createNativeStackNavigator();
+const GlobalStack = createNativeStackNavigator();
 
 function HomeTabs() {
   return (
@@ -71,75 +96,122 @@ function MainNavigation() {
   const { authState } = useAuth();
   if (!authState || !authState.authenticated) {
     return (
-      <NavigationContainer independent={true}>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AuthStack.Navigator>
+        <AuthStack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <AuthStack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
+      </AuthStack.Navigator>
     );
   } else {
     return (
-      <NavigationContainer independent={true}>
-        <DrawerNavigator.Navigator
-          drawerContent={(props) => <CustomDrawerContent {...props} />}
-          screenOptions={({ route }) => ({
-            drawerIcon: ({ focused, color, size }) => {
-              let iconName: keyof typeof Ionicons.glyphMap = "home-outline"; // default value
+      <DrawerNavigator.Navigator
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={({ route }) => ({
+          drawerIcon: ({ focused, color, size }) => {
+            let iconName: keyof typeof Ionicons.glyphMap = "home-outline"; // default value
 
-              if (route.name === "Home") {
-                iconName = focused ? "home" : "home-outline";
-                return <Ionicons name={iconName} size={size} color={color} />;
-              }
-              if (route.name === "Profile") {
-                iconName = focused ? "person" : "person-outline";
-                return <Ionicons name={iconName} size={size} color={color} />;
-              } else if (route.name === "Settings") {
-                iconName = focused ? "settings" : "settings-outline";
-                return <Ionicons name={iconName} size={size} color={color} />;
-              } else if (route.name === "NewItem") {
-                iconName = focused ? "star" : "star-outline";
-                return <Ionicons name={iconName} size={size} color={color} />;
-              }
-            },
-            drawerStyle: {
-              backgroundColor: "#B49F84",
-            },
-            drawerActiveTintColor: "#D2B48C",
-            drawerInactiveTintColor: "gray",
-            drawerLabelStyle: { fontSize: 14, color: "white" },
-            headerTitle: () => (
-              <Image
-                source={require("@/assets/images/LOGOS/imagotipo.png")}
-                style={{ width: 250, height: 100, alignSelf: "center" }}
-                resizeMode="contain"
-              />
-            ),
-            headerTitleAlign: "center",
-            drawerLockMode: "locked-closed",
-          })}
-        >
-          <DrawerNavigator.Screen name="Home" component={HomeTabs} />
-          <DrawerNavigator.Screen name="Profile" component={ProfileScreen} />
-          <DrawerNavigator.Screen name="Settings" component={SettingsScreen} />
-        </DrawerNavigator.Navigator>
-      </NavigationContainer>
+            if (route.name === "Home") {
+              iconName = focused ? "home" : "home-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
+            if (route.name === "Profile") {
+              iconName = focused ? "person" : "person-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            } else if (route.name === "Settings") {
+              iconName = focused ? "settings" : "settings-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            } else if (route.name === "NewItem") {
+              iconName = focused ? "star" : "star-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
+          },
+          drawerStyle: {
+            backgroundColor: "#B49F84",
+          },
+          drawerActiveTintColor: "#D2B48C",
+          drawerInactiveTintColor: "gray",
+          drawerLabelStyle: { fontSize: 14, color: "white" },
+          headerTitle: () => (
+            <Image
+              source={require("@/assets/images/LOGOS/imagotipo.png")}
+              style={{ width: 250, height: 100, alignSelf: "center" }}
+              resizeMode="contain"
+            />
+          ),
+          headerTitleAlign: "center",
+          drawerLockMode: "locked-closed",
+        })}
+      >
+        <DrawerNavigator.Screen name="Home" component={HomeTabs} />
+        <DrawerNavigator.Screen name="Profile" component={ProfileScreen} />
+        <DrawerNavigator.Screen name="Settings" component={SettingsScreen} />
+      </DrawerNavigator.Navigator>
     );
   }
 }
 
 export default function Layout() {
+  const [loaded, error] = useFonts({
+    Mondapick: require("../assets/fonts/Mondapick.ttf"),
+    "Roboto-Black": require("../assets/fonts/Roboto-Black.ttf"),
+    "Roboto-BlackItalic": require("../assets/fonts/Roboto-BlackItalic.ttf"),
+    "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
+    "Roboto-BoldItalic": require("../assets/fonts/Roboto-BoldItalic.ttf"),
+    "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
   return (
     <AuthProvider>
-      <MainNavigation />
+      <NavigationContainer independent={true}>
+        <GlobalStack.Navigator>
+          <GlobalStack.Screen
+            name="Main"
+            component={MainNavigation}
+            options={{ headerShown: false }}
+          />
+
+          {/*Summary*/}
+          <GlobalStack.Screen name="Summary" component={SummaryScreen} />
+          <GlobalStack.Screen name="EditSummary" component={EditSummary} />
+
+          {/*Quiz*/}
+          <GlobalStack.Screen name="Quiz" component={QuizScreen} />
+          <GlobalStack.Screen name="EditQuiz" component={EditQuiz} />
+          <GlobalStack.Screen name="PlayQuiz" component={PlayQuiz} />
+          <GlobalStack.Screen name="QuizScore" component={QuizScore} />
+
+          {/*Quiz*/}
+          <GlobalStack.Screen name="Flashcard" component={DeckScreen} />
+          <GlobalStack.Screen name="EditDeck" component={EditDeck} />
+          <GlobalStack.Screen name="PlayDeck" component={PlayDeck} />
+          <GlobalStack.Screen name="DeckScore" component={DeckScore} />
+
+          {/*Social*/}
+          <GlobalStack.Screen name="UserProfile" component={UserProfile} />
+
+          {/*ViewMore*/}
+          <GlobalStack.Screen
+            name="FollowingProjects"
+            component={FollowingProjects}
+          />
+          <GlobalStack.Screen name="TopDecks" component={TopDecks} />
+          <GlobalStack.Screen name="TopQuizzes" component={TopQuizzes} />
+          <GlobalStack.Screen name="TopSummaries" component={TopSummaries} />
+          <GlobalStack.Screen name="MyProjects" component={MyProjects} />
+        </GlobalStack.Navigator>
+      </NavigationContainer>
     </AuthProvider>
   );
 }
