@@ -76,16 +76,44 @@ const ProfileScreen = () => {
     }
   };
 
-  const pickImage = async () => {
-    await requestPermission();
+  const requestCameraPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "You need to grant permission to access the camera.",
+      );
+    }
+  };
 
+  const pickImage = async () => {
+    const options = [
+      { text: "Take Photo", onPress: capturePhoto },
+      { text: "Choose from Gallery", onPress: selectFromGallery },
+      { text: "Cancel", style: "cancel" },
+    ];
+    Alert.alert("Select Image", "Choose an option", options);
+  };
+
+  const selectFromGallery = async () => {
+    await requestPermission();
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       quality: 1,
     });
-
     if (!result.canceled) {
-      setImageUri(result.assets![0].uri); // Get the image URI
+      setImageUri(result.assets![0].uri);
+    }
+  };
+
+  const capturePhoto = async () => {
+    await requestCameraPermission();
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets![0].uri);
     }
   };
 

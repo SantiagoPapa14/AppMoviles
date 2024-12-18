@@ -63,7 +63,7 @@ const SummaryScreen = ({ navigation }: any) => {
     );
   }
 
-  if (error) {
+  if (error || !summary) {
     return (
       <View style={styles.container}>
         <Text>Error: {error}</Text>
