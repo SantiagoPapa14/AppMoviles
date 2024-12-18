@@ -38,7 +38,7 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
         const file = {
           uri: fileRaw.uri,
           type: fileRaw.mimeType,
-          name: fileRaw.uri.split("/").pop(),
+          name: fileRaw.name,
         };
 
         if (!uploadAttachment || !file) return;
@@ -97,7 +97,7 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
             <Text> Haga click para subir archivos... </Text>
           )}
           {files.map((file, index) => (
-            <Text key={index}>{file.uri.split("/").pop()}</Text>
+            <Text key={index}>{file.name}</Text>
           ))}
         </TouchableOpacity>
         {files.length > 0 && (

@@ -66,19 +66,19 @@ const DeckScreen = ({ navigation }: any) => {
       {deck?.user.userId == idUser ? (
         <SmallPressableCustom
           label="Edit"
-          onPress={() => navigation.navigate("EditDeck", { id })}
+          onPress={() => navigation.navigate("Edit Deck", { id })}
         />
       ) : (
         <SmallPressableCustom
           label="View Profile"
           onPress={() =>
-            navigation.navigate("UserProfile", { id: deck.user.userId })
+            navigation.navigate("User Profile", { id: deck.user.userId })
           }
         />
       )}
       <SmallPressableCustom
         onPress={() => {
-          navigation.navigate("PlayDeck", { id });
+          navigation.navigate("Play Deck", { id });
         }}
         label="Play"
       />

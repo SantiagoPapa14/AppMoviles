@@ -9,6 +9,7 @@ const {
   getSummaryById,
   EditSummary,
   deleteSummary,
+  deleteSummaryFiles,
 } = require("../lib/summaryRepository");
 
 router.post("/", authLib.validateAuthorization, async (req, res) => {
@@ -41,7 +42,7 @@ router.post("/", authLib.validateAuthorization, async (req, res) => {
 });
 
 router.patch("/:id", authLib.validateAuthorization, async (req, res) => {
-  const { title, subject, summary } = req.body;
+  const { title, subject, summary, files } = req.body;
 
   if (!title || !subject || !summary) {
     res.status(400).json({
@@ -54,6 +55,8 @@ router.patch("/:id", authLib.validateAuthorization, async (req, res) => {
       title,
       subject,
       summary,
+      files,
+      req.userData.userId,
       req.params.id,
     );
 
@@ -98,6 +101,23 @@ router.delete("/:id", authLib.validateAuthorization, async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to delete summary", error: err.message });
+  }
+});
+
+router.delete("/files/:id", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const summaryId = req.params.id;
+    const updatedSummary = await deleteSummaryFiles(summaryId);
+    if (!updatedSummary) {
+      res.status(404).json({ message: "Summary not found" });
+      return;
+    }
+    res.status(200).json({ message: "Summary files deleted successfully!" });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Failed to delete summary files", error: err.message });
   }
 });
 

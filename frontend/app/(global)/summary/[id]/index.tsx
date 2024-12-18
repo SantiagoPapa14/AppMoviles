@@ -111,12 +111,12 @@ const SummaryScreen = ({ navigation }: any) => {
       {summary.user.userId == idUser ? (
         <SmallPressableCustom
           label="Edit"
-          onPress={() => navigation.navigate("EditSummary", { id })}
+          onPress={() => navigation.navigate("Edit Summary", { id })}
         />
       ) : (
         <SmallPressableCustom
           label="View Profile"
-          onPress={() => navigation.navigate("UserProfile", { summary })}
+          onPress={() => navigation.navigate("User Profile", { summary })}
         />
       )}
     </ScrollView>

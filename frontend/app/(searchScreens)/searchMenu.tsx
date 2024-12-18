@@ -80,7 +80,7 @@ const SearchScreen = ({ navigation }: any) => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => navigation.navigate("TopSummaries")}
+            onPress={() => navigation.navigate("Top Summaries")}
           />
         </View>
         <View style={styles.box}>
@@ -101,7 +101,7 @@ const SearchScreen = ({ navigation }: any) => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => navigation.navigate("TopQuizzes")}
+            onPress={() => navigation.navigate("Top Quizzes")}
           />
         </View>
         <View style={styles.box}>
@@ -122,7 +122,7 @@ const SearchScreen = ({ navigation }: any) => {
           <View style={styles.buttonContainer}></View>
           <PressableCustom
             label={"View More"}
-            onPress={() => navigation.navigate("TopDecks")}
+            onPress={() => navigation.navigate("Top Decks")}
           />
         </View>
       </ScrollView>

@@ -184,32 +184,32 @@ export default function Layout() {
 
           {/*Summary*/}
           <GlobalStack.Screen name="Summary" component={SummaryScreen} />
-          <GlobalStack.Screen name="EditSummary" component={EditSummary} />
+          <GlobalStack.Screen name="Edit Summary" component={EditSummary} />
 
           {/*Quiz*/}
           <GlobalStack.Screen name="Quiz" component={QuizScreen} />
-          <GlobalStack.Screen name="EditQuiz" component={EditQuiz} />
-          <GlobalStack.Screen name="PlayQuiz" component={PlayQuiz} />
-          <GlobalStack.Screen name="QuizScore" component={QuizScore} />
+          <GlobalStack.Screen name="Edit Quiz" component={EditQuiz} />
+          <GlobalStack.Screen name="Play Quiz" component={PlayQuiz} />
+          <GlobalStack.Screen name="Quiz Score" component={QuizScore} />
 
           {/*Quiz*/}
           <GlobalStack.Screen name="Flashcard" component={DeckScreen} />
-          <GlobalStack.Screen name="EditDeck" component={EditDeck} />
-          <GlobalStack.Screen name="PlayDeck" component={PlayDeck} />
-          <GlobalStack.Screen name="DeckScore" component={DeckScore} />
+          <GlobalStack.Screen name="Edit Deck" component={EditDeck} />
+          <GlobalStack.Screen name="Play Deck" component={PlayDeck} />
+          <GlobalStack.Screen name="Deck Score" component={DeckScore} />
 
           {/*Social*/}
-          <GlobalStack.Screen name="UserProfile" component={UserProfile} />
+          <GlobalStack.Screen name="User Profile" component={UserProfile} />
 
           {/*ViewMore*/}
           <GlobalStack.Screen
             name="FollowingProjects"
             component={FollowingProjects}
           />
-          <GlobalStack.Screen name="TopDecks" component={TopDecks} />
-          <GlobalStack.Screen name="TopQuizzes" component={TopQuizzes} />
-          <GlobalStack.Screen name="TopSummaries" component={TopSummaries} />
-          <GlobalStack.Screen name="MyProjects" component={MyProjects} />
+          <GlobalStack.Screen name="Top Decks" component={TopDecks} />
+          <GlobalStack.Screen name="Top Quizzes" component={TopQuizzes} />
+          <GlobalStack.Screen name="Top Summaries" component={TopSummaries} />
+          <GlobalStack.Screen name="My Projects" component={MyProjects} />
         </GlobalStack.Navigator>
       </NavigationContainer>
     </AuthProvider>

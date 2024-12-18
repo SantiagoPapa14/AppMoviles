@@ -60,7 +60,7 @@ const QuizScore = ({ navigation }: any) => {
       <View style={{ display: "flex", flexDirection: "row" }}>
         <PressableCustom
           label={"Try Again"}
-          onPress={() => navigation.navigate("PlayQuiz", { id })}
+          onPress={() => navigation.navigate("Play Quiz", { id })}
         />
         <PressableCustom
           label={"Return to Home"}
@@ -134,4 +134,3 @@ const styles = StyleSheet.create({
 });
 
 export default QuizScore;
-

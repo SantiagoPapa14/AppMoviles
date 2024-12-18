@@ -20,9 +20,10 @@ async function createSummary(
 
     if (files.length > 0) {
       for (const file of files) {
+        console.log("FILE IN PRISMA", file);
         await prisma.summaryFile.create({
           data: {
-            filename: file.filename,
+            filename: `${userId}-${file.name}`,
             summaryId: insertedSummary.projectId,
           },
         });
@@ -35,7 +36,14 @@ async function createSummary(
   }
 }
 
-async function EditSummary(title, subject, summaryContent, projectId) {
+async function EditSummary(
+  title,
+  subject,
+  summaryContent,
+  files,
+  userId,
+  projectId,
+) {
   try {
     const updatedSummary = await prisma.summary.update({
       where: {
@@ -47,6 +55,17 @@ async function EditSummary(title, subject, summaryContent, projectId) {
         subject: subject,
       },
     });
+    if (files.length > 0) {
+      for (const file of files) {
+        console.log("FILE IN PRISMA", file);
+        await prisma.summaryFile.create({
+          data: {
+            filename: `${userId}-${file.name}`,
+            summaryId: updatedSummary.projectId,
+          },
+        });
+      }
+    }
     return updatedSummary;
   } catch (error) {
     console.log(error);
@@ -144,6 +163,18 @@ const deleteSummary = async (id) => {
   }
 };
 
+const deleteSummaryFiles = async (id) => {
+  try {
+    const deletedSummary = await prisma.summaryFile.deleteMany({
+      where: { summaryId: Number(id) },
+    });
+    return deletedSummary;
+  } catch (error) {
+    console.error("Error deleting summary:", error);
+    return null;
+  }
+};
+
 module.exports = {
   createSummary,
   getUserSummaries,
@@ -152,4 +183,5 @@ module.exports = {
   getAllSummaries,
   searchSummaries,
   deleteSummary,
+  deleteSummaryFiles,
 };

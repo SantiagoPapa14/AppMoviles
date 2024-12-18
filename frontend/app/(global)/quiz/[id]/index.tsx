@@ -78,19 +78,19 @@ const QuizScreen = ({ navigation }: any) => {
       {quiz.user?.userId == idUser ? (
         <SmallPressableCustom
           label="Edit"
-          onPress={() => navigation.navigate("EditQuiz", { id })}
+          onPress={() => navigation.navigate("Edit Quiz", { id })}
         />
       ) : (
         <SmallPressableCustom
           label="View Profile"
           onPress={() =>
-            navigation.navigate("UserProfile", { id: quiz.user.userId })
+            navigation.navigate("User Profile", { id: quiz.user.userId })
           }
         />
       )}
       <SmallPressableCustom
         onPress={() => {
-          navigation.navigate("PlayQuiz", { id });
+          navigation.navigate("Play Quiz", { id });
         }}
         label="Play"
       />

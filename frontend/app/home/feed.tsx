@@ -143,7 +143,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
         <View style={styles.buttonContainer}></View>
         <PressableCustom
           label={"View More"}
-          onPress={() => navigation.navigate("MyProjects")}
+          onPress={() => navigation.navigate("My Projects")}
         />
       </View>
       <View style={styles.box}>

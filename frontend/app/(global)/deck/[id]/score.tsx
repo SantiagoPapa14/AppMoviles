@@ -113,7 +113,7 @@ const DeckScore = ({ navigation }: any) => {
       <View style={{ display: "flex", flexDirection: "row" }}>
         <PressableCustom
           label={"Try Again"}
-          onPress={() => navigation.navigate("PlayDeck", { id })}
+          onPress={() => navigation.navigate("Play Deck", { id })}
         />
         <PressableCustom
           label={"Return to Home"}
