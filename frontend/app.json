@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "AppMoviles",
+    "slug": "AppMoviles",
+    "router": {
+      "preventAutoRegister": true
+    },
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            {
+              "Mondapick": "./assets/fonts/Mondapick.ttf",
+              "Roboto-Black" : "./assets/fonts/Roboto-Black.ttf",
+              "Roboto-BlackItalic" : "./assets/fonts/Roboto-BlackItalic.ttf",
+              "Roboto-Bold" : "./assets/fonts/Roboto-Bold.ttf",
+              "Roboto-BoldItalic" : "./assets/fonts/Roboto-BoldItalic.ttf",
+              "Roboto-Regular" : "./assets/fonts/Roboto-Regular.ttf"
+            }
+          ]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
