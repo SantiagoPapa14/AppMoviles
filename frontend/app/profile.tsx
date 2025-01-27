@@ -17,7 +17,7 @@ import { Card as PaperCard } from "react-native-paper";
 import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }: any) => {
   const { secureFetch, uploadImage, fetchProfile } = useAuth();
 
   const isFocused = useIsFocused();
@@ -219,6 +219,7 @@ const ProfileScreen = () => {
                       color="#f9f9f9"
                       projectId={parseInt(quiz.projectId, 10)}
                       type={quiz.type}
+                      navigation={navigation}
                     />
                   ))
                 ) : (
@@ -240,6 +241,7 @@ const ProfileScreen = () => {
                       color="#f9f9f9"
                       projectId={parseInt(flashcard.projectId, 10)}
                       type={flashcard.type}
+                      navigation={navigation}
                     />
                   ))
                 ) : (
@@ -261,6 +263,7 @@ const ProfileScreen = () => {
                       color="#f9f9f9"
                       projectId={parseInt(summary.projectId, 10)}
                       type={summary.type}
+                      navigation={navigation}
                     />
                   ))
                 ) : (

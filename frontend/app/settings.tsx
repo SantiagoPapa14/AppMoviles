@@ -1,10 +1,9 @@
-import { PressableCustom } from "@/components/PressableCustom";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import { Alert } from "react-native";
-import { useAuth } from "@/app/context/AuthContext";
-import { Modal, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/app/context/AuthContext";
+import { PressableCustom } from "@/components/PressableCustom";
+import CustomModal from "@/components/CustomModal";
 
 const AccountSettings: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -14,10 +13,9 @@ const AccountSettings: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentField, setCurrentField] = useState<
-    "username" | "email" | "password" | "name" | null
-  >(null);
+  const [currentField, setCurrentField] = useState<"username" | "email" | "password" | "name" | null>(null);
   const [tempValue, setTempValue] = useState("");
+  const [confirmTempValue, setConfirmTempValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showModalPassword, setShowModalPassword] = useState(false);
@@ -55,18 +53,17 @@ const AccountSettings: React.FC = () => {
   const openModal = (field: "username" | "email" | "password" | "name") => {
     setCurrentField(field);
     setTempValue(
-      field === "username"
-        ? username
-        : field === "email"
-          ? email
-          : field === "password"
-            ? password
-            : name,
+      field === "username" ? username : field === "email" ? email : field === "password" ? password : name
     );
+    setConfirmTempValue("");
     setModalVisible(true);
   };
 
   const saveModalValue = () => {
+    if (currentField === "password" && tempValue !== confirmTempValue) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
     if (currentField === "username") setUsername(tempValue);
     if (currentField === "email") setEmail(tempValue);
     if (currentField === "password") setPassword(tempValue);
@@ -91,24 +88,15 @@ const AccountSettings: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Account Settings</Text>
       <View style={styles.form}>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("username")}
-        >
+        <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("username")}>
           <Text style={styles.label}>Username:</Text>
           <Text style={styles.input}>{username}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("email")}
-        >
+        <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("email")}>
           <Text style={styles.label}>Email:</Text>
           <Text style={styles.input}>{email}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("password")}
-        >
+        <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("password")}>
           <Text style={styles.label}>New password:</Text>
           <View style={styles.passwordContainer}>
             <TextInput
@@ -126,10 +114,7 @@ const AccountSettings: React.FC = () => {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("name")}
-        >
+        <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("name")}>
           <Text style={styles.label}>Name:</Text>
           <Text style={styles.input}>{name}</Text>
         </TouchableOpacity>
@@ -152,37 +137,18 @@ const AccountSettings: React.FC = () => {
         <PressableCustom label="Save" onPress={handleSave} />
       </View>
 
-      <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.label}>Enter new {currentField}:</Text>
-            <TextInput
-              style={styles.input}
-              value={tempValue}
-              onChangeText={setTempValue}
-              secureTextEntry={
-                currentField === "password" && !showModalPassword
-              }
-              keyboardType={
-                currentField === "email" ? "email-address" : "default"
-              }
-            />
-            {currentField === "password" && (
-              <View style={styles.passwordContainer}>
-                <Ionicons
-                  style={styles.eyeIconInside}
-                  name={showModalPassword ? "eye-off" : "eye"}
-                  size={24}
-                  color="black"
-                  onPress={toggleModalPasswordVisibility}
-                />
-              </View>
-            )}
-            <Button title="Save" onPress={saveModalValue} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
+      <CustomModal
+        visible={modalVisible}
+        field={currentField}
+        value={tempValue}
+        onChange={setTempValue}
+        onSave={saveModalValue}
+        onCancel={() => setModalVisible(false)}
+        showPassword={showModalPassword}
+        togglePasswordVisibility={toggleModalPasswordVisibility}
+        confirmValue={confirmTempValue}
+        onConfirmChange={setConfirmTempValue}
+      />
     </View>
   );
 };
@@ -218,18 +184,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 10,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-  },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -237,10 +191,6 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 10,
   },
   eyeIconInside: {
     position: "absolute",

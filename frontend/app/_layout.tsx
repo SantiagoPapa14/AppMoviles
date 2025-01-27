@@ -60,16 +60,36 @@ function HomeTabs() {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Create") {
             iconName = focused ? "create" : "create-outline";
+            return <Ionicons name={iconName} size={size + 10} color={color} />; // increase size of create button
           } else if (route.name === "Search") {
             iconName = focused ? "search" : "search-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
 
-        tabBarActiveTintColor: "#D2B48C",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "#B49F84" },
-        tabBarLabelStyle: { fontSize: 14, color: "white" },
+        tabBarStyle: { 
+          backgroundColor: "#B49F84",
+          position: 'absolute', // make the tab bar float
+          height: 70, // increase the height for better visibility
+          shadowColor: '#000', // add shadow for floating effect
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.5,
+          elevation: 5,
+        },
+        tabBarItemStyle: {
+          borderRadius: 10, // rounded corners for each tab item
+          margin: 5, // margin to ensure the rounded corners are visible
+        },
+        tabBarActiveBackgroundColor: "#A98955", // darker background when selected
+        tabBarInactiveBackgroundColor: "#B49F84", // original background when not selected
+        tabBarActiveTintColor: "#FFFFFF", // text color when selected
+        tabBarInactiveTintColor: "#D3D3D3", // text color when not selected
+        tabBarLabelStyle: { 
+          fontSize: 13, // increase the font size
+          color: "white",
+          paddingBottom: 5, // add padding to center the text vertically
+        },
         headerShown: false,
       })}
     >
@@ -135,8 +155,10 @@ function MainNavigation() {
           drawerStyle: {
             backgroundColor: "#B49F84",
           },
-          drawerActiveTintColor: "#D2B48C",
-          drawerInactiveTintColor: "gray",
+          drawerActiveBackgroundColor: "#A98955", // darker background when selected
+          drawerInactiveBackgroundColor: "#B49F84", // original background when not selected
+          drawerActiveTintColor: "#FFFFFF", // text color when selected
+          drawerInactiveTintColor: "#D3D3D3", // text color when not selected
           drawerLabelStyle: { fontSize: 14, color: "white" },
           headerTitle: () => (
             <Image
