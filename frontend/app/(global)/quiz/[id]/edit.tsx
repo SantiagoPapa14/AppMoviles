@@ -191,16 +191,12 @@ const EditQuiz = ({ navigation }: any) => {
           onPress: async () => {
             try {
               if (!secureFetch) return;
-              const response = await secureFetch(`/quiz/${id}`, {
+              await secureFetch(`/quiz/${id}`, {
                 method: "DELETE",
               });
 
-              if (!response.ok) {
-                throw new Error("Failed to delete quiz");
-              } else {
-                Alert.alert("Éxito", "Quiz eliminado correctamente");
-                navigation.replace("Main");
-              }
+              Alert.alert("Éxito", "Quiz eliminado correctamente");
+              navigation.replace("Main");
             } catch (error) {
               console.error("Failed to delete quiz:", error);
               Alert.alert("Error", "Failed to delete quiz.");

@@ -69,7 +69,6 @@ function HomeTabs() {
 
         tabBarStyle: { 
           backgroundColor: "#B49F84",
-          position: 'absolute', // make the tab bar float
           height: 70, // increase the height for better visibility
           shadowColor: '#000', // add shadow for floating effect
           shadowOffset: { width: 0, height: 10 },

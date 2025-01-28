@@ -204,10 +204,10 @@ const EditSummary = ({ navigation }: any) => {
         <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
           <Text>Uploaded Files:</Text>
           {oldFiles.map((file, index) => (
-            <Text key={index}>{file.filename}</Text>
+            <Text key={index}>{file.filename.replace(/^\d+-/, '')}</Text>
           ))}
           {files.map((file, index) => (
-            <Text key={index}>{file.name}</Text>
+            <Text key={index}>{file.name.replace(/^\d+-/, '')}</Text>
           ))}
         </TouchableOpacity>
         {(files.length > 0 || oldFiles.length > 0) && (

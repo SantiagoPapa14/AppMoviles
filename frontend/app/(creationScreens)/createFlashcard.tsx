@@ -110,7 +110,8 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
     }
 
     try {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem("api_token");
+      console.log("token", token);
       const response = await fetch(`${API_BASE_URL}/deck`, {
         method: "POST",
         headers: {

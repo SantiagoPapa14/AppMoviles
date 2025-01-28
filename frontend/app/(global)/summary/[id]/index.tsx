@@ -96,7 +96,7 @@ const SummaryScreen = ({ navigation }: any) => {
               );
             }}
           >
-            <Text>{file.filename}</Text>
+            <Text>{file.filename.replace(/^\d+-/, '')}</Text>
             <Ionicons
               name="download-outline"
               size={24}

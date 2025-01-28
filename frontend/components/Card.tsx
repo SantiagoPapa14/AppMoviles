@@ -14,26 +14,26 @@ export interface CardProps {
 const getColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#FFD700";
+      return "#B49F84";
     case "flashcard":
-      return "#FF69B4";
+      return "#3A2F23";
     case "summary":
-      return "#8A2BE2";
+      return "#BB8632";
     default:
-      return "#4682B4";
+      return "#8D602D";
   }
 };
 
 const getActiveColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#B8860B";
+      return "#A98955";
     case "flashcard":
-      return "#C71585";
+      return "#2F241B";
     case "summary":
-      return "#4B0082";
+      return "#A6752A";
     default:
-      return "#2B4F72";
+      return "#7A4F24";
   }
 };
 

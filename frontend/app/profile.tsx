@@ -16,6 +16,8 @@ import * as ImagePicker from "expo-image-picker";
 import { Card as PaperCard } from "react-native-paper";
 import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
+import { ScrollView as HorizontalScrollView } from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const ProfileScreen = ({ navigation }: any) => {
   const { secureFetch, uploadImage, fetchProfile } = useAuth();
@@ -118,167 +120,168 @@ const ProfileScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={picModalOpen}
-        onRequestClose={() => {
-          setPicModalOpen(false);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {imageUri ? (
-              <Image
-                source={{ uri: imageUri }}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={picModalOpen}
+          onRequestClose={() => {
+            setPicModalOpen(false);
+          }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={{
+                    width: 150,
+                    height: 150,
+                    borderWidth: 1,
+                    borderColor: "black",
+                    borderRadius: 75,
+                  }}
+                />
+              ) : (
+                <Text>No image selected</Text>
+              )}
+              <View
                 style={{
-                  width: 150,
-                  height: 150,
-                  borderWidth: 1,
-                  borderColor: "black",
-                  borderRadius: 75,
+                  flexDirection: "row",
+                  marginTop: 10,
+                  gap: 10,
                 }}
-              />
-            ) : (
-              <Text>No image selected</Text>
-            )}
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 10,
-                gap: 10,
-              }}
-            >
-              <Button title="Select Image" onPress={pickImage} />
+              >
+                <Button title="Select Image" onPress={pickImage} />
 
-              <Button
-                title="Save"
-                onPress={() => {
-                  if (uploadImage && imageUri) uploadImage(imageUri);
-                  setPicModalOpen(false);
-                }}
-              />
+                <Button
+                  title="Save"
+                  onPress={() => {
+                    if (uploadImage && imageUri) uploadImage(imageUri);
+                    setPicModalOpen(false);
+                  }}
+                />
 
-              <Button title="Cancel" onPress={() => setPicModalOpen(false)} />
+                <Button title="Cancel" onPress={() => setPicModalOpen(false)} />
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-      {profile ? (
-        <>
-          <PaperCard style={styles.profileCard}>
-            <TouchableOpacity onPress={() => setPicModalOpen(true)}>
-              <View style={styles.profileImageContainer}>
-                {imageUri ? (
-                  <Image
-                    source={{ uri: imageUri }}
-                    style={styles.profileImage}
-                  />
-                ) : (
-                  <Image
-                    source={{
-                      uri:
-                        API_BASE_URL +
-                        "/uploads/profile_pictures/" +
-                        profile.userId +
-                        ".jpg?timestamp=" +
-                        Date.now(),
-                    }}
-                    style={styles.profileImage}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-            <PaperCard.Content style={styles.profileTextContainer}>
-              <Text style={styles.text}>Username: {profile.username}</Text>
-              <Text style={styles.text}>Email: {profile.email}</Text>
-              <Text style={styles.text}>Name: {profile.name}</Text>
-              <View style={styles.followContainer}>
-                <TouchableOpacity style={styles.followButton}>
-                  <Text style={styles.text}>Followers:</Text>
-                  <Text style={styles.text}>{followerData.followersCount}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.followButton}>
-                  <Text style={styles.text}>Following: </Text>
-                  <Text style={styles.text}>{followerData.followingCount}</Text>
-                </TouchableOpacity>
-              </View>
-            </PaperCard.Content>
-          </PaperCard>
-          <PaperCard style={styles.cardContainer}>
-            <PaperCard.Title title="Quizzes" titleStyle={styles.cardTitle} />
-            <PaperCard.Content>
-              <View style={styles.cardRow}>
-                {quizzes && quizzes.length > 0 ? (
-                  quizzes.map((quiz, index) => (
-                    <Card
-                      key={`${quiz.projectId}-${index}`}
-                      title={quiz.title}
-                      creator="By you"
-                      color="#f9f9f9"
-                      projectId={parseInt(quiz.projectId, 10)}
-                      type={quiz.type}
-                      navigation={navigation}
+        </Modal>
+        {profile ? (
+          <>
+            <PaperCard style={styles.profileCard}>
+              <TouchableOpacity onPress={() => setPicModalOpen(true)}>
+                <View style={styles.profileImageContainer}>
+                  {imageUri ? (
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={styles.profileImage}
                     />
-                  ))
-                ) : (
-                  <Text style={styles.cardText}>No quizzes available.</Text>
-                )}
-              </View>
-            </PaperCard.Content>
-          </PaperCard>
-          <PaperCard style={styles.cardContainer}>
-            <PaperCard.Title title="Flashcards" titleStyle={styles.cardTitle} />
-            <PaperCard.Content>
-              <View style={styles.cardRow}>
-                {flashcards && flashcards.length > 0 ? (
-                  flashcards.map((flashcard, index) => (
-                    <Card
-                      key={`${flashcard.projectId}-${index}`}
-                      title={flashcard.title}
-                      creator={profile.username}
-                      color="#f9f9f9"
-                      projectId={parseInt(flashcard.projectId, 10)}
-                      type={flashcard.type}
-                      navigation={navigation}
+                  ) : (
+                    <Image
+                      source={{
+                        uri:
+                          API_BASE_URL +
+                          "/uploads/profile_pictures/" +
+                          profile.userId +
+                          ".jpg?timestamp=" +
+                          Date.now(),
+                      }}
+                      style={styles.profileImage}
                     />
-                  ))
-                ) : (
-                  <Text style={styles.cardText}>No flashcards available.</Text>
-                )}
-              </View>
-            </PaperCard.Content>
-          </PaperCard>
-          <PaperCard style={styles.cardContainer}>
-            <PaperCard.Title title="Summaries" titleStyle={styles.cardTitle} />
-            <PaperCard.Content>
-              <View style={styles.cardRow}>
-                {summaries && summaries.length > 0 ? (
-                  summaries.map((summary, index) => (
-                    <Card
-                      key={`${summary.projectId}-${index}`}
-                      title={summary.title}
-                      creator={profile.username}
-                      color="#f9f9f9"
-                      projectId={parseInt(summary.projectId, 10)}
-                      type={summary.type}
-                      navigation={navigation}
-                    />
-                  ))
-                ) : (
-                  <Text style={styles.cardText}>No summaries available.</Text>
-                )}
-              </View>
-            </PaperCard.Content>
-          </PaperCard>
-        </>
-      ) : (
-        <Text style={styles.text}>
-          No profile information available. {JSON.stringify(profile)}
-        </Text>
-      )}
-    </ScrollView>
+                  )}
+                </View>
+              </TouchableOpacity>
+              <PaperCard.Content style={styles.profileTextContainer}>
+                <Text style={styles.usernameText}>@{profile.username}</Text>
+                <Text style={styles.nameText}>{profile.name}</Text>
+                <View style={styles.followContainer}>
+                  <TouchableOpacity style={styles.followButton}>
+                    <Text style={styles.text}>Followers:</Text>
+                    <Text style={styles.text}>{followerData.followersCount}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.followButton}>
+                    <Text style={styles.text}>Following: </Text>
+                    <Text style={styles.text}>{followerData.followingCount}</Text>
+                  </TouchableOpacity>
+                </View>
+              </PaperCard.Content>
+            </PaperCard>
+            <PaperCard style={styles.cardContainer}>
+              <PaperCard.Title title="Quizzes" titleStyle={styles.cardTitle} />
+              <PaperCard.Content>
+                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {quizzes && quizzes.length > 0 ? (
+                    quizzes.map((quiz, index) => (
+                      <Card
+                        key={`${quiz.projectId}-${index}`}
+                        title={quiz.title}
+                        creator="By you"
+                        color="#f9f9f9"
+                        projectId={parseInt(quiz.projectId, 10)}
+                        type={quiz.type}
+                        navigation={navigation}
+                      />
+                    ))
+                  ) : (
+                    <Text style={styles.cardText}>No quizzes available.</Text>
+                  )}
+                </HorizontalScrollView>
+              </PaperCard.Content>
+            </PaperCard>
+            <PaperCard style={styles.cardContainer}>
+              <PaperCard.Title title="Flashcards" titleStyle={styles.cardTitle} />
+              <PaperCard.Content>
+                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {flashcards && flashcards.length > 0 ? (
+                    flashcards.map((flashcard, index) => (
+                      <Card
+                        key={`${flashcard.projectId}-${index}`}
+                        title={flashcard.title}
+                        creator={profile.username}
+                        color="#f9f9f9"
+                        projectId={parseInt(flashcard.projectId, 10)}
+                        type={flashcard.type}
+                        navigation={navigation}
+                      />
+                    ))
+                  ) : (
+                    <Text style={styles.cardText}>No flashcards available.</Text>
+                  )}
+                </HorizontalScrollView>
+              </PaperCard.Content>
+            </PaperCard>
+            <PaperCard style={styles.cardContainer}>
+              <PaperCard.Title title="Summaries" titleStyle={styles.cardTitle} />
+              <PaperCard.Content>
+                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {summaries && summaries.length > 0 ? (
+                    summaries.map((summary, index) => (
+                      <Card
+                        key={`${summary.projectId}-${index}`}
+                        title={summary.title}
+                        creator={profile.username}
+                        color="#f9f9f9"
+                        projectId={parseInt(summary.projectId, 10)}
+                        type={summary.type}
+                        navigation={navigation}
+                      />
+                    ))
+                  ) : (
+                    <Text style={styles.cardText}>No summaries available.</Text>
+                  )}
+                </HorizontalScrollView>
+              </PaperCard.Content>
+            </PaperCard>
+          </>
+        ) : (
+          <Text style={styles.text}>
+            No profile information available. {JSON.stringify(profile)}
+          </Text>
+        )}
+      </ScrollView>
+    </GestureHandlerRootView>
   );
 };
 
@@ -325,7 +328,7 @@ const styles = StyleSheet.create({
   followButton: {
     flex: 1,
     alignItems: "center",
-    padding: 10,
+    padding: 8,
     marginHorizontal: 5,
     backgroundColor: "#e0e0e0",
     borderRadius: 5,
@@ -363,6 +366,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     alignItems: "center",
+  },
+  usernameText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  nameText: {
+    fontSize: 19,
+    marginBottom: 8,
+    textAlign: "center",
   },
 });
 

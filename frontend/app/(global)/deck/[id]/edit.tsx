@@ -149,25 +149,13 @@ const EditDeck = ({ navigation }: any) => {
           style: "destructive",
           onPress: async () => {
             try {
-              const token = await AsyncStorage.getItem("userToken");
-              const response = await fetch(
-                `${API_BASE_URL}/deck/${parsedFlashcardId}`,
-                {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                  },
-                },
-              );
+              if (!secureFetch) return;
+              await secureFetch(`/deck/${id}`, {
+                method: "DELETE",
+              });
 
-              if (!response.ok) {
-                throw new Error("Failed to delete deck");
-              } else {
-                Alert.alert("Éxito", "Maso eliminado correctamente");
-                setRefresh(true);
-                router.replace("/(mainTabs)/createTab");
-              }
+              Alert.alert("Éxito", "Maso eliminado correctamente");
+              navigation.replace("Main");
             } catch (error) {
               console.error("Failed to delete deck:", error);
               Alert.alert("Error", "Failed to delete deck.");

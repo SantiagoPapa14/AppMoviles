@@ -133,7 +133,7 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
       return;
     }
     try {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem("api_token");
       const response = await fetch(`${API_BASE_URL}/quiz`, {
         method: "POST",
         headers: {

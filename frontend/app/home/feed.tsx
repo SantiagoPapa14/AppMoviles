@@ -166,6 +166,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
           onPress={() => navigation.navigate("FollowingProjects")}
         />
       </View>
+      <View style={styles.break}></View>
     </ScrollView>
   );
 };
@@ -223,6 +224,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     backgroundColor: "#B49F84",
     color: "#fff",
+  },
+  break: {
+    height: 50,
   },
 });
 

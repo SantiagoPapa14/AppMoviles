@@ -25,6 +25,7 @@ const PlayDeck = ({ navigation }: any) => {
   const [gameFinished, setGameFinished] = useState(false);
   const flipAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(0))[0];
+  const [canSlide, setCanSlide] = useState(false);
 
   const route = useRoute();
   const { id } = route.params as { id: string | number };
@@ -64,8 +65,9 @@ const PlayDeck = ({ navigation }: any) => {
       setAnswersCorrect([]);
       flipAnim.setValue(0);
       slideAnim.setValue(0);
+      fetchDeck();
       return () => {};
-    }, []),
+    }, [id]),
   );
 
   const flipCard = () => {
@@ -75,15 +77,18 @@ const PlayDeck = ({ navigation }: any) => {
       useNativeDriver: true,
     }).start(() => {
       setIsFlipped(!isFlipped);
+      setCanSlide(true);
     });
   };
 
   const handleCorrect = () => {
+    if (!canSlide) return;
     setAnswersCorrect((prevAnswersCorrect) => [...prevAnswersCorrect, true]);
     slideToNextCard("right");
   };
 
   const handleIncorrect = () => {
+    if (!canSlide) return;
     setAnswersCorrect((prevAnswersCorrect) => [...prevAnswersCorrect, false]);
     slideToNextCard("left");
   };
@@ -97,10 +102,13 @@ const PlayDeck = ({ navigation }: any) => {
       if (currentCardIndex < deck.flashcards.length - 1) {
         setCurrentCardIndex((prevIndex) => prevIndex + 1);
         setIsFlipped(false);
+        setCanSlide(false);
         flipAnim.setValue(0);
         slideAnim.setValue(0);
       } else {
         setGameFinished(true);
+        setIsFlipped(false); // Reset flipped state
+        setCanSlide(false); // Reset canSlide state
         console.log(
           "Deck Completed",
           `Your score is ${answersCorrect.filter(Boolean).length}`,
@@ -115,20 +123,24 @@ const PlayDeck = ({ navigation }: any) => {
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderMove: (evt, gestureState) => {
-      slideAnim.setValue(gestureState.dx);
+      if (canSlide) {
+        slideAnim.setValue(gestureState.dx);
+      }
     },
     onPanResponderRelease: (evt, gestureState) => {
-      if (gestureState.dy > 50 || gestureState.dy < -50) {
+      if (!isFlipped) {
         flipCard();
-      } else if (gestureState.dx > SCREEN_WIDTH * 0.25) {
-        handleCorrect();
-      } else if (gestureState.dx < -SCREEN_WIDTH * 0.25) {
-        handleIncorrect();
-      } else {
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
+      } else if (canSlide) {
+        if (gestureState.dx > SCREEN_WIDTH * 0.25) {
+          handleCorrect();
+        } else if (gestureState.dx < -SCREEN_WIDTH * 0.25) {
+          handleIncorrect();
+        } else {
+          Animated.spring(slideAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
       }
     },
   });
@@ -187,7 +199,7 @@ const PlayDeck = ({ navigation }: any) => {
           ]}
         >
           <Text style={styles.cardText}>
-            {deck?.flashcards[currentCardIndex]?.front}
+            {deck?.flashcards[currentCardIndex]?.back}
           </Text>
         </Animated.View>
       </Animated.View>
