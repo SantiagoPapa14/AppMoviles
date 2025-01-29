@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
@@ -13,6 +13,7 @@ import { PressableCustom } from "@/components/PressableCustom";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRoute } from "@react-navigation/native";
+import { LinearGradient } from 'expo-linear-gradient';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const PlayDeck = ({ navigation }: any) => {
@@ -26,6 +27,9 @@ const PlayDeck = ({ navigation }: any) => {
   const flipAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(0))[0];
   const [canSlide, setCanSlide] = useState(false);
+  const [canAnswer, setCanAnswer] = useState(false);
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const [glowSide, setGlowSide] = useState<"left" | "right" | null>(null);
 
   const route = useRoute();
   const { id } = route.params as { id: string | number };
@@ -77,24 +81,32 @@ const PlayDeck = ({ navigation }: any) => {
       useNativeDriver: true,
     }).start(() => {
       setIsFlipped(!isFlipped);
-      if (isFlipped) {
-        setCanSlide(false);
-      } else {
-        setCanSlide(true);
-      }
+      setCanAnswer(!isFlipped); // Enable buttons if flipped
+      setCanSlide(isFlipped ? false : true);
     });
   };
 
   const handleCorrect = () => {
-    if (!canSlide) return;
+    if (!canSlide || !canAnswer) return;
+    triggerGlow("right");
     setAnswersCorrect((prevAnswersCorrect) => [...prevAnswersCorrect, true]);
     slideToNextCard("right");
   };
 
   const handleIncorrect = () => {
-    if (!canSlide) return;
+    if (!canSlide || !canAnswer) return;
+    triggerGlow("left");
     setAnswersCorrect((prevAnswersCorrect) => [...prevAnswersCorrect, false]);
     slideToNextCard("left");
+  };
+
+  const triggerGlow = (direction: "left" | "right") => {
+    setGlowSide(direction);
+    glowAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(glowAnim, { toValue: 1, duration: 200, useNativeDriver: false }),
+      Animated.timing(glowAnim, { toValue: 0, duration: 200, useNativeDriver: false }),
+    ]).start(() => setGlowSide(null));
   };
 
   const slideToNextCard = (direction: any) => {
@@ -113,9 +125,11 @@ const PlayDeck = ({ navigation }: any) => {
         setGameFinished(true);
         setIsFlipped(false); // Reset flipped state
         setCanSlide(false); // Reset canSlide state
+        setCanAnswer(false)
+        
         setTimeout(() => {
           navigation.navigate(`Deck Score`, { id });
-        }, 250);
+        }, 500);
       }
     });
   };
@@ -205,10 +219,36 @@ const PlayDeck = ({ navigation }: any) => {
       </Animated.View>
       <SmallPressableCustom label="Flip" onPress={flipCard} />
       <View style={styles.buttonContainer}>
-        <PressableCustom label="Incorrect" onPress={handleIncorrect} />
-        <PressableCustom label="Correct" onPress={handleCorrect} />
+        <PressableCustom label="Incorrect" onPress={handleIncorrect} disabled={!canAnswer} />
+        <PressableCustom label="Correct" onPress={handleCorrect} disabled={!canAnswer} />
       </View>
-      {gameFinished && <Text>Game Finished! Redirecting...</Text>}
+      {glowSide && (
+        <Animated.View
+          style={[
+            styles.glowContainer,
+            {
+              opacity: glowAnim,
+              [glowSide]: 0,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          <LinearGradient
+            colors={
+              glowSide === "left"
+                ? ["rgba(255, 0, 0, 0.5)", "transparent"]
+                : ["transparent", "rgba(0, 255, 0, 0.5)"]
+            }
+            start={glowSide === "left" ? { x: 0, y: 0} : { x: 0.2, y: 0}}
+
+            end = {glowSide === "left" ? { x: 0.8, y: 0} : { x: 1, y: 0}}
+            style={styles.gradient}
+
+  
+          />
+        </Animated.View>
+      )}
+      {gameFinished && <Text style={styles.gameFinishedText}>Game Finished! Redirecting...</Text>}
     </View>
   );
 };
@@ -262,6 +302,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     marginTop: 20,
+  },
+  gameFinishedText: {
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  glowContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 50,
+  },
+  gradient: {
+    flex: 1,
   },
 });
 

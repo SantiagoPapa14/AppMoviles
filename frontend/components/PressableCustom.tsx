@@ -7,9 +7,10 @@ import { useEffect, useRef } from "react";
 export interface PressableCustomProps {
   label: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
-export function PressableCustom({ label, onPress }: PressableCustomProps) {
+export function PressableCustom({ label, onPress, disabled }: PressableCustomProps) {
   const [pressed, changePressed] = useState(false); // tarjeta arranca no apretada
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
@@ -36,12 +37,12 @@ export function PressableCustom({ label, onPress }: PressableCustomProps) {
   }, [pressed]);
 
   return (
-    <Pressable onPress={changeState} disabled={pressed}>
-      <Animated.View style={[styles.pressableStyle, { backgroundColor: fadeAnim.interpolate({
+    <Pressable onPress={changeState} disabled={pressed || disabled}>
+      <Animated.View style={[styles.pressableStyle, { backgroundColor: disabled ? "#ccc" : fadeAnim.interpolate({
         inputRange: [0, 1],
         outputRange: ['#D9D9D9', '#8D602D']
       }) }]}>
-        <Text style={styles.presseableTextStyle}>{label}</Text>
+        <Text style={[styles.presseableTextStyle, {color: disabled ? "#D9D9D9" : "#000000"}]}>{label}</Text>
       </Animated.View>
     </Pressable>
   );
