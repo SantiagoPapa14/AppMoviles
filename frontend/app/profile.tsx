@@ -39,7 +39,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const [followerData, setFollowers] = useState<{
     followersCount: number;
     followingCount: number;
-  }>({ followersCount: 0, followingCount: 0 });
+  }>({ followersCount: 0, followingCount: 0 }); 
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [picModalOpen, setPicModalOpen] = useState(false);
