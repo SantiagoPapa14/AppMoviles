@@ -11,6 +11,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 
 interface QuizQuestion {
   question: string;
@@ -188,7 +189,7 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
           onPress={() => handleSave({ title, questions })}
           label="Guardar"
         />
-        <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
       </ScrollView>
     </View>
   );

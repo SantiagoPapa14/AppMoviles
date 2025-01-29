@@ -11,6 +11,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { PressableCustom } from "@/components/PressableCustom";
 import * as DocumentPicker from "expo-document-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 
 const CreateSummary = ({ navigation }: { navigation: any }) => {
   const [files, setFiles] = useState<any[]>([]);
@@ -88,13 +89,15 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center", // Center the upload file button
         }}
       >
         <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
           <Text>Upload Files:</Text>
-          {files.length == 0 && (
-            <Text> Haga click para subir archivos... </Text>
+          {files.length == 0 ? (
+            <Text> </Text>
+          ) : (
+            <Text> Haga click para subir archivos...  </Text> // Change text to "Upload more files"
           )}
           {files.map((file, index) => (
             <Text key={index}>{file.name}</Text>
@@ -110,7 +113,7 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
         )}
       </View>
       <PressableCustom onPress={handleSave} label="Guardar Resumen" />
-      <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+      <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
     </View>
   );
 };

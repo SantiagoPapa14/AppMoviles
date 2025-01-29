@@ -11,6 +11,7 @@ import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 
 interface Flashcard {
   front: string;
@@ -111,7 +112,6 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
 
     try {
       const token = await AsyncStorage.getItem("api_token");
-      console.log("token", token);
       const response = await fetch(`${API_BASE_URL}/deck`, {
         method: "POST",
         headers: {
@@ -146,17 +146,17 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
         />
         {flashcards.map((flashcard, index) => (
           <FlashcardAddComponent
-            key={index}
-            flashcardData={flashcard}
-            onUpdate={(updatedFlashcard) =>
-              updateFlashcard(index, updatedFlashcard)
-            }
-            onRemove={() => removeFlashcard(index)}
+        key={index}
+        flashcardData={flashcard}
+        onUpdate={(updatedFlashcard) =>
+          updateFlashcard(index, updatedFlashcard)
+        }
+        onRemove={() => removeFlashcard(index)}
           />
         ))}
         <PressableCustom
           onPress={() =>
-            setFlashcards([...flashcards, { front: "", back: "" }])
+        setFlashcards([...flashcards, { front: "", back: "" }])
           }
           label="Agregar"
         />
@@ -165,7 +165,7 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
           label="Guardar"
           disabled={isSaving}
         />
-        <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
       </ScrollView>
     </View>
   );

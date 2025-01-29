@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Card } from "@/components/Card";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -49,7 +50,7 @@ const UserProfile = ({ navigation }: any) => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [summaries, setSummaries] = useState<Summary[]>([]);
-  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [followData, setFollowerData] = useState<{
     followersCount: number;
     followingCount: number;
@@ -110,8 +111,9 @@ const UserProfile = ({ navigation }: any) => {
 
   if (loadingProfile) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#808080" />
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -322,6 +324,17 @@ const styles = StyleSheet.create({
     fontSize: 19,
     marginBottom: 8,
     textAlign: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
   },
 });
 

@@ -77,7 +77,11 @@ const PlayDeck = ({ navigation }: any) => {
       useNativeDriver: true,
     }).start(() => {
       setIsFlipped(!isFlipped);
-      setCanSlide(true);
+      if (isFlipped) {
+        setCanSlide(false);
+      } else {
+        setCanSlide(true);
+      }
     });
   };
 
@@ -109,10 +113,6 @@ const PlayDeck = ({ navigation }: any) => {
         setGameFinished(true);
         setIsFlipped(false); // Reset flipped state
         setCanSlide(false); // Reset canSlide state
-        console.log(
-          "Deck Completed",
-          `Your score is ${answersCorrect.filter(Boolean).length}`,
-        );
         setTimeout(() => {
           navigation.navigate(`Deck Score`, { id });
         }, 250);

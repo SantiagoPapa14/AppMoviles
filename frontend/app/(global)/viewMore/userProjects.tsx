@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { Card } from "@/components/Card";
 
 const MyProjects = ({ navigation }: { navigation: any }) => {
@@ -14,6 +14,7 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
   const [summaries, setSummaries] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserContent = async () => {
     try {
@@ -24,12 +25,23 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
     } catch (error) {
       console.error("Failed to fetch user content:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUserContent();
   }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#808080" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -109,6 +121,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
   },
 });
 

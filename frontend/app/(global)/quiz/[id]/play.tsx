@@ -39,7 +39,7 @@ const PlayQuiz = ({ navigation }: any) => {
 
   const shuffleAnswers = (data: any) => {
     if (!data) return;
-    const array = [data.answer, data.decoy1, data.decoy2, data.decoy3];
+    const array = [data.answer, data.decoy1, data.decoy2, data.decoy3].filter(answer => answer !== "");
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];

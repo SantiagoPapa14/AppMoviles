@@ -178,11 +178,15 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: "#ccc",
     borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 5,
     paddingVertical: 10,
+    borderColor: "#8D602D",
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   passwordContainer: {
     flexDirection: "row",

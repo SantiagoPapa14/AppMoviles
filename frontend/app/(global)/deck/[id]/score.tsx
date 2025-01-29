@@ -21,7 +21,6 @@ const DeckScore = ({ navigation }: any) => {
       if (!secureFetch) return;
       const data = await secureFetch(`/deck/${id}`);
       setDeck(data);
-      console.log(data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

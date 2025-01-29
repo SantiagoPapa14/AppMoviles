@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +19,7 @@ const SearchScreen = ({ navigation }: any) => {
   const [allSummaries, setAllSummaries] = useState<
     { projectId: string; user: any; title: string; type: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAllProjects = async () => {
     try {
@@ -29,6 +30,8 @@ const SearchScreen = ({ navigation }: any) => {
       setAllSummaries(Array.isArray(data.summaries) ? data.summaries : []);
     } catch (error) {
       console.error("Failed to fetch all projects:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +44,15 @@ const SearchScreen = ({ navigation }: any) => {
       navigation.navigate(`SearchResult`, { query: searchQuery });
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#808080" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -221,6 +233,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "black",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#808080",
   },
 });
 

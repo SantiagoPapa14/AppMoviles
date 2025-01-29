@@ -226,6 +226,7 @@ export default function Layout() {
           <GlobalStack.Screen
             name="FollowingProjects"
             component={FollowingProjects}
+            options={{ title: "Following Projects" }}
           />
           <GlobalStack.Screen name="Top Decks" component={TopDecks} />
           <GlobalStack.Screen name="Top Quizzes" component={TopQuizzes} />

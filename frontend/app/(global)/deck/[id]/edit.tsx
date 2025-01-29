@@ -126,7 +126,7 @@ const EditDeck = ({ navigation }: any) => {
       });
 
       Alert.alert("Éxito", "Mazo guardada correctamente");
-      navigation.replace("Main");
+      navigation.goBack();
     } catch (error) {
       console.error("Failed to save flashcard:", error);
       Alert.alert("Error", "Failed to save flashcard.");
