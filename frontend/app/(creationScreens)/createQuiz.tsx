@@ -2,7 +2,6 @@ import {
   View,
   Text,
   TextInput,
-  Alert,
   ScrollView,
   StyleSheet,
 } from "react-native";
@@ -12,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 interface QuizQuestion {
   question: string;
@@ -85,6 +85,10 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
   const updateQuestion = (index: number, updatedQuestion: QuizQuestion) => {
     setQuestions((prevQuestions) => {
@@ -107,13 +111,17 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
     setIsSaving(true);
 
     if (!quiz.title.trim()) {
-      Alert.alert("Error", "El título del quiz no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del quiz no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (quiz.questions.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una pregunta.");
+      setModalTitle("Error");
+      setModalMessage("Debe agregar al menos una pregunta.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
@@ -126,10 +134,9 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
     );
 
     if (!hasValidQuestion) {
-      Alert.alert(
-        "Error",
-        "Cada pregunta debe tener contenido y no estar vacía.",
-      );
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
@@ -147,13 +154,23 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
       if (!response.ok) {
         throw new Error("Failed to save the quiz");
       }
-      Alert.alert("Éxito", "Quiz guardado correctamente");
-      navigation.goBack();
+      setModalTitle("Éxito");
+      setModalMessage("Quiz guardado correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
     } catch (error) {
-      console.error("Failed to save the quiz:", error);
-      Alert.alert("Error", "Failed to save the quiz.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save the quiz.");
+      setModalVisible(true);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main")
     }
   };
 
@@ -191,6 +208,13 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
         />
         <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
     </View>
   );
 };

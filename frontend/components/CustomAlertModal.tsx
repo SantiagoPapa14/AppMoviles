@@ -1,24 +1,41 @@
 import React from 'react';
-import { Modal, View, Text, Button, StyleSheet } from 'react-native';
+import { Modal, View, Text, StyleSheet } from 'react-native';
+import { SmallPressableCustom } from './SmallPressableCustom';
 
 interface CustomAlertModalProps {
   visible: boolean;
+  title: string;
   errorMessage: string;
   onClose: () => void;
+  onConfirm?: () => void;
+  singleButton?: boolean;
 }
 
-const CustomAlertModal: React.FC<CustomAlertModalProps> = ({ visible, errorMessage, onClose }) => {
+const CustomAlertModal: React.FC<CustomAlertModalProps> = ({ visible, title, errorMessage, onClose, onConfirm, singleButton }) => {
   return (
     <Modal
       transparent={true}
-      animationType="slide"
+      animationType="fade"
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>{errorMessage}</Text>
-          <Button title="Close" onPress={onClose} />
+      <View style={styles.overlay}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>{title}</Text>
+            <Text style={styles.modalText}>{errorMessage}</Text>
+            <View style={styles.buttonContainer}>
+              {singleButton ? (
+                <SmallPressableCustom label="Accept" onPress={onConfirm || onClose} />
+              ) : (
+                <>
+                  <SmallPressableCustom label="Accept" onPress={onConfirm || onClose} />
+                  <View style={styles.buttonSpacer} />
+                  <SmallPressableCustom label="Cancel" onPress={onClose} />
+                </>
+              )}
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
@@ -26,6 +43,10 @@ const CustomAlertModal: React.FC<CustomAlertModalProps> = ({ visible, errorMessa
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -34,7 +55,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#EFEDE6',
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -46,10 +67,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    borderColor: '#8D602D',
+    borderWidth: 1,
   },
-  modalText: {
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
+    color: '#3A2F23',
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#3A2F23',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonSpacer: {
+    width: 10,
   },
 });
 

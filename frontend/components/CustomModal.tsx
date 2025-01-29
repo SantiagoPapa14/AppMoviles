@@ -37,7 +37,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} transparent={true} animationType="slide">
+    <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.label}>Enter new {field}:</Text>

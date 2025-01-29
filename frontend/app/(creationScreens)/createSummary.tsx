@@ -12,12 +12,17 @@ import { PressableCustom } from "@/components/PressableCustom";
 import * as DocumentPicker from "expo-document-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 const CreateSummary = ({ navigation }: { navigation: any }) => {
   const [files, setFiles] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
   const { secureFetch, uploadAttachment } = useAuth();
 
@@ -29,7 +34,9 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
       if (result.canceled) return;
       setFiles(result.assets);
     } catch (error) {
-      Alert.alert("Error", "An error occurred while selecting files.");
+      setModalTitle("Error");
+      setModalMessage("An error occurred while selecting files.");
+      setModalVisible(true);
     }
   };
 
@@ -46,21 +53,44 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
         await uploadAttachment(file);
       } catch (error) {
         console.error("Error uploading document:", error);
-        Alert.alert("Error", "Failed to upload document.");
+        setModalTitle("Error");
+        setModalMessage("Failed to upload document.");
+        setModalVisible(true);
       }
     }
   };
 
   async function handleSave(): Promise<void> {
     if (!secureFetch) return;
+    if (!title.trim() || !summary.trim() || !subject.trim()) {
+      setModalTitle("Error");
+      setModalMessage("El título y el resumen no pueden estar vacíos");
+      setModalVisible(true);
+      return;
+    }
     await uploadDocuments();
-    const data = await secureFetch(`/summary`, {
-      method: "POST",
-      body: JSON.stringify({ title, subject, summary, files }),
-    });
-    Alert.alert("Éxito", "Resumen creado correctamente");
-    navigation.goBack();
+    try {
+      await secureFetch(`/summary`, {
+        method: "POST",
+        body: JSON.stringify({ title, subject, summary, files }),
+      });
+      setModalTitle("Éxito");
+      setModalMessage("Resumen creado correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
+    } catch (error) {
+      setModalTitle("Error");
+      setModalMessage("Hubo un problema al crear el resumen");
+      setModalVisible(true);
+    }
   }
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -114,6 +144,13 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
       </View>
       <PressableCustom onPress={handleSave} label="Guardar Resumen" />
       <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
     </View>
   );
 };

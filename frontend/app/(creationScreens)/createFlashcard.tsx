@@ -2,7 +2,6 @@ import {
   View,
   Text,
   TextInput,
-  Alert,
   ScrollView,
   StyleSheet,
 } from "react-native";
@@ -12,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 interface Flashcard {
   front: string;
@@ -66,6 +66,10 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
   const [title, setTitle] = useState("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
     setFlashcards((prevFlashcards) => {
@@ -88,23 +92,26 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
     setIsSaving(true);
 
     if (!deck.title.trim()) {
-      Alert.alert("Error", "El título del maso no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del maso no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (deck.flashcards.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una flashcard.");
+      setModalTitle("Error");
+      setModalMessage("Debe agregar al menos una flashcard.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     for (const flashcard of deck.flashcards) {
       if (!flashcard.front.trim() || !flashcard.back.trim()) {
-        Alert.alert(
-          "Error",
-          "Todas las flashcards deben tener ambos lados llenos.",
-        );
+        setModalTitle("Error");
+        setModalMessage("Todas las flashcards deben tener ambos lados llenos.");
+        setModalVisible(true);
         setIsSaving(false);
         return;
       }
@@ -124,14 +131,25 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
       if (!response.ok) {
         throw new Error("Failed to save the deck");
       } else {
-        Alert.alert("Éxito", `Deck ${deck.title} guardado correctamente`);
-        navigation.navigate("Feed");
+        setModalTitle("Éxito");
+        setModalMessage(`Deck ${deck.title} guardado correctamente`);
+        setModalVisible(true);
+        setRedirectOnClose(true);
       }
     } catch (error) {
       console.error("Failed to save the deck:", error);
-      Alert.alert("Error", "Failed to save the deck.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save the deck.");
+      setModalVisible(true);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main")
     }
   };
 
@@ -146,17 +164,17 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
         />
         {flashcards.map((flashcard, index) => (
           <FlashcardAddComponent
-        key={index}
-        flashcardData={flashcard}
-        onUpdate={(updatedFlashcard) =>
-          updateFlashcard(index, updatedFlashcard)
-        }
-        onRemove={() => removeFlashcard(index)}
+            key={index}
+            flashcardData={flashcard}
+            onUpdate={(updatedFlashcard) =>
+              updateFlashcard(index, updatedFlashcard)
+            }
+            onRemove={() => removeFlashcard(index)}
           />
         ))}
         <PressableCustom
           onPress={() =>
-        setFlashcards([...flashcards, { front: "", back: "" }])
+            setFlashcards([...flashcards, { front: "", back: "" }])
           }
           label="Agregar"
         />
@@ -167,6 +185,13 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
         />
         <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
     </View>
   );
 };
