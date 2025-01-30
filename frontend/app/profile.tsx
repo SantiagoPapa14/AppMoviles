@@ -18,8 +18,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { ScrollView as HorizontalScrollView } from "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SmallPressableCustom } from "@/components/SmallPressableCustom";
-import SmallPressableCustomButton  from "@/components/SmallPressableCustomButton";
 
 const ProfileScreen = ({ navigation }: any) => {
   const { secureFetch, uploadImage, fetchProfile } = useAuth();
@@ -39,7 +37,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const [followerData, setFollowers] = useState<{
     followersCount: number;
     followingCount: number;
-  }>({ followersCount: 0, followingCount: 0 }); 
+  }>({ followersCount: 0, followingCount: 0 });
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [picModalOpen, setPicModalOpen] = useState(false);
@@ -53,6 +51,7 @@ const ProfileScreen = ({ navigation }: any) => {
       setFlashcards(data.decks);
       setSummaries(data.summaries);
       setFollowers(data.followers);
+
     } catch (error) {
       console.error("Failed to fetch user content:", error);
     }
@@ -64,9 +63,7 @@ const ProfileScreen = ({ navigation }: any) => {
         setProfile(await fetchProfile());
       }
     };
-    if (isFocused) {
-      fetchUserContent();
-    }
+    fetchUserContent();
     getProfile();
   }, [isFocused]);
 
@@ -132,37 +129,40 @@ const ProfileScreen = ({ navigation }: any) => {
             setPicModalOpen(false);
           }}
         >
-          <View style={styles.overlay}>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                {imageUri ? (
-                  <Image
-                    source={{ uri: imageUri }}
-                    style={{
-                      width: 150,
-                      height: 150,
-                      borderWidth: 1,
-                      borderColor: "black",
-                      borderRadius: 75,
-                      marginBottom: 20, // Added margin
-                    }}
-                  />
-                ) : (
-                  <Text style={styles.modalText}>No image selected</Text>
-                )}
-                <View style={styles.buttonContainer}>
-                  <SmallPressableCustomButton label="Select Image" onPress={pickImage} />
-                  <View style={styles.buttonSpacer} />
-                  <SmallPressableCustomButton
-                    label="Save"
-                    onPress={() => {
-                      if (uploadImage && imageUri) uploadImage(imageUri);
-                      setPicModalOpen(false);
-                    }}
-                  />
-                  <View style={styles.buttonSpacer} />
-                  <SmallPressableCustomButton label="Cancel" onPress={() => setPicModalOpen(false)} />
-                </View>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={{
+                    width: 150,
+                    height: 150,
+                    borderWidth: 1,
+                    borderColor: "black",
+                    borderRadius: 75,
+                  }}
+                />
+              ) : (
+                <Text>No image selected</Text>
+              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 10,
+                  gap: 10,
+                }}
+              >
+                <Button title="Select Image" onPress={pickImage} />
+
+                <Button
+                  title="Save"
+                  onPress={() => {
+                    if (uploadImage && imageUri) uploadImage(imageUri);
+                    setPicModalOpen(false);
+                  }}
+                />
+
+                <Button title="Cancel" onPress={() => setPicModalOpen(false)} />
               </View>
             </View>
           </View>
@@ -376,47 +376,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     marginBottom: 8,
     textAlign: "center",
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: '#EFEDE6',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    borderColor: '#8D602D',
-    borderWidth: 1,
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#3A2F23',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonSpacer: {
-    width: 10,
   },
 });
 

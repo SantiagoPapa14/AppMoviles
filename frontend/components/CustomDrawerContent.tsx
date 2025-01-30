@@ -7,10 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { useState, useEffect } from "react";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function CustomDrawerContent(props: any) {
   const { onLogout, fetchProfile } = useAuth();
   const [profile, setProfile] = useState<any>(null);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -19,8 +21,10 @@ export default function CustomDrawerContent(props: any) {
         setProfile(userProfile);
       }
     };
-    loadProfile();
-  });
+    if (isFocused) {
+      loadProfile();
+    }
+  }, [isFocused, fetchProfile]);
 
   return (
     <DrawerContentScrollView {...props}>

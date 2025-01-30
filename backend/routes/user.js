@@ -88,6 +88,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+//Settings
 router.patch("/", authLib.validateAuthorization, async (req, res) => {
   let { email, username, password, name, currentPassword } = req.body;
 

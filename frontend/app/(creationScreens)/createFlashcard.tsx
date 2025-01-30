@@ -12,6 +12,7 @@ import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import CustomAlertModal from "@/components/CustomAlertModal";
+import { API_TOKEN_KEY } from "@/constants/API-TOKEN";
 
 interface Flashcard {
   front: string;
@@ -118,7 +119,7 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
     }
 
     try {
-      const token = await AsyncStorage.getItem("api_token");
+      const token = await AsyncStorage.getItem(API_TOKEN_KEY);
       const response = await fetch(`${API_BASE_URL}/deck`, {
         method: "POST",
         headers: {
