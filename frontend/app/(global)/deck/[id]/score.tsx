@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { useAuth } from "@/app/context/AuthContext";
@@ -11,7 +11,7 @@ const DeckScore = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [answersCorrect, setAnswersCorrect] = useState<boolean[]>([]);
-
+  
   const route = useRoute();
   const { id } = route.params as { id: string | number };
   const { secureFetch } = useAuth();
@@ -28,7 +28,7 @@ const DeckScore = ({ navigation }: any) => {
         setError("An unknown error occurred");
       }
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 250);
     }
   };
 
@@ -62,8 +62,10 @@ const DeckScore = ({ navigation }: any) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Deck Score</Text>
-        <Text style={styles.loading}>Loading...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#808080" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
       </View>
     );
   }
@@ -139,9 +141,16 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "bold",
   },
-  loading: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
     fontSize: 18,
-    color: "gray",
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
   },
   questionsContainer: {
     marginTop: 20,
@@ -181,6 +190,10 @@ const styles = StyleSheet.create({
   tryAgainButtonText: {
     color: "#fff",
     fontSize: 16,
+    textAlign: "center",
+  },
+  gameFinishedText: {
+    fontWeight: "bold",
     textAlign: "center",
   },
 });

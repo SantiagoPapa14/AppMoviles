@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
-
 import { useAuth } from "@/app/context/AuthContext";
 import { useRoute } from "@react-navigation/native";
 
 const QuizScore = ({ navigation }: any) => {
   const [quiz, setQuiz] = useState<any>(null);
   const [answers, setAnswers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const route = useRoute();
   const { id } = route.params as { id: string | number };
@@ -28,6 +28,8 @@ const QuizScore = ({ navigation }: any) => {
         }
       } catch (err) {
         console.log(err);
+      } finally {
+        setTimeout(() => setLoading(false), 250);
       }
     };
     fetchQuiz();
@@ -35,38 +37,47 @@ const QuizScore = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quiz Score</Text>
-      <Text>
-        {answers.filter((a) => a.correct).length}/{answers.length}
-      </Text>
-      <View style={styles.questionsContainer}>
-        {answers.map((answer: any, index: number) => (
-          <View key={index} style={styles.questionContainer}>
-            <Text style={styles.question}>
-              Pregunta: {answer.question.toString()}
-            </Text>
-            {answer.correct ? (
-              <Text style={styles.correctAnswer}>
-                Respuesta: {answer.realAnswer.toString()}
-              </Text>
-            ) : (
-              <Text style={styles.incorrectAnswer}>
-                Respuesta: {answer.realAnswer.toString()}
-              </Text>
-            )}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#808080" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.title}>Quiz Score</Text>
+          <Text>
+            {answers.filter((a) => a.correct).length}/{answers.length}
+          </Text>
+          <View style={styles.questionsContainer}>
+            {answers.map((answer: any, index: number) => (
+              <View key={index} style={styles.questionContainer}>
+                <Text style={styles.question}>
+                  Pregunta: {answer.question.toString()}
+                </Text>
+                {answer.correct ? (
+                  <Text style={styles.correctAnswer}>
+                    Respuesta: {answer.realAnswer.toString()}
+                  </Text>
+                ) : (
+                  <Text style={styles.incorrectAnswer}>
+                    Respuesta: {answer.realAnswer.toString()}
+                  </Text>
+                )}
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
-      <View style={{ display: "flex", flexDirection: "row" }}>
-        <PressableCustom
-          label={"Try Again"}
-          onPress={() => navigation.navigate("Play Quiz", { id })}
-        />
-        <PressableCustom
-          label={"Return to Home"}
-          onPress={() => navigation.replace("Main")}
-        />
-      </View>
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            <PressableCustom
+              label={"Try Again"}
+              onPress={() => navigation.navigate("Play Quiz", { id })}
+            />
+            <PressableCustom
+              label={"Return to Home"}
+              onPress={() => navigation.replace("Main")}
+            />
+          </View>
+        </>
+      )}
     </View>
   );
 };
@@ -87,9 +98,16 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "bold",
   },
-  loading: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
     fontSize: 18,
-    color: "gray",
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
   },
   questionsContainer: {
     marginTop: 20,
@@ -129,6 +147,10 @@ const styles = StyleSheet.create({
   tryAgainButtonText: {
     color: "#fff",
     fontSize: 16,
+    textAlign: "center",
+  },
+  gameFinishedText: {
+    fontWeight: "bold",
     textAlign: "center",
   },
 });

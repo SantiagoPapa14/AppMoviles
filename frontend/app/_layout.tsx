@@ -67,7 +67,7 @@ function HomeTabs() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
 
-        tabBarStyle: { 
+        tabBarStyle: {
           backgroundColor: "#B49F84",
           height: 70, // increase the height for better visibility
           shadowColor: '#000', // add shadow for floating effect
@@ -84,7 +84,7 @@ function HomeTabs() {
         tabBarInactiveBackgroundColor: "#B49F84", // original background when not selected
         tabBarActiveTintColor: "#FFFFFF", // text color when selected
         tabBarInactiveTintColor: "#D3D3D3", // text color when not selected
-        tabBarLabelStyle: { 
+        tabBarLabelStyle: {
           fontSize: 13, // increase the font size
           color: "white",
           paddingBottom: 5, // add padding to center the text vertically
@@ -196,33 +196,54 @@ export default function Layout() {
   return (
     <AuthProvider>
       <NavigationContainer independent={true}>
-        <GlobalStack.Navigator>
+        <GlobalStack.Navigator
+          screenOptions={{
+            headerTitleAlign: "center",
+            headerTitleStyle: { fontWeight: "bold" },
+          }}
+        >
           <GlobalStack.Screen
             name="Main"
             component={MainNavigation}
             options={{ headerShown: false }}
           />
 
-          {/*Summary*/}
+          {/* Summary */}
           <GlobalStack.Screen name="Summary" component={SummaryScreen} />
           <GlobalStack.Screen name="Edit Summary" component={EditSummary} />
 
-          {/*Quiz*/}
+          {/* Quiz */}
           <GlobalStack.Screen name="Quiz" component={QuizScreen} />
           <GlobalStack.Screen name="Edit Quiz" component={EditQuiz} />
           <GlobalStack.Screen name="Play Quiz" component={PlayQuiz} />
-          <GlobalStack.Screen name="Quiz Score" component={QuizScore} />
+          <GlobalStack.Screen
+            name="Quiz Score"
+            component={QuizScore}
+            options={{
+              headerLeft: () => null,
+              gestureEnabled: false,
+              headerBackVisible: false, // Ensures the back button is hidden
+            }}
+          />
 
-          {/*Quiz*/}
+          {/* Flashcard (Deck) */}
           <GlobalStack.Screen name="Flashcard" component={DeckScreen} />
           <GlobalStack.Screen name="Edit Deck" component={EditDeck} />
           <GlobalStack.Screen name="Play Deck" component={PlayDeck} />
-          <GlobalStack.Screen name="Deck Score" component={DeckScore} />
+          <GlobalStack.Screen
+            name="Deck Score"
+            component={DeckScore}
+            options={{
+              headerLeft: () => null,
+              gestureEnabled: false,
+              headerBackVisible: false, // Ensures the back button is hidden
+            }}
+          />
 
-          {/*Social*/}
+          {/* Social */}
           <GlobalStack.Screen name="User Profile" component={UserProfile} />
 
-          {/*ViewMore*/}
+          {/* ViewMore */}
           <GlobalStack.Screen
             name="FollowingProjects"
             component={FollowingProjects}
@@ -233,6 +254,7 @@ export default function Layout() {
           <GlobalStack.Screen name="Top Summaries" component={TopSummaries} />
           <GlobalStack.Screen name="My Projects" component={MyProjects} />
         </GlobalStack.Navigator>
+
       </NavigationContainer>
     </AuthProvider>
   );
