@@ -46,7 +46,7 @@ const AccountSettings: React.FC = () => {
         currentPassword: currentPassword,
       }),
     });
-    updateToken(data.token);
+    console.log(data.newToken);
     Alert.alert("Success", "Profile updated successfully");
   };
 
