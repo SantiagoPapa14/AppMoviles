@@ -134,7 +134,7 @@ export default function CreateSummary({ navigation }: { navigation: any }) {
         style={styles.titleInput}
         value={subject}
         onChangeText={setSubject}
-        placeholder="Subject va aca"
+        placeholder="Subject"
       />
       <TextInput
         style={styles.summaryInput}
@@ -148,7 +148,7 @@ export default function CreateSummary({ navigation }: { navigation: any }) {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "center", // Center the upload file button
+          justifyContent: "center", 
         }}
       >
         <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
@@ -156,7 +156,7 @@ export default function CreateSummary({ navigation }: { navigation: any }) {
           {files.length == 0 ? (
             <Text> </Text>
           ) : (
-            <Text> Haga click para subir archivos...  </Text> // Change text to "Upload more files"
+            <Text> Haga click para subir archivos...  </Text>
           )}
           {files.map((file, index) => (
             <Text key={index}>{file.name}</Text>

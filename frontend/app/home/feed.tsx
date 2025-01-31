@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/app/context/AuthContext";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const FeedScreen = ({ navigation }: { navigation: any }) => {
   const { secureFetch, refreshData } = useAuth();
@@ -134,7 +135,9 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refreshData();
+    if (refreshData) {
+      await refreshData();
+    }
     await fetchUserContent();
     await fetchFollowingProjects();
     setRefreshing(false);
@@ -148,62 +151,24 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
       }
     >
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>Your projects</Text>
-        {loadingUserContent ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#808080" />
-            <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {topCombinedProjects.length > 0 ? (
-              topCombinedProjects.map((project, index) => (
-                <Card
-                  key={index}
-                  title={project.title}
-                  creator="By you"
-                  projectId={parseInt(project.projectId)}
-                  type={project.type}
-                  navigation={navigation}
-                />
-              ))
-            ) : (
-              <Text style={styles.noItemsText}>No projects available.</Text>
-            )}
-          </ScrollView>
-        )}
-        <View style={styles.buttonContainer}></View>
+        <HorizontalCardSlider
+          title="Your projects"
+          items={topCombinedProjects}
+          navigation={navigation}
+          emptyMessage="No projects available."
+        />
         <PressableCustom
           label={"View More"}
           onPress={() => navigation.navigate("My Projects")}
         />
       </View>
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>Followed</Text>
-        {loadingFollowingProjects ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#808080" />
-            <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {shuffledFollowingProjects.length > 0 ? (
-              shuffledFollowingProjects.map((project, index) => (
-                <Card
-                  key={index}
-                  title={project.title}
-                  creator={project.user.username}
-                  projectId={parseInt(project.projectId)}
-                  type={project.type}
-                  navigation={navigation}
-                />
-              ))
-            ) : (
-              <Text style={styles.noItemsText}>No followed projects available.</Text>
-            )}
-          </ScrollView>
-        )}
-        <View style={styles.buttonContainer}></View>
+        <HorizontalCardSlider
+          title="Followed"
+          items={shuffledFollowingProjects}
+          navigation={navigation}
+          emptyMessage="No followed projects available."
+        />
         <PressableCustom
           label={"View More"}
           onPress={() => navigation.navigate("FollowingProjects")}

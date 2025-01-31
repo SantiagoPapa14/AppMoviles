@@ -20,6 +20,7 @@ import { ScrollView as HorizontalScrollView } from "react-native-gesture-handler
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import SmallPressableCustomButton from "@/components/SmallPressableCustomButton";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const ProfileScreen = ({ navigation }: any) => {
   const { secureFetch, uploadImage, fetchProfile, refreshData } = useAuth();
@@ -136,7 +137,9 @@ const ProfileScreen = ({ navigation }: any) => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refreshData();
+    if (refreshData) {
+      await refreshData();
+    }
     await fetchUserContent();
     setRefreshing(false);
   };
@@ -236,70 +239,28 @@ const ProfileScreen = ({ navigation }: any) => {
               </PaperCard.Content>
             </PaperCard>
             <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Quizzes" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {quizzes && quizzes.length > 0 ? (
-                    quizzes.map((quiz, index) => (
-                      <Card
-                        key={`${quiz.projectId}-${index}`}
-                        title={quiz.title}
-                        creator="By you"
-                        color="#f9f9f9"
-                        projectId={parseInt(quiz.projectId, 10)}
-                        type={quiz.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.noItemsText}>No quizzes available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
+              <HorizontalCardSlider
+                title="Quizzes"
+                items={quizzes}
+                navigation={navigation}
+                emptyMessage="No quizzes available."
+              />
             </PaperCard>
             <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Flashcards" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {flashcards && flashcards.length > 0 ? (
-                    flashcards.map((flashcard, index) => (
-                      <Card
-                        key={`${flashcard.projectId}-${index}`}
-                        title={flashcard.title}
-                        creator={profile.username}
-                        color="#f9f9f9"
-                        projectId={parseInt(flashcard.projectId, 10)}
-                        type={flashcard.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.noItemsText}>No flashcards available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
+              <HorizontalCardSlider
+                title="Flashcards"
+                items={flashcards}
+                navigation={navigation}
+                emptyMessage="No flashcards available."
+              />
             </PaperCard>
             <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Summaries" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {summaries && summaries.length > 0 ? (
-                    summaries.map((summary, index) => (
-                      <Card
-                        key={`${summary.projectId}-${index}`}
-                        title={summary.title}
-                        creator={profile.username}
-                        color="#f9f9f9"
-                        projectId={parseInt(summary.projectId, 10)}
-                        type={summary.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.noItemsText}>No summaries available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
+              <HorizontalCardSlider
+                title="Summaries"
+                items={summaries}
+                navigation={navigation}
+                emptyMessage="No summaries available."
+              />
             </PaperCard>
           </>
         ) : (

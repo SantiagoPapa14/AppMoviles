@@ -4,6 +4,7 @@ import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const SearchScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,7 +49,9 @@ const SearchScreen = ({ navigation }: any) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refreshData();
+    if (refreshData) {
+      await refreshData();
+    }
     await fetchAllProjects();
     setRefreshing(false);
   }, [refreshData]);
@@ -87,63 +90,36 @@ const SearchScreen = ({ navigation }: any) => {
         }
       >
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Most Popular Summaries</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {allSummaries.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-          <View style={styles.buttonContainer}></View>
-          <View style={styles.buttonContainer}></View>
+          <HorizontalCardSlider
+            title="Most Popular Summaries"
+            items={allSummaries}
+            navigation={navigation}
+            emptyMessage="No summaries available."
+          />
           <PressableCustom
             label={"View More"}
             onPress={() => navigation.navigate("Top Summaries")}
           />
         </View>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Most Popular Quizes</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {allQuizzes.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-          <View style={styles.buttonContainer}></View>
-          <View style={styles.buttonContainer}></View>
+          <HorizontalCardSlider
+            title="Most Popular Quizzes"
+            items={allQuizzes}
+            navigation={navigation}
+            emptyMessage="No quizzes available."
+          />
           <PressableCustom
             label={"View More"}
             onPress={() => navigation.navigate("Top Quizzes")}
           />
         </View>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Most Popular Decks</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {allFlashcards.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-          <View style={styles.buttonContainer}></View>
-          <View style={styles.buttonContainer}></View>
+          <HorizontalCardSlider
+            title="Most Popular Decks"
+            items={allFlashcards}
+            navigation={navigation}
+            emptyMessage="No decks available."
+          />
           <PressableCustom
             label={"View More"}
             onPress={() => navigation.navigate("Top Decks")}

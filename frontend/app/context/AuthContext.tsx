@@ -22,7 +22,6 @@ interface AuthProps {
   uploadImage?: (imageUri: string) => Promise<void>;
   uploadAttachment?: (file: any) => Promise<void>;
   refreshData?: () => Promise<void>;
-   
 }
 
 const AuthContext = createContext<AuthProps>({});
@@ -61,7 +60,6 @@ export const AuthProvider = ({ children }: any) => {
 
   const refreshData = async () => {
     await fetchProfile();
-    // Add any other data fetching logic here if needed
   };
 
   useEffect(() => {

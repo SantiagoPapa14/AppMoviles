@@ -7,10 +7,10 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRoute, useIsFocused } from "@react-navigation/native";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const SearchResult = ({ navigation }: any) => {
   const { secureFetch } = useAuth();
@@ -92,63 +92,24 @@ const SearchResult = ({ navigation }: any) => {
         </View>
       </View>
       <ScrollView>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Summaries Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {summaries.length > 0 ? (
-              summaries.map((project, index) => (
-                <Card
-                  key={index}
-                  title={project.title}
-                  creator={project.user.username}
-                  projectId={parseInt(project.projectId)}
-                  type={"summary"}
-                  navigation={navigation}
-                />
-              ))
-            ) : (
-              <Text style={styles.noItemsText}>No summaries found.</Text>
-            )}
-          </ScrollView>
-        </View>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Quizzes Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {quizzes.length > 0 ? (
-              quizzes.map((project, index) => (
-                <Card
-                  key={index}
-                  title={project.title}
-                  creator={project.user.username}
-                  projectId={parseInt(project.projectId)}
-                  type={"quiz"}
-                  navigation={navigation}
-                />
-              ))
-            ) : (
-              <Text style={styles.noItemsText}>No quizzes found.</Text>
-            )}
-          </ScrollView>
-        </View>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Decks Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {decks.length > 0 ? (
-              decks.map((project, index) => (
-                <Card
-                  key={index}
-                  title={project.title}
-                  creator={project.user.username}
-                  projectId={parseInt(project.projectId)}
-                  type={"flashcard"}
-                  navigation={navigation}
-                />
-              ))
-            ) : (
-              <Text style={styles.noItemsText}>No decks found.</Text>
-            )}
-          </ScrollView>
-        </View>
+        <HorizontalCardSlider
+          title="Summaries Found"
+          items={summaries}
+          navigation={navigation}
+          emptyMessage="No summaries found."
+        />
+        <HorizontalCardSlider
+          title="Quizzes Found"
+          items={quizzes}
+          navigation={navigation}
+          emptyMessage="No quizzes found."
+        />
+        <HorizontalCardSlider
+          title="Decks Found"
+          items={decks}
+          navigation={navigation}
+          emptyMessage="No decks found."
+        />
       </ScrollView>
     </View>
   );

@@ -11,7 +11,7 @@ interface CustomAlertModalProps {
   singleButton?: boolean;
 }
 
-const CustomAlertModal: React.FC<CustomAlertModalProps> = ({ visible, title, errorMessage, onClose, onConfirm, singleButton }) => {
+const CustomAlertModal = ({ visible, title, errorMessage, onClose, onConfirm, singleButton }:CustomAlertModalProps) => {
   return (
     <Modal
       transparent={true}
