@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +7,6 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { PressableCustom } from "@/components/PressableCustom";
 import * as DocumentPicker from "expo-document-picker";
@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import CustomAlertModal from "@/components/CustomAlertModal";
 
-const CreateSummary = ({ navigation }: { navigation: any }) => {
+export default function CreateSummary({ navigation }: { navigation: any }) {
   const [files, setFiles] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [subject, setSubject] = useState("");
@@ -23,8 +23,22 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [redirectOnClose, setRedirectOnClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { secureFetch, uploadAttachment } = useAuth();
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      if (!secureFetch) return;
+      const data = await secureFetch("/tag/all");
+      setAllTags(data);
+    } catch {}
+  };
 
   const pickFiles = async () => {
     try {
@@ -60,6 +74,14 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
     }
   };
 
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
+
   async function handleSave(): Promise<void> {
     if (!secureFetch) return;
     if (!title.trim() || !summary.trim() || !subject.trim()) {
@@ -70,9 +92,16 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
     }
     await uploadDocuments();
     try {
-      await secureFetch(`/summary`, {
+      const response = await secureFetch(`/summary`, {
         method: "POST",
         body: JSON.stringify({ title, subject, summary, files }),
+      });
+
+      const summaryId = response.summary.projectId;
+      
+      await secureFetch(`/tag/summary`, {
+        method: "POST",
+        body: JSON.stringify({ tagsIds: selectedTags, summaryId: summaryId }),
       });
       setModalTitle("Éxito");
       setModalMessage("Resumen creado correctamente");
@@ -144,6 +173,23 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
       </View>
       <PressableCustom onPress={handleSave} label="Guardar Resumen" />
       <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+      <Text style={styles.selectTagsText}>Select Tags:</Text>
+      <View style={styles.tagsContainer}>
+        {allTags.map((tag) => (
+          <TouchableOpacity
+            key={tag.id}
+            onPress={() => toggleTag(tag.id)}
+            style={[
+              styles.tagButton,
+              selectedTags.includes(tag.id) && styles.selectedTagButton,
+            ]}
+          >
+            <Text style={styles.tagButtonText}>
+              {tag.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <CustomAlertModal
         visible={modalVisible}
         title={modalTitle}
@@ -153,7 +199,7 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -205,6 +251,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#3A2F23",
   },
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
+  },
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
 });
-
-export default CreateSummary;

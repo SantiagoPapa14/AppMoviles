@@ -39,50 +39,10 @@ const searchProjectsByTag = async (tagName) => {
   }
 };
 
-const createSummaryTag = async (name, summaryId) => {
+const createSummaryTags = async (ids, summaryId) => {
   try {
-    const tag = await createTag(name);
-    const summaryTag = await prisma.summaryTag.create({
-      data: { tagId: tag.id, summaryId },
-    });
-    return summaryTag;
-  } catch (error) {
-    console.error("Error creating summary tag:", error);
-    return null;
-  }
-};
-
-const createQuizTag = async (name, quizId) => {
-  try {
-    const tag = await createTag(name);
-    const quizTag = await prisma.quizTag.create({
-      data: { tagId: tag.id, quizId },
-    });
-    return quizTag;
-  } catch (error) {
-    console.error("Error creating quiz tag:", error);
-    return null;
-  }
-};
-
-const createDeckTag = async (name, deckId) => {
-  try {
-    const tag = await createTag(name);
-    const deckTag = await prisma.deckTag.create({
-      data: { tagId: tag.id, deckId },
-    });
-    return deckTag;
-  } catch (error) {
-    console.error("Error creating deck tag:", error);
-    return null;
-  }
-};
-
-const createSummaryTags = async (names, summaryId) => {
-  try {
-    const tags = await Promise.all(names.map(name => createTag(name)));
-    const summaryTags = await Promise.all(tags.map(tag => prisma.summaryTag.create({
-      data: { tagId: tag.id, summaryId },
+    const summaryTags = await Promise.all(ids.map(id => prisma.summaryTag.create({
+      data: { tagId: id, summaryId },
     })));
     return summaryTags;
   } catch (error) {
@@ -91,11 +51,10 @@ const createSummaryTags = async (names, summaryId) => {
   }
 };
 
-const createQuizTags = async (names, quizId) => {
+const createQuizTags = async (ids, quizId) => {
   try {
-    const tags = await Promise.all(names.map(name => createTag(name)));
-    const quizTags = await Promise.all(tags.map(tag => prisma.quizTag.create({
-      data: { tagId: tag.id, quizId },
+    const quizTags = await Promise.all(ids.map(id => prisma.quizTag.create({
+      data: { tagId: id, quizId },
     })));
     return quizTags;
   } catch (error) {
@@ -104,11 +63,10 @@ const createQuizTags = async (names, quizId) => {
   }
 };
 
-const createDeckTags = async (names, deckId) => {
+const createDeckTags = async (ids, deckId) => {
   try {
-    const tags = await Promise.all(names.map(name => createTag(name)));
-    const deckTags = await Promise.all(tags.map(tag => prisma.deckTag.create({
-      data: { tagId: tag.id, deckId },
+    const deckTags = await Promise.all(ids.map(id => prisma.deckTag.create({
+      data: { tagId: id, deckId },
     })));
     return deckTags;
   } catch (error) {
@@ -172,9 +130,6 @@ module.exports = {
   createTag,
   getTagsByProjectId,
   searchProjectsByTag,
-  createSummaryTag,
-  createQuizTag,
-  createDeckTag,
   createSummaryTags,
   createQuizTags,
   createDeckTags,

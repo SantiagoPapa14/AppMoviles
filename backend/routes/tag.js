@@ -4,9 +4,9 @@ router.use(express.json());
 
 const authLib = require("../lib/authLib");
 const {
-  createSummaryTag,
-  createQuizTag,
-  createDeckTag,
+  createSummaryTags,
+  createQuizTags,
+  createDeckTags,
   searchSummariesByTag,
   searchQuizzesByTag,
   searchDecksByTag,
@@ -15,46 +15,47 @@ const {
 
 router.post("/summary", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { tagId, summaryId } = req.body;
-    if (!tagId || !summaryId) {
-      res.status(400).json({ message: "Please provide tagId and summaryId" });
+    const { tagsIds, summaryId } = req.body;
+    if (!tagsIds || !summaryId) {
+      res.status(400).json({ message: "Please provide tagsIds and summaryId" });
       return;
     }
-    const tag = await createSummaryTag(tagId, summaryId);
-    res.status(200).json({ message: "Summary tag created successfully!", tag });
+    const tags = await createSummaryTags(tagsIds, summaryId);
+    res.status(200).json({ message: "Summary tags created successfully!", tags });
   } catch (err) {
-    console.error("Error creating summary tag:", err);
-    res.status(500).json({ message: "Failed to create summary tag", error: err.message });
+    console.error("Error creating summary tags:", err);
+    res.status(500).json({ message: "Failed to create summary tags", error: err.message });
   }
 });
 
 router.post("/quiz", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { tagId, quizId } = req.body;
-    if (!tagId || !quizId) {
-      res.status(400).json({ message: "Please provide tagId and quizId" });
+    const { tagsIds, quizId } = req.body;
+    if (!tagsIds || !quizId) {
+      res.status(400).json({ message: "Please provide tagsIds and quizId" });
       return;
     }
-    const tag = await createQuizTag(tagId, quizId);
-    res.status(200).json({ message: "Quiz tag created successfully!", tag });
+    const tags = await createQuizTags(tagsIds, quizId);
+    res.status(200).json({ message: "Quiz tags created successfully!", tags });
   } catch (err) {
-    console.error("Error creating quiz tag:", err);
-    res.status(500).json({ message: "Failed to create quiz tag", error: err.message });
+    console.error("Error creating quiz tags:", err);
+    res.status(500).json({ message: "Failed to create quiz tags", error: err.message });
   }
 });
 
 router.post("/deck", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { tagId, deckId } = req.body;
-    if (!tagId || !deckId) {
-      res.status(400).json({ message: "Please provide tagId and deckId" });
+    const { tagsIds, deckId } = req.body;
+    if (!tagsIds || !deckId) {
+      res.status(400).json({ message: "Please provide tagsIds and deckId" });
       return;
     }
-    const tag = await createDeckTag(tagId, deckId);
-    res.status(200).json({ message: "Deck tag created successfully!", tag });
+    const tags = await createDeckTags(tagsIds, deckId);
+    console.log(tags);
+    res.status(200).json({ message: "Deck tags created successfully!", tags });
   } catch (err) {
-    console.error("Error creating deck tag:", err);
-    res.status(500).json({ message: "Failed to create deck tag", error: err.message });
+    console.error("Error creating deck tags:", err);
+    res.status(500).json({ message: "Failed to create deck tags", error: err.message });
   }
 });
 

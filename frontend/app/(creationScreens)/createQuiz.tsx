@@ -4,8 +4,9 @@ import {
   TextInput,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -89,6 +90,31 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [redirectOnClose, setRedirectOnClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      const token = await AsyncStorage.getItem("api_token");
+      const resp = await fetch(`${API_BASE_URL}/tag/all`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const data = await resp.json();
+      setAllTags(data);
+    } catch {}
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
 
   const updateQuestion = (index: number, updatedQuestion: QuizQuestion) => {
     setQuestions((prevQuestions) => {
@@ -151,9 +177,18 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify(quiz),
       });
 
+      const quizId = (await response.json()).quiz.projectId;
+
       if (!response.ok) {
         throw new Error("Failed to save the quiz");
       }
+
+      await fetch(`${API_BASE_URL}/tag/quiz`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ tagsIds: selectedTags, quizId: quizId }),
+      });
+
       setModalTitle("Éxito");
       setModalMessage("Quiz guardado correctamente");
       setRedirectOnClose(true);
@@ -207,6 +242,24 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
           label="Guardar"
         />
         <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <View style={styles.break} />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
       <CustomAlertModal
         visible={modalVisible}
@@ -241,6 +294,34 @@ const styles = StyleSheet.create({
   },
   removeIcon: {
     marginLeft: 10,
+  },
+  break: {
+    marginVertical: 20,
+  },
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
   },
 });
 
