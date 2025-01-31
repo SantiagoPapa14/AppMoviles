@@ -8,6 +8,7 @@ import {
   Modal,
   Image,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
@@ -21,7 +22,7 @@ import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import SmallPressableCustomButton from "@/components/SmallPressableCustomButton";
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { secureFetch, uploadImage, fetchProfile, updateProfile } = useAuth();
+  const { secureFetch, uploadImage, fetchProfile, refreshData } = useAuth();
 
   const isFocused = useIsFocused();
 
@@ -43,6 +44,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [picModalOpen, setPicModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchUserContent = async () => {
     try {
@@ -132,9 +134,21 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshData();
+    await fetchUserContent();
+    setRefreshing(false);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Modal
           animationType="fade"
           transparent={true}
@@ -238,7 +252,7 @@ const ProfileScreen = ({ navigation }: any) => {
                       />
                     ))
                   ) : (
-                    <Text style={styles.cardText}>No quizzes available.</Text>
+                    <Text style={styles.noItemsText}>No quizzes available.</Text>
                   )}
                 </HorizontalScrollView>
               </PaperCard.Content>
@@ -260,7 +274,7 @@ const ProfileScreen = ({ navigation }: any) => {
                       />
                     ))
                   ) : (
-                    <Text style={styles.cardText}>No flashcards available.</Text>
+                    <Text style={styles.noItemsText}>No flashcards available.</Text>
                   )}
                 </HorizontalScrollView>
               </PaperCard.Content>
@@ -282,7 +296,7 @@ const ProfileScreen = ({ navigation }: any) => {
                       />
                     ))
                   ) : (
-                    <Text style={styles.cardText}>No summaries available.</Text>
+                    <Text style={styles.noItemsText}>No summaries available.</Text>
                   )}
                 </HorizontalScrollView>
               </PaperCard.Content>
@@ -411,6 +425,13 @@ const styles = StyleSheet.create({
     fontSize: 19,
     marginBottom: 8,
     textAlign: "center",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

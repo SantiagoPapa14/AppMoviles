@@ -21,6 +21,7 @@ interface AuthProps {
   secureFetch?: (route: string, params?: any) => Promise<any | Array<any>>;
   uploadImage?: (imageUri: string) => Promise<void>;
   uploadAttachment?: (file: any) => Promise<void>;
+  refreshData?: () => Promise<void>;
    
 }
 
@@ -57,6 +58,11 @@ export const AuthProvider = ({ children }: any) => {
   const updateProfile = async () => {
     setHasBeenUpdated(true)
   }
+
+  const refreshData = async () => {
+    await fetchProfile();
+    // Add any other data fetching logic here if needed
+  };
 
   useEffect(() => {
     const loadToken = async () => {
@@ -240,6 +246,7 @@ export const AuthProvider = ({ children }: any) => {
     uploadImage: uploadImage,
     uploadAttachment: uploadAttachment,
     updateProfile: updateProfile,
+    refreshData, // Add refreshData to the context value
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

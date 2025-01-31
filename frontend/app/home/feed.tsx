@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/app/context/AuthContext";
 
 const FeedScreen = ({ navigation }: { navigation: any }) => {
-  const { secureFetch } = useAuth();
+  const { secureFetch, refreshData } = useAuth();
   const router = useRouter();
   const [quizzes, setQuizzes] = useState<
     {
@@ -41,6 +41,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const [loadingUserContent, setLoadingUserContent] = useState(true);
   const [loadingFollowingProjects, setLoadingFollowingProjects] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   //Following PROJECTS
   const [followingQuizzes, setFollowingQuizzes] = useState<
@@ -131,8 +132,21 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
     }, []),
   );
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    await fetchUserContent();
+    await fetchFollowingProjects();
+    setRefreshing(false);
+  }, [refreshData]);
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Your projects</Text>
         {loadingUserContent ? (
@@ -142,16 +156,20 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
           </View>
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {topCombinedProjects.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator="By you"
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
+            {topCombinedProjects.length > 0 ? (
+              topCombinedProjects.map((project, index) => (
+                <Card
+                  key={index}
+                  title={project.title}
+                  creator="By you"
+                  projectId={parseInt(project.projectId)}
+                  type={project.type}
+                  navigation={navigation}
+                />
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No projects available.</Text>
+            )}
           </ScrollView>
         )}
         <View style={styles.buttonContainer}></View>
@@ -169,16 +187,20 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
           </View>
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {shuffledFollowingProjects.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
+            {shuffledFollowingProjects.length > 0 ? (
+              shuffledFollowingProjects.map((project, index) => (
+                <Card
+                  key={index}
+                  title={project.title}
+                  creator={project.user.username}
+                  projectId={parseInt(project.projectId)}
+                  type={project.type}
+                  navigation={navigation}
+                />
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No followed projects available.</Text>
+            )}
           </ScrollView>
         )}
         <View style={styles.buttonContainer}></View>
@@ -259,6 +281,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#808080",
     marginTop: 10,
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

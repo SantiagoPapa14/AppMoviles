@@ -8,11 +8,13 @@ import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { useState, useEffect } from "react";
 import { useIsFocused } from "@react-navigation/native";
+import CustomAlertModal from "@/components/CustomAlertModal"; // Import CustomAlertModal
 
 export default function CustomDrawerContent(props: any) {
   const { onLogout, fetchProfile } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const isFocused = useIsFocused();
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false); // State for logout modal
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -25,6 +27,19 @@ export default function CustomDrawerContent(props: any) {
       loadProfile();
     }
   }, [isFocused, fetchProfile]);
+
+  const handleLogout = () => {
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutModalVisible(false);
+    await onLogout();
+  };
+
+  const closeLogoutModal = () => {
+    setLogoutModalVisible(false);
+  };
 
   return (
     <DrawerContentScrollView {...props}>
@@ -74,7 +89,7 @@ export default function CustomDrawerContent(props: any) {
       </TouchableOpacity>
       <DrawerItemList {...props} />
       <TouchableOpacity
-        onPress={onLogout}
+        onPress={handleLogout}
         style={{
           flexDirection: "row",
           alignItems: "center",
@@ -99,6 +114,13 @@ export default function CustomDrawerContent(props: any) {
           Logout
         </Text>
       </TouchableOpacity>
+      <CustomAlertModal
+        visible={logoutModalVisible}
+        title="Confirmación"
+        errorMessage="¿Está seguro de que desea cerrar sesión?"
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+      />
     </DrawerContentScrollView>
   );
 }

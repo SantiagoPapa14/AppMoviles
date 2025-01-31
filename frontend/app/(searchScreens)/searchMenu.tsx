@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,7 +8,7 @@ import { useAuth } from "@/app/context/AuthContext";
 const SearchScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { secureFetch } = useAuth();
+  const { secureFetch, refreshData } = useAuth();
 
   const [allQuizzes, setAllQuizzes] = useState<
     { projectId: string; user: any; title: string; type: string }[]
@@ -20,6 +20,7 @@ const SearchScreen = ({ navigation }: any) => {
     { projectId: string; user: any; title: string; type: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllProjects = async () => {
     try {
@@ -44,6 +45,13 @@ const SearchScreen = ({ navigation }: any) => {
       navigation.navigate(`SearchResult`, { query: searchQuery });
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    await fetchAllProjects();
+    setRefreshing(false);
+  }, [refreshData]);
 
   if (loading) {
     return (
@@ -73,7 +81,11 @@ const SearchScreen = ({ navigation }: any) => {
           />
         </View>
       </View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.box}>
           <Text style={styles.boxTitle}>Most Popular Summaries</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
