@@ -37,9 +37,9 @@ const QuizScreen = ({ navigation }: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchQuiz();
-  }, [fetchQuiz, id]);
+  // useEffect(() => {
+  //   fetchQuiz();
+  // }, [fetchQuiz, id]);
 
   useFocusEffect(
     useCallback(() => {

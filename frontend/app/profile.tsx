@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Modal,
   Image,
-  Button,
   Alert,
 } from "react-native";
 import { Card } from "@/components/Card";
@@ -18,9 +17,11 @@ import { useAuth } from "@/app/context/AuthContext";
 import { API_BASE_URL } from "@/constants/API-IP";
 import { ScrollView as HorizontalScrollView } from "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import SmallPressableCustomButton from "@/components/SmallPressableCustomButton";
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { secureFetch, uploadImage, fetchProfile } = useAuth();
+  const { secureFetch, uploadImage, fetchProfile, updateProfile } = useAuth();
 
   const isFocused = useIsFocused();
 
@@ -51,7 +52,6 @@ const ProfileScreen = ({ navigation }: any) => {
       setFlashcards(data.decks);
       setSummaries(data.summaries);
       setFollowers(data.followers);
-
     } catch (error) {
       console.error("Failed to fetch user content:", error);
     }
@@ -60,11 +60,14 @@ const ProfileScreen = ({ navigation }: any) => {
   useEffect(() => {
     const getProfile = async () => {
       if (fetchProfile) {
-        setProfile(await fetchProfile());
+        const userProfile = await fetchProfile();
+        setProfile(userProfile);
       }
     };
-    fetchUserContent();
-    getProfile();
+    if (isFocused) {
+      fetchUserContent();
+      getProfile();
+    }
   }, [isFocused]);
 
   const requestPermission = async () => {
@@ -72,7 +75,7 @@ const ProfileScreen = ({ navigation }: any) => {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "You need to grant permission to access the gallery.",
+        "You need to grant permission to access the gallery."
       );
     }
   };
@@ -82,7 +85,7 @@ const ProfileScreen = ({ navigation }: any) => {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "You need to grant permission to access the camera.",
+        "You need to grant permission to access the camera."
       );
     }
   };
@@ -118,6 +121,17 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   };
 
+  const uploadImageWithHandling = async (uri: string) => {
+    try {
+      if (uploadImage) {
+        await uploadImage(uri);
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      Alert.alert("Upload Failed", "Failed to upload image. Please try again.");
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -129,40 +143,40 @@ const ProfileScreen = ({ navigation }: any) => {
             setPicModalOpen(false);
           }}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {imageUri ? (
-                <Image
-                  source={{ uri: imageUri }}
+          <View style={styles.overlay}>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                {imageUri ? (
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={{
+                      width: 150,
+                      height: 150,
+                      borderWidth: 2,
+                      borderColor: "black",
+                      borderRadius: 75,
+                    }}
+                  />
+                ) : (
+                  <Text>No image selected</Text>
+                )}
+                <View
                   style={{
-                    width: 150,
-                    height: 150,
-                    borderWidth: 1,
-                    borderColor: "black",
-                    borderRadius: 75,
+                    flexDirection: "row",
+                    marginTop: 10,
+                    gap: 10,
                   }}
-                />
-              ) : (
-                <Text>No image selected</Text>
-              )}
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 10,
-                  gap: 10,
-                }}
-              >
-                <Button title="Select Image" onPress={pickImage} />
-
-                <Button
-                  title="Save"
-                  onPress={() => {
-                    if (uploadImage && imageUri) uploadImage(imageUri);
-                    setPicModalOpen(false);
-                  }}
-                />
-
-                <Button title="Cancel" onPress={() => setPicModalOpen(false)} />
+                >
+                  <SmallPressableCustomButton label="Select Image" onPress={pickImage} />
+                  <SmallPressableCustomButton
+                    label="Save"
+                    onPress={() => {
+                      if (imageUri) uploadImageWithHandling(imageUri);
+                      setPicModalOpen(false);
+                    }}
+                  />
+                  <SmallPressableCustomButton label="Cancel" onPress={() => setPicModalOpen(false)} />
+                </View>
               </View>
             </View>
           </View>
@@ -175,7 +189,7 @@ const ProfileScreen = ({ navigation }: any) => {
                   {imageUri ? (
                     <Image
                       source={{ uri: imageUri }}
-                      style={styles.profileImage}
+                      style={[styles.profileImage, styles.profileImageBorder]} // Add border style
                     />
                   ) : (
                     <Image
@@ -187,7 +201,7 @@ const ProfileScreen = ({ navigation }: any) => {
                           ".jpg?timestamp=" +
                           Date.now(),
                       }}
-                      style={styles.profileImage}
+                      style={[styles.profileImage, styles.profileImageBorder]} // Add border style
                     />
                   )}
                 </View>
@@ -299,6 +313,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
+    borderWidth:4,
     overflow: "hidden",
     marginBottom: 16,
     alignSelf: "center",
@@ -306,6 +321,12 @@ const styles = StyleSheet.create({
   profileImage: {
     width: "100%",
     height: "100%",
+    borderWidth: 2,
+    borderColor: "black",
+  },
+  profileImageBorder: {
+    borderWidth: 2,
+    borderColor: "black",
   },
   profileCard: {
     alignItems: "center",
@@ -353,18 +374,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 4,
   },
-  modalContainer: {
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    marginTop: 22,
   },
-  modalContent: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+  modalView: {
+    margin: 20,
+    backgroundColor: "#EFEDE6",
+    borderRadius: 20,
+    padding: 35,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    borderColor: "#8D602D",
+    borderWidth: 1,
   },
   usernameText: {
     fontSize: 20,

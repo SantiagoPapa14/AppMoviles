@@ -86,6 +86,7 @@ const SearchResult = ({ navigation }: any) => {
                 creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={"summary"}
+                navigation={navigation}
               />
             ))}
           </ScrollView>
@@ -100,6 +101,7 @@ const SearchResult = ({ navigation }: any) => {
                 creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={"quiz"}
+                navigation={navigation}
               />
             ))}
           </ScrollView>
@@ -114,6 +116,7 @@ const SearchResult = ({ navigation }: any) => {
                 creator={project.user.username}
                 projectId={parseInt(project.projectId)}
                 type={"flashcard"}
+                navigation={navigation}
               />
             ))}
           </ScrollView>
