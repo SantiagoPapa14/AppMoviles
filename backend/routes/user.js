@@ -88,6 +88,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+//Settings
 router.patch("/", authLib.validateAuthorization, async (req, res) => {
   let { email, username, password, name, currentPassword } = req.body;
 
@@ -120,7 +121,7 @@ router.patch("/", authLib.validateAuthorization, async (req, res) => {
       user.email.toLowerCase(),
       password,
     );
-
+    console.log("New token:", newToken);
     if (!user) {
       res.status(500).json({
         message: "User not found",
