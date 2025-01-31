@@ -43,6 +43,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
   const [loadingUserContent, setLoadingUserContent] = useState(true);
   const [loadingFollowingProjects, setLoadingFollowingProjects] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showNoFollowedProjects, setShowNoFollowedProjects] = useState(false);
 
   //Following PROJECTS
   const [followingQuizzes, setFollowingQuizzes] = useState<
@@ -80,8 +81,10 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchUserContent = async () => {
     try {
+      setLoadingUserContent(true);
       if (!secureFetch) return;
       const data = await secureFetch(`/user/user-content`);
+
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
       setFlashcards(Array.isArray(data.decks) ? data.decks : []);
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
@@ -94,6 +97,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchFollowingProjects = async () => {
     try {
+      setLoadingFollowingProjects(true);
       if (!secureFetch) return;
       const dataFollowers = await secureFetch("/user/following-projects");
       setFollowingQuizzes(
@@ -122,6 +126,9 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
           setLoadingFollowingProjects(true);
           await fetchUserContent();
           await fetchFollowingProjects();
+          setTimeout(() => {
+            setShowNoFollowedProjects(true);
+          }, );
         }
       };
 
@@ -144,36 +151,58 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
   }, [refreshData]);
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View style={styles.box}>
-        <HorizontalCardSlider
-          title="Your projects"
-          items={topCombinedProjects}
-          navigation={navigation}
-          emptyMessage="No projects available."
-        />
-        <PressableCustom
-          label={"View More"}
-          onPress={() => navigation.navigate("My Projects")}
-        />
-      </View>
-      <View style={styles.box}>
-        <HorizontalCardSlider
-          title="Followed"
-          items={shuffledFollowingProjects}
-          navigation={navigation}
-          emptyMessage="No followed projects available."
-        />
-        <PressableCustom
-          label={"View More"}
-          onPress={() => navigation.navigate("FollowingProjects")}
-        />
-      </View>
+      {loadingUserContent ? (
+        <View style={styles.box}>
+          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="small" color="#808080" />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("My Projects")}
+          />
+        </View>
+      ) : (
+        <View style={styles.box}>
+          <HorizontalCardSlider
+            title="Your projects"
+            items={topCombinedProjects}
+            navigation={navigation}
+            emptyMessage="No projects available."
+          />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("My Projects")}
+          />
+        </View>
+      )}
+      {loadingFollowingProjects ? (
+        <View style={styles.box}>
+          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="small" color="#808080" />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("FollowingProjects")}
+          />
+        </View>
+      ) : (
+        <View style={styles.box}>
+          <HorizontalCardSlider
+            title="Followed"
+            items={shuffledFollowingProjects}
+            navigation={navigation}
+            emptyMessage={showNoFollowedProjects ? "No followed projects available." : ""}
+          />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("FollowingProjects")}
+          />
+        </View>
+      )}
       <View style={styles.break}></View>
     </ScrollView>
   );
@@ -246,6 +275,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#808080",
     marginTop: 10,
+    textAlign: "center",
   },
   noItemsText: {
     fontSize: 16,

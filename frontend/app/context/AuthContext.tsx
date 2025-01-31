@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const refreshData = async () => {
     await fetchProfile();
+    // Add any other data fetching logic here if needed
   };
 
   useEffect(() => {
@@ -147,7 +148,6 @@ export const AuthProvider = ({ children }: any) => {
       Authorization: `Bearer ${authState?.token}`, // Use token from authState
     };
     const res = await fetch(API_BASE_URL + route, params);
-
     if (res.status === 401) {
       await logout()
     };

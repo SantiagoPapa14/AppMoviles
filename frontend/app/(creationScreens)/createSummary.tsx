@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ScrollView, // Import ScrollView
 } from "react-native";
 import { useAuth } from "@/app/context/AuthContext";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -122,86 +123,91 @@ export default function CreateSummary({ navigation }: { navigation: any }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Crear Resumen</Text>
-      <TextInput
-        style={styles.titleInput}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Escribe el título aquí"
-      />
-      <TextInput
-        style={styles.titleInput}
-        value={subject}
-        onChangeText={setSubject}
-        placeholder="Subject"
-      />
-      <TextInput
-        style={styles.summaryInput}
-        value={summary}
-        onChangeText={setSummary}
-        placeholder="Escribe tu resumen aquí"
-        multiline
-      />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center", 
-        }}
-      >
-        <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
-          <Text>Upload Files:</Text>
-          {files.length == 0 ? (
-            <Text> </Text>
-          ) : (
-            <Text> Haga click para subir archivos...  </Text>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.label}>Crear Resumen</Text>
+        <TextInput
+          style={styles.titleInput}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Escribe el título aquí"
+        />
+        <TextInput
+          style={styles.titleInput}
+          value={subject}
+          onChangeText={setSubject}
+          placeholder="Subject va aca"
+        />
+        <TextInput
+          style={[styles.summaryInput, { height: 200 }]}
+          value={summary}
+          onChangeText={setSummary}
+          placeholder="Escribe tu resumen aquí"
+          multiline
+        />
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
+            <Text>Upload Files:</Text>
+            {files.length == 0 ? (
+              <Text> </Text>
+            ) : (
+              <Text> Haga click para subir archivos... </Text>
+            )}
+            {files.map((file, index) => (
+              <Text key={index}>{file.name}</Text>
+            ))}
+          </TouchableOpacity>
+          {files.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setFiles([])}
+              style={styles.pressableStyle}
+            >
+              <Ionicons name="trash-outline" size={24} color="black" />
+            </TouchableOpacity>
           )}
-          {files.map((file, index) => (
-            <Text key={index}>{file.name}</Text>
+        </View>
+        <PressableCustom onPress={handleSave} label="Guardar Resumen" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
           ))}
-        </TouchableOpacity>
-        {files.length > 0 && (
-          <TouchableOpacity
-            onPress={() => setFiles([])}
-            style={styles.pressableStyle}
-          >
-            <Ionicons name="trash-outline" size={24} color="black" />
-          </TouchableOpacity>
-        )}
+        </View>
+        <CustomAlertModal
+          visible={modalVisible}
+          title={modalTitle}
+          errorMessage={modalMessage}
+          onClose={closeModal}
+          singleButton
+        />
       </View>
-      <PressableCustom onPress={handleSave} label="Guardar Resumen" />
-      <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
-      <Text style={styles.selectTagsText}>Select Tags:</Text>
-      <View style={styles.tagsContainer}>
-        {allTags.map((tag) => (
-          <TouchableOpacity
-            key={tag.id}
-            onPress={() => toggleTag(tag.id)}
-            style={[
-              styles.tagButton,
-              selectedTags.includes(tag.id) && styles.selectedTagButton,
-            ]}
-          >
-            <Text style={styles.tagButtonText}>
-              {tag.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <CustomAlertModal
-        visible={modalVisible}
-        title={modalTitle}
-        errorMessage={modalMessage}
-        onClose={closeModal}
-        singleButton
-      />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -230,7 +236,6 @@ const styles = StyleSheet.create({
     color: "#3A2F23",
   },
   summaryInput: {
-    flex: 1,
     borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
@@ -265,6 +270,7 @@ const styles = StyleSheet.create({
   tagButtonText: {
     color: "#3A2F23",
   },
+
   selectTagsText: {
     fontSize: 18,
     fontWeight: "bold",

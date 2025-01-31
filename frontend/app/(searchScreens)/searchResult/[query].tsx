@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
@@ -27,36 +28,37 @@ const SearchResult = ({ navigation }: any) => {
   const [summaries, setSummaries] = useState<
     { projectId: string; user: any; title: string; type: string }[]
   >([]);
+  const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        if (!secureFetch || !searchQuery.trim() || searchQuery.startsWith("#") && searchQuery === "#") return;
-        let data;
-        if (searchQuery.startsWith("#") ) {
-          const tag = searchQuery.slice(1).toLocaleLowerCase();
-          const [summaries, quizzes, decks] = await Promise.all([
-            secureFetch(`/tag/summary/${tag}`),
-            secureFetch(`/tag/quiz/${tag}`),
-            secureFetch(`/tag/deck/${tag}`),
-          ]);
-          data = {
-            summaries: summaries.map((item: { summary: any; }) => item.summary),
-            quizzes: quizzes.map((item: { quiz: any; }) => item.quiz),
-            decks: decks.map((item: { deck: any; }) => item.deck),
-          };
-        } else {
-          data = await secureFetch(`/search/${searchQuery}`);
-        }
-        setQuizzes(data.quizzes);
-        setDecks(data.decks);
-        setSummaries(data.summaries);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
+  const fetchProjects = async () => {
+    try {
+      if (!secureFetch || !searchQuery.trim() || (searchQuery.startsWith("#") && searchQuery === "#")) return;
+      let data;
+      if (searchQuery.startsWith("#")) {
+        const tag = searchQuery.slice(1).toLocaleLowerCase();
+        const [summaries, quizzes, decks] = await Promise.all([
+          secureFetch(`/tag/summary/${tag}`),
+          secureFetch(`/tag/quiz/${tag}`),
+          secureFetch(`/tag/deck/${tag}`),
+        ]);
+        data = {
+          summaries: summaries.map((item: { summary: any; }) => item.summary),
+          quizzes: quizzes.map((item: { quiz: any; }) => item.quiz),
+          decks: decks.map((item: { deck: any; }) => item.deck),
+        };
+      } else {
+        data = await secureFetch(`/search/${searchQuery}`);
       }
-    };
+      setQuizzes(data.quizzes);
+      setDecks(data.decks);
+      setSummaries(data.summaries);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchProjects();
   }, [searchQuery, isFocused]);
 
@@ -65,6 +67,12 @@ const SearchResult = ({ navigation }: any) => {
       navigation.navigate(`SearchResult`, { query: searchQuery });
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchProjects();
+    setRefreshing(false);
+  }, [searchQuery]);
 
   return (
     <View style={styles.container}>
@@ -91,7 +99,11 @@ const SearchResult = ({ navigation }: any) => {
           />
         </View>
       </View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <HorizontalCardSlider
           title="Summaries Found"
           items={summaries}

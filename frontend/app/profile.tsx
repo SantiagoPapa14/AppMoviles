@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
@@ -46,9 +47,12 @@ const ProfileScreen = ({ navigation }: any) => {
   const [picModalOpen, setPicModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingUserContent, setLoadingUserContent] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const fetchUserContent = async () => {
     try {
+      setLoadingUserContent(true);
       if (!secureFetch) return;
       const data = await secureFetch(`/user/user-content`);
       setQuizzes(data.quizzes);
@@ -57,14 +61,23 @@ const ProfileScreen = ({ navigation }: any) => {
       setFollowers(data.followers);
     } catch (error) {
       console.error("Failed to fetch user content:", error);
+    } finally {
+      setLoadingUserContent(false);
     }
   };
 
   useEffect(() => {
     const getProfile = async () => {
-      if (fetchProfile) {
-        const userProfile = await fetchProfile();
-        setProfile(userProfile);
+      try {
+        setLoadingProfile(true);
+        if (fetchProfile) {
+          const userProfile = await fetchProfile();
+          setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      } finally {
+        setLoadingProfile(false);
       }
     };
     if (isFocused) {
@@ -198,7 +211,12 @@ const ProfileScreen = ({ navigation }: any) => {
             </View>
           </View>
         </Modal>
-        {profile ? (
+        {loadingProfile ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#808080" />
+            <Text style={styles.loadingText}>Loading profile...</Text>
+          </View>
+        ) : profile ? (
           <>
             <PaperCard style={styles.profileCard}>
               <TouchableOpacity onPress={() => setPicModalOpen(true)}>
@@ -238,30 +256,39 @@ const ProfileScreen = ({ navigation }: any) => {
                 </View>
               </PaperCard.Content>
             </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <HorizontalCardSlider
-                title="Quizzes"
-                items={quizzes}
-                navigation={navigation}
-                emptyMessage="No quizzes available."
-              />
-            </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <HorizontalCardSlider
-                title="Flashcards"
-                items={flashcards}
-                navigation={navigation}
-                emptyMessage="No flashcards available."
-              />
-            </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <HorizontalCardSlider
-                title="Summaries"
-                items={summaries}
-                navigation={navigation}
-                emptyMessage="No summaries available."
-              />
-            </PaperCard>
+            {loadingUserContent ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#808080" />
+                <Text style={styles.loadingText}>Loading content...</Text>
+              </View>
+            ) : (
+              <>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Quizzes"
+                    items={quizzes}
+                    navigation={navigation}
+                    emptyMessage="No quizzes available."
+                  />
+                </PaperCard>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Flashcards"
+                    items={flashcards}
+                    navigation={navigation}
+                    emptyMessage="No flashcards available."
+                  />
+                </PaperCard>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Summaries"
+                    items={summaries}
+                    navigation={navigation}
+                    emptyMessage="No summaries available."
+                  />
+                </PaperCard>
+              </>
+            )}
           </>
         ) : (
           <Text style={styles.text}>
@@ -393,6 +420,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#808080",
     fontStyle: "italic",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  loadingText: {
+    fontSize: 18,
+    marginTop: 8,
+    textAlign: "center",
+    color: "#808080",
   },
 });
 
