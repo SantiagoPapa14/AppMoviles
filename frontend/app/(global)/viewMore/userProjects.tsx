@@ -48,46 +48,58 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Quizzes</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {quizzes.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
+          {quizzes.length > 0 ? (
+            quizzes.map((project, index) => (
+              <Card
+                key={index}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
+                navigation={navigation}
+              />
+            ))
+          ) : (
+            <Text style={styles.noItemsText}>No quizzes available.</Text>
+          )}
         </ScrollView>
       </View>
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Flashcards</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {flashcards.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
+          {flashcards.length > 0 ? (
+            flashcards.map((project, index) => (
+              <Card
+                key={index}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
+                navigation={navigation}
+              />
+            ))
+          ) : (
+            <Text style={styles.noItemsText}>No flashcards available.</Text>
+          )}
         </ScrollView>
       </View>
       <View style={styles.box}>
         <Text style={styles.boxTitle}>Summaries</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {summaries.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
+          {summaries.length > 0 ? (
+            summaries.map((project, index) => (
+              <Card
+                key={index}
+                title={project.title}
+                creator="By you"
+                projectId={parseInt(project.projectId)}
+                type={project.type}
+                navigation={navigation}
+              />
+            ))
+          ) : (
+            <Text style={styles.noItemsText}>No summaries available.</Text>
+          )}
         </ScrollView>
       </View>
     </ScrollView>
@@ -132,6 +144,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#808080",
     marginTop: 10,
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

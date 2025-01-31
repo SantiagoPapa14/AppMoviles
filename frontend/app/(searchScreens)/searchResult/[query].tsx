@@ -95,46 +95,58 @@ const SearchResult = ({ navigation }: any) => {
         <View style={styles.box}>
           <Text style={styles.boxTitle}>Summaries Found</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {summaries.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"summary"}
-                navigation={navigation}
-              />
-            ))}
+            {summaries.length > 0 ? (
+              summaries.map((project, index) => (
+                <Card
+                  key={index}
+                  title={project.title}
+                  creator={project.user.username}
+                  projectId={parseInt(project.projectId)}
+                  type={"summary"}
+                  navigation={navigation}
+                />
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No summaries found.</Text>
+            )}
           </ScrollView>
         </View>
         <View style={styles.box}>
-          <Text style={styles.boxTitle}>Quizes Found</Text>
+          <Text style={styles.boxTitle}>Quizzes Found</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {quizzes.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"quiz"}
-                navigation={navigation}
-              />
-            ))}
+            {quizzes.length > 0 ? (
+              quizzes.map((project, index) => (
+                <Card
+                  key={index}
+                  title={project.title}
+                  creator={project.user.username}
+                  projectId={parseInt(project.projectId)}
+                  type={"quiz"}
+                  navigation={navigation}
+                />
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No quizzes found.</Text>
+            )}
           </ScrollView>
         </View>
         <View style={styles.box}>
           <Text style={styles.boxTitle}>Decks Found</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {decks.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"flashcard"}
-                navigation={navigation}
-              />
-            ))}
+            {decks.length > 0 ? (
+              decks.map((project, index) => (
+                <Card
+                  key={index}
+                  title={project.title}
+                  creator={project.user.username}
+                  projectId={parseInt(project.projectId)}
+                  type={"flashcard"}
+                  navigation={navigation}
+                />
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No decks found.</Text>
+            )}
           </ScrollView>
         </View>
       </ScrollView>
@@ -248,6 +260,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "black",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 
