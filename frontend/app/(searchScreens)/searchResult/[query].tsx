@@ -31,7 +31,7 @@ const SearchResult = ({ navigation }: any) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        if (!secureFetch) return;
+        if (!secureFetch || !searchQuery.trim()) return;
         const data = await secureFetch(`/search/${searchQuery}`);
         setQuizzes(data.quizzes);
         setDecks(data.decks);
