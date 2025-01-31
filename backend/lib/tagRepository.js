@@ -78,6 +78,45 @@ const createDeckTag = async (name, deckId) => {
   }
 };
 
+const createSummaryTags = async (names, summaryId) => {
+  try {
+    const tags = await Promise.all(names.map(name => createTag(name)));
+    const summaryTags = await Promise.all(tags.map(tag => prisma.summaryTag.create({
+      data: { tagId: tag.id, summaryId },
+    })));
+    return summaryTags;
+  } catch (error) {
+    console.error("Error creating summary tags:", error);
+    return null;
+  }
+};
+
+const createQuizTags = async (names, quizId) => {
+  try {
+    const tags = await Promise.all(names.map(name => createTag(name)));
+    const quizTags = await Promise.all(tags.map(tag => prisma.quizTag.create({
+      data: { tagId: tag.id, quizId },
+    })));
+    return quizTags;
+  } catch (error) {
+    console.error("Error creating quiz tags:", error);
+    return null;
+  }
+};
+
+const createDeckTags = async (names, deckId) => {
+  try {
+    const tags = await Promise.all(names.map(name => createTag(name)));
+    const deckTags = await Promise.all(tags.map(tag => prisma.deckTag.create({
+      data: { tagId: tag.id, deckId },
+    })));
+    return deckTags;
+  } catch (error) {
+    console.error("Error creating deck tags:", error);
+    return null;
+  }
+};
+
 const searchSummariesByTag = async (tagName) => {
   try {
     const tag = await prisma.tag.findUnique({ where: { name: tagName.toLowerCase() } });
@@ -120,6 +159,15 @@ const searchDecksByTag = async (tagName) => {
   }
 };
 
+const getAllTags = async () => {
+  try {
+    return await prisma.tag.findMany();
+  } catch (error) {
+    console.error("Error fetching all tags:", error);
+    return [];
+  }
+};
+
 module.exports = {
   createTag,
   getTagsByProjectId,
@@ -127,7 +175,11 @@ module.exports = {
   createSummaryTag,
   createQuizTag,
   createDeckTag,
+  createSummaryTags,
+  createQuizTags,
+  createDeckTags,
   searchSummariesByTag,
   searchQuizzesByTag,
   searchDecksByTag,
+  getAllTags,
 };

@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }: any) => {
   const [profile, setProfile] = useState<any>(null);
 
   const fetchProfile = async () => {
-    console.log('NOUPDATED',profile)
     if (!profile || (profile && hasBeenUpdated)) {
       const userProfile = await secureFetch("/user");
       setProfile(userProfile);

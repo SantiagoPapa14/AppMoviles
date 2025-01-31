@@ -10,16 +10,17 @@ const {
   searchSummariesByTag,
   searchQuizzesByTag,
   searchDecksByTag,
+  getAllTags,
 } = require("../lib/tagRepository");
 
 router.post("/summary", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { name, summaryId } = req.body;
-    if (!name || !summaryId) {
-      res.status(400).json({ message: "Please provide name and summaryId" });
+    const { tagId, summaryId } = req.body;
+    if (!tagId || !summaryId) {
+      res.status(400).json({ message: "Please provide tagId and summaryId" });
       return;
     }
-    const tag = await createSummaryTag(name, summaryId);
+    const tag = await createSummaryTag(tagId, summaryId);
     res.status(200).json({ message: "Summary tag created successfully!", tag });
   } catch (err) {
     console.error("Error creating summary tag:", err);
@@ -29,12 +30,12 @@ router.post("/summary", authLib.validateAuthorization, async (req, res) => {
 
 router.post("/quiz", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { name, quizId } = req.body;
-    if (!name || !quizId) {
-      res.status(400).json({ message: "Please provide name and quizId" });
+    const { tagId, quizId } = req.body;
+    if (!tagId || !quizId) {
+      res.status(400).json({ message: "Please provide tagId and quizId" });
       return;
     }
-    const tag = await createQuizTag(name, quizId);
+    const tag = await createQuizTag(tagId, quizId);
     res.status(200).json({ message: "Quiz tag created successfully!", tag });
   } catch (err) {
     console.error("Error creating quiz tag:", err);
@@ -44,12 +45,12 @@ router.post("/quiz", authLib.validateAuthorization, async (req, res) => {
 
 router.post("/deck", authLib.validateAuthorization, async (req, res) => {
   try {
-    const { name, deckId } = req.body;
-    if (!name || !deckId) {
-      res.status(400).json({ message: "Please provide name and deckId" });
+    const { tagId, deckId } = req.body;
+    if (!tagId || !deckId) {
+      res.status(400).json({ message: "Please provide tagId and deckId" });
       return;
     }
-    const tag = await createDeckTag(name, deckId);
+    const tag = await createDeckTag(tagId, deckId);
     res.status(200).json({ message: "Deck tag created successfully!", tag });
   } catch (err) {
     console.error("Error creating deck tag:", err);
@@ -87,6 +88,16 @@ router.get("/deck/:tagName", authLib.validateAuthorization, async (req, res) => 
   } catch (err) {
     console.error("Error searching decks by tag:", err);
     res.status(500).json({ message: "Failed to search decks by tag", error: err.message });
+  }
+});
+
+router.get("/all", authLib.validateAuthorization, async (req, res) => {
+  try {
+    const tags = await getAllTags();
+    res.status(200).json(tags);
+  } catch (err) {
+    console.error("Error fetching tags:", err);
+    res.status(500).json({ message: "Failed to fetch tags", error: err.message });
   }
 });
 
