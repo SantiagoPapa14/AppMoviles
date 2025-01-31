@@ -31,8 +31,23 @@ const SearchResult = ({ navigation }: any) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        if (!secureFetch || !searchQuery.trim()) return;
-        const data = await secureFetch(`/search/${searchQuery}`);
+        if (!secureFetch || !searchQuery.trim() || searchQuery.startsWith("#") && searchQuery === "#") return;
+        let data;
+        if (searchQuery.startsWith("#") ) {
+          const tag = searchQuery.slice(1).toLocaleLowerCase();
+          const [summaries, quizzes, decks] = await Promise.all([
+            secureFetch(`/tag/summary/${tag}`),
+            secureFetch(`/tag/quiz/${tag}`),
+            secureFetch(`/tag/deck/${tag}`),
+          ]);
+          data = {
+            summaries: summaries.map((item: { summary: any; }) => item.summary),
+            quizzes: quizzes.map((item: { quiz: any; }) => item.quiz),
+            decks: decks.map((item: { deck: any; }) => item.deck),
+          };
+        } else {
+          data = await secureFetch(`/search/${searchQuery}`);
+        }
         setQuizzes(data.quizzes);
         setDecks(data.decks);
         setSummaries(data.summaries);

@@ -17,6 +17,7 @@ const deckRoutes = require("./routes/deck.js");
 const summaryRoutes = require("./routes/summary.js");
 const searchRoutes = require("./routes/search.js");
 const fileRoutes = require("./routes/file.js");
+const tagRoutes = require("./routes/tag.js");
 
 app.use("/quiz", quizRoutes);
 app.use("/user", userRoutes);
@@ -24,6 +25,7 @@ app.use("/deck", deckRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/search", searchRoutes);
 app.use("/file", fileRoutes);
+app.use("/tag", tagRoutes);
 
 app.use(express.json());
 
