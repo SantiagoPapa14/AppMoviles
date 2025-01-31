@@ -10,7 +10,7 @@ import {
 import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useIsFocused } from "@react-navigation/native";
 
 const SearchResult = ({ navigation }: any) => {
   const { secureFetch } = useAuth();
@@ -27,6 +27,7 @@ const SearchResult = ({ navigation }: any) => {
   const [summaries, setSummaries] = useState<
     { projectId: string; user: any; title: string; type: string }[]
   >([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -57,7 +58,7 @@ const SearchResult = ({ navigation }: any) => {
     };
 
     fetchProjects();
-  }, [searchQuery]);
+  }, [searchQuery, isFocused]);
 
   const handleSearch = async () => {
     if (searchQuery.trim()) {
