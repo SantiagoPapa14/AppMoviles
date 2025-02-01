@@ -1,4 +1,4 @@
-import { Image, Text, TouchableOpacity } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -34,7 +34,9 @@ export default function CustomDrawerContent(props: any) {
 
   const confirmLogout = async () => {
     setLogoutModalVisible(false);
-    await onLogout();
+    if (onLogout) {
+      await onLogout();
+    }
   };
 
   const closeLogoutModal = () => {
@@ -51,9 +53,9 @@ export default function CustomDrawerContent(props: any) {
           source={{
             uri: profile
               ? `${API_BASE_URL}/uploads/profile_pictures/${profile.userId}.jpg?timestamp=${Date.now()}`
-              : "https://via.placeholder.com/150",
+              : `${API_BASE_URL}/uploads/profile_pictures/${0}.jpg?timestamp=${Date.now()}`,
           }}
-          style={{ width: 60, height: 60, borderRadius: 30 }}
+          style={{ width: 70, height: 70, borderRadius: 40 ,borderWidth: 2, borderColor: "black"}}
           resizeMode="cover"
         />
         <Text
@@ -87,6 +89,14 @@ export default function CustomDrawerContent(props: any) {
           {profile?.followerCount || "0"} Followers
         </Text>
       </TouchableOpacity>
+      <View
+        style={{
+          height: 1,
+          backgroundColor: "white",
+          marginVertical: 10,
+          marginHorizontal: 20,
+        }}
+      />
       <DrawerItemList {...props} />
       <TouchableOpacity
         onPress={handleLogout}
