@@ -147,7 +147,10 @@ export const AuthProvider = ({ children }: any) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authState?.token}`, // Use token from authState
     };
+
     const res = await fetch(API_BASE_URL + route, params);
+
+
     if (res.status === 401) {
       await logout()
     };

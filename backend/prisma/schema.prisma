@@ -21,6 +21,7 @@ model User {
   decks          Deck[]
   followers      Follows[] @relation("following")
   following      Follows[] @relation("follower")
+  timetable      String?
 }
 
 model Follows {

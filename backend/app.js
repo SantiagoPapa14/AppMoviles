@@ -18,6 +18,7 @@ const summaryRoutes = require("./routes/summary.js");
 const searchRoutes = require("./routes/search.js");
 const fileRoutes = require("./routes/file.js");
 const tagRoutes = require("./routes/tag.js");
+const timetableRoutes = require("./routes/timetable.js");
 
 app.use("/quiz", quizRoutes);
 app.use("/user", userRoutes);
@@ -26,6 +27,7 @@ app.use("/summary", summaryRoutes);
 app.use("/search", searchRoutes);
 app.use("/file", fileRoutes);
 app.use("/tag", tagRoutes);
+app.use("/timetable", timetableRoutes);
 
 app.use(express.json());
 

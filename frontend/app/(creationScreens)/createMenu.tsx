@@ -23,6 +23,12 @@ export default function CreateMenu({ navigation }: { navigation: any }) {
           navigation.navigate("CreateFlashcard");
         }}
       />
+      <PressableCustom
+        label={"TIMETABLE"}
+        onPress={() => {
+          navigation.navigate("TimeTable");
+        }}
+      />
     </View>
   );
 }

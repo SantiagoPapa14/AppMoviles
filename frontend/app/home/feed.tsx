@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/app/context/AuthContext";
 import HorizontalCardSlider from '@/components/HorizontalCardSlider';
+
 
 const FeedScreen = ({ navigation }: { navigation: any }) => {
   const { secureFetch, refreshData } = useAuth();
@@ -204,6 +205,13 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
         </View>
       )}
       <View style={styles.break}></View>
+      <Pressable
+        style={styles.timeTableButton}
+        onPress={() => navigation.navigate('UserTimeTableScreen')}
+      >
+        <Text style={styles.timeTableButtonText}>View Your Timetable</Text>
+      </Pressable>
+      <View style={styles.break}></View>
     </ScrollView>
   );
 };
@@ -283,6 +291,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#808080",
     fontStyle: "italic",
+  },
+  timeTableButton: {
+    padding: 16,
+    backgroundColor: '#B49F84',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  timeTableButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
