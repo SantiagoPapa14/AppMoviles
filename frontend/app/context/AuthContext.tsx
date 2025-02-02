@@ -21,7 +21,7 @@ interface AuthProps {
   secureFetch?: (route: string, params?: any) => Promise<any | Array<any>>;
   uploadImage?: (imageUri: string) => Promise<void>;
   uploadAttachment?: (file: any) => Promise<void>;
-   
+  refreshData?: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthProps>({});
@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }: any) => {
   const [profile, setProfile] = useState<any>(null);
 
   const fetchProfile = async () => {
-    console.log('NOUPDATED',profile)
     if (!profile || (profile && hasBeenUpdated)) {
       const userProfile = await secureFetch("/user");
       setProfile(userProfile);
@@ -58,6 +57,11 @@ export const AuthProvider = ({ children }: any) => {
   const updateProfile = async () => {
     setHasBeenUpdated(true)
   }
+
+  const refreshData = async () => {
+    await fetchProfile();
+    // Add any other data fetching logic here if needed
+  };
 
   useEffect(() => {
     const loadToken = async () => {
@@ -144,7 +148,6 @@ export const AuthProvider = ({ children }: any) => {
       Authorization: `Bearer ${authState?.token}`, // Use token from authState
     };
     const res = await fetch(API_BASE_URL + route, params);
-
     if (res.status === 401) {
       await logout()
     };
@@ -241,6 +244,7 @@ export const AuthProvider = ({ children }: any) => {
     uploadImage: uploadImage,
     uploadAttachment: uploadAttachment,
     updateProfile: updateProfile,
+    refreshData, // Add refreshData to the context value
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

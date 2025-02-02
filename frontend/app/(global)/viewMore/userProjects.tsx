@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { Card } from "@/components/Card";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const MyProjects = ({ navigation }: { navigation: any }) => {
   const { secureFetch } = useAuth();
@@ -45,51 +46,24 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Quizzes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {quizzes.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Flashcards</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {flashcards.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Summaries</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {summaries.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
+      <HorizontalCardSlider
+        title="Quizzes"
+        items={quizzes}
+        navigation={navigation}
+        emptyMessage="No quizzes available."
+      />
+      <HorizontalCardSlider
+        title="Flashcards"
+        items={flashcards}
+        navigation={navigation}
+        emptyMessage="No flashcards available."
+      />
+      <HorizontalCardSlider
+        title="Summaries"
+        items={summaries}
+        navigation={navigation}
+        emptyMessage="No summaries available."
+      />
     </ScrollView>
   );
 };
@@ -132,6 +106,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#808080",
     marginTop: 10,
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

@@ -110,8 +110,9 @@ const PlayQuiz = ({ navigation }: any) => {
                 ? ["rgba(255, 0, 0, 0.5)", "transparent"]
                 : ["transparent", "rgba(0, 255, 0, 0.5)"]
             }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
+            
+            start={ glowSide === "left"? { x: 0, y: 1 } : { x: 0, y: 0 } }
+            end={ glowSide === "left"? { x: 0, y: 0 } : { x: 0, y: 1 } }
             style={styles.gradient}
           />
         </Animated.View>

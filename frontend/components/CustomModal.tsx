@@ -17,7 +17,7 @@ interface CustomModalProps {
   togglePasswordVisibility?: () => void;
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({
+const CustomModal = ({
   visible,
   field,
   value,
@@ -28,7 +28,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   onCancel,
   showPassword = false,
   togglePasswordVisibility,
-}) => {
+}:CustomModalProps) => {
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Add alert visibility state
   const [fieldError, setFieldError] = useState(false);
 

@@ -8,6 +8,8 @@ import {
   Modal,
   Image,
   Alert,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { Card } from "@/components/Card";
 import { useIsFocused } from "@react-navigation/native";
@@ -19,9 +21,10 @@ import { ScrollView as HorizontalScrollView } from "react-native-gesture-handler
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SmallPressableCustom } from "@/components/SmallPressableCustom";
 import SmallPressableCustomButton from "@/components/SmallPressableCustomButton";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { secureFetch, uploadImage, fetchProfile, updateProfile } = useAuth();
+  const { secureFetch, uploadImage, fetchProfile, refreshData } = useAuth();
 
   const isFocused = useIsFocused();
 
@@ -43,9 +46,13 @@ const ProfileScreen = ({ navigation }: any) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [picModalOpen, setPicModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingUserContent, setLoadingUserContent] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const fetchUserContent = async () => {
     try {
+      setLoadingUserContent(true);
       if (!secureFetch) return;
       const data = await secureFetch(`/user/user-content`);
       setQuizzes(data.quizzes);
@@ -54,14 +61,23 @@ const ProfileScreen = ({ navigation }: any) => {
       setFollowers(data.followers);
     } catch (error) {
       console.error("Failed to fetch user content:", error);
+    } finally {
+      setLoadingUserContent(false);
     }
   };
 
   useEffect(() => {
     const getProfile = async () => {
-      if (fetchProfile) {
-        const userProfile = await fetchProfile();
-        setProfile(userProfile);
+      try {
+        setLoadingProfile(true);
+        if (fetchProfile) {
+          const userProfile = await fetchProfile();
+          setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      } finally {
+        setLoadingProfile(false);
       }
     };
     if (isFocused) {
@@ -132,9 +148,23 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    if (refreshData) {
+      await refreshData();
+    }
+    await fetchUserContent();
+    setRefreshing(false);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Modal
           animationType="fade"
           transparent={true}
@@ -181,7 +211,12 @@ const ProfileScreen = ({ navigation }: any) => {
             </View>
           </View>
         </Modal>
-        {profile ? (
+        {loadingProfile ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#808080" />
+            <Text style={styles.loadingText}>Loading profile...</Text>
+          </View>
+        ) : profile ? (
           <>
             <PaperCard style={styles.profileCard}>
               <TouchableOpacity onPress={() => setPicModalOpen(true)}>
@@ -221,72 +256,39 @@ const ProfileScreen = ({ navigation }: any) => {
                 </View>
               </PaperCard.Content>
             </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Quizzes" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {quizzes && quizzes.length > 0 ? (
-                    quizzes.map((quiz, index) => (
-                      <Card
-                        key={`${quiz.projectId}-${index}`}
-                        title={quiz.title}
-                        creator="By you"
-                        color="#f9f9f9"
-                        projectId={parseInt(quiz.projectId, 10)}
-                        type={quiz.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.cardText}>No quizzes available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
-            </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Flashcards" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {flashcards && flashcards.length > 0 ? (
-                    flashcards.map((flashcard, index) => (
-                      <Card
-                        key={`${flashcard.projectId}-${index}`}
-                        title={flashcard.title}
-                        creator={profile.username}
-                        color="#f9f9f9"
-                        projectId={parseInt(flashcard.projectId, 10)}
-                        type={flashcard.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.cardText}>No flashcards available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
-            </PaperCard>
-            <PaperCard style={styles.cardContainer}>
-              <PaperCard.Title title="Summaries" titleStyle={styles.cardTitle} />
-              <PaperCard.Content>
-                <HorizontalScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {summaries && summaries.length > 0 ? (
-                    summaries.map((summary, index) => (
-                      <Card
-                        key={`${summary.projectId}-${index}`}
-                        title={summary.title}
-                        creator={profile.username}
-                        color="#f9f9f9"
-                        projectId={parseInt(summary.projectId, 10)}
-                        type={summary.type}
-                        navigation={navigation}
-                      />
-                    ))
-                  ) : (
-                    <Text style={styles.cardText}>No summaries available.</Text>
-                  )}
-                </HorizontalScrollView>
-              </PaperCard.Content>
-            </PaperCard>
+            {loadingUserContent ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#808080" />
+                <Text style={styles.loadingText}>Loading content...</Text>
+              </View>
+            ) : (
+              <>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Quizzes"
+                    items={quizzes}
+                    navigation={navigation}
+                    emptyMessage="No quizzes available."
+                  />
+                </PaperCard>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Flashcards"
+                    items={flashcards}
+                    navigation={navigation}
+                    emptyMessage="No flashcards available."
+                  />
+                </PaperCard>
+                <PaperCard style={styles.cardContainer}>
+                  <HorizontalCardSlider
+                    title="Summaries"
+                    items={summaries}
+                    navigation={navigation}
+                    emptyMessage="No summaries available."
+                  />
+                </PaperCard>
+              </>
+            )}
           </>
         ) : (
           <Text style={styles.text}>
@@ -411,6 +413,25 @@ const styles = StyleSheet.create({
     fontSize: 19,
     marginBottom: 8,
     textAlign: "center",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  loadingText: {
+    fontSize: 18,
+    marginTop: 8,
+    textAlign: "center",
+    color: "#808080",
   },
 });
 

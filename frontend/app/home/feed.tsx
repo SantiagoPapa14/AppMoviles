@@ -1,13 +1,14 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/app/context/AuthContext";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const FeedScreen = ({ navigation }: { navigation: any }) => {
-  const { secureFetch } = useAuth();
+  const { secureFetch, refreshData } = useAuth();
   const router = useRouter();
   const [quizzes, setQuizzes] = useState<
     {
@@ -41,6 +42,8 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const [loadingUserContent, setLoadingUserContent] = useState(true);
   const [loadingFollowingProjects, setLoadingFollowingProjects] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showNoFollowedProjects, setShowNoFollowedProjects] = useState(false);
 
   //Following PROJECTS
   const [followingQuizzes, setFollowingQuizzes] = useState<
@@ -78,8 +81,10 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchUserContent = async () => {
     try {
+      setLoadingUserContent(true);
       if (!secureFetch) return;
       const data = await secureFetch(`/user/user-content`);
+
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
       setFlashcards(Array.isArray(data.decks) ? data.decks : []);
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
@@ -92,6 +97,7 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchFollowingProjects = async () => {
     try {
+      setLoadingFollowingProjects(true);
       if (!secureFetch) return;
       const dataFollowers = await secureFetch("/user/following-projects");
       setFollowingQuizzes(
@@ -120,6 +126,9 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
           setLoadingFollowingProjects(true);
           await fetchUserContent();
           await fetchFollowingProjects();
+          setTimeout(() => {
+            setShowNoFollowedProjects(true);
+          }, );
         }
       };
 
@@ -131,62 +140,69 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
     }, []),
   );
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    if (refreshData) {
+      await refreshData();
+    }
+    await fetchUserContent();
+    await fetchFollowingProjects();
+    setRefreshing(false);
+  }, [refreshData]);
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Your projects</Text>
-        {loadingUserContent ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#808080" />
-            <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {topCombinedProjects.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator="By you"
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-        )}
-        <View style={styles.buttonContainer}></View>
-        <PressableCustom
-          label={"View More"}
-          onPress={() => navigation.navigate("My Projects")}
-        />
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Followed</Text>
-        {loadingFollowingProjects ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#808080" />
-            <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {shuffledFollowingProjects.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={project.type}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-        )}
-        <View style={styles.buttonContainer}></View>
-        <PressableCustom
-          label={"View More"}
-          onPress={() => navigation.navigate("FollowingProjects")}
-        />
-      </View>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      {loadingUserContent ? (
+        <View style={styles.box}>
+          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="small" color="#808080" />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("My Projects")}
+          />
+        </View>
+      ) : (
+        <View style={styles.box}>
+          <HorizontalCardSlider
+            title="Your projects"
+            items={topCombinedProjects}
+            navigation={navigation}
+            emptyMessage="No projects available."
+          />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("My Projects")}
+          />
+        </View>
+      )}
+      {loadingFollowingProjects ? (
+        <View style={styles.box}>
+          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="small" color="#808080" />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("FollowingProjects")}
+          />
+        </View>
+      ) : (
+        <View style={styles.box}>
+          <HorizontalCardSlider
+            title="Followed"
+            items={shuffledFollowingProjects}
+            navigation={navigation}
+            emptyMessage={showNoFollowedProjects ? "No followed projects available." : ""}
+          />
+          <PressableCustom
+            label={"View More"}
+            onPress={() => navigation.navigate("FollowingProjects")}
+          />
+        </View>
+      )}
       <View style={styles.break}></View>
     </ScrollView>
   );
@@ -259,6 +275,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#808080",
     marginTop: 10,
+    textAlign: "center",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

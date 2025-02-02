@@ -69,25 +69,25 @@ function HomeTabs() {
 
         tabBarStyle: {
           backgroundColor: "#B49F84",
-          height: 70, // increase the height for better visibility
-          shadowColor: '#000', // add shadow for floating effect
+          height: 70, 
+          shadowColor: '#000', 
           shadowOffset: { width: 0, height: 10 },
           shadowOpacity: 0.25,
           shadowRadius: 3.5,
           elevation: 5,
         },
         tabBarItemStyle: {
-          borderRadius: 10, // rounded corners for each tab item
-          margin: 5, // margin to ensure the rounded corners are visible
+          borderRadius: 10, 
+          margin: 5, 
         },
-        tabBarActiveBackgroundColor: "#A98955", // darker background when selected
-        tabBarInactiveBackgroundColor: "#B49F84", // original background when not selected
-        tabBarActiveTintColor: "#FFFFFF", // text color when selected
-        tabBarInactiveTintColor: "#D3D3D3", // text color when not selected
+        tabBarActiveBackgroundColor: "#A98955", 
+        tabBarInactiveBackgroundColor: "#B49F84", 
+        tabBarActiveTintColor: "#FFFFFF", 
+        tabBarInactiveTintColor: "#D3D3D3",
         tabBarLabelStyle: {
-          fontSize: 13, // increase the font size
+          fontSize: 13, 
           color: "white",
-          paddingBottom: 5, // add padding to center the text vertically
+          paddingBottom: 5, 
         },
         headerShown: false,
       })}

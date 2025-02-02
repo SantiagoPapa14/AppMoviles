@@ -157,16 +157,38 @@ const EditQuiz = ({ navigation }: any) => {
       return;
     }
 
-    const hasValidQuestion = quiz.questions.some(
-      (q) =>
-        q.question.trim() &&
-        q.answer.trim() &&
-        (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim()),
-    );
-
-    if (!hasValidQuestion) {
+    const hasEmptyQuestion = quiz.questions.some((q) => !q.question.trim());
+    if (hasEmptyQuestion) {
       setModalTitle("Error");
       setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+      setModalVisible(true);
+      setIsSaving(false);
+      return;
+    }
+
+
+    // const hasValidQuestion = quiz.questions.some(
+    //   (q) =>
+    //     q.question.trim() &&
+    //     q.answer.trim() &&
+    //     (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
+    // );
+
+    // if (!hasValidQuestion) {
+    //   setModalTitle("Error");
+    //   setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+    //   setModalVisible(true);
+    //   setIsSaving(false);
+    //   return;
+    // }
+
+    const hasCorrectAndIncorrectAnswer = quiz.questions.every(
+      (q) => q.answer.trim() && (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
+    );
+
+    if (!hasCorrectAndIncorrectAnswer) {
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener al menos una respuesta correcta y una incorrecta.");
       setModalVisible(true);
       setIsSaving(false);
       return;
@@ -256,7 +278,7 @@ const EditQuiz = ({ navigation }: any) => {
           label="Agregar"
         />
         <PressableCustom
-          onPress={() => handleSave({ title, questions }, Number(id))}
+          onPress={() => handleSave({ title, questions })}
           label="Guardar"
         />
         <PressableCustom onPress={handleDelete} label="Eliminar" />

@@ -102,7 +102,7 @@ export const Card = ({
           </Text>
         )}
         <Text style={styles.carouselText}>{title}</Text>
-        <Text style={styles.creatorText}>{creator}</Text>
+        <Text style={styles.creatorText}>@{creator}</Text>
       </Animated.View>
     </Pressable>
   );
@@ -121,19 +121,19 @@ const styles: { [key: string]: ViewStyle | TextStyle } = {
   },
   carouselText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 27,
     fontWeight: "bold",
     textAlign: "center",
   },
   typeText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 18,
     textAlign: "center",
     marginTop: 4,
   },
   creatorText: {
     color: "#fff",
-    fontSize: 12,
+    fontSize: 15,
     textAlign: "center",
   },
 };

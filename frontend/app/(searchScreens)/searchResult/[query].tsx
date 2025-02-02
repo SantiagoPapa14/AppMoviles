@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
-import { Card } from "@/components/Card";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useIsFocused } from "@react-navigation/native";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const SearchResult = ({ navigation }: any) => {
   const { secureFetch } = useAuth();
@@ -27,28 +28,51 @@ const SearchResult = ({ navigation }: any) => {
   const [summaries, setSummaries] = useState<
     { projectId: string; user: any; title: string; type: string }[]
   >([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const isFocused = useIsFocused();
+
+  const fetchProjects = async () => {
+    try {
+      if (!secureFetch || !searchQuery.trim() || (searchQuery.startsWith("#") && searchQuery === "#")) return;
+      let data;
+      if (searchQuery.startsWith("#")) {
+        const tag = searchQuery.slice(1).toLocaleLowerCase();
+        const [summaries, quizzes, decks] = await Promise.all([
+          secureFetch(`/tag/summary/${tag}`),
+          secureFetch(`/tag/quiz/${tag}`),
+          secureFetch(`/tag/deck/${tag}`),
+        ]);
+        data = {
+          summaries: summaries.map((item: { summary: any; }) => item.summary),
+          quizzes: quizzes.map((item: { quiz: any; }) => item.quiz),
+          decks: decks.map((item: { deck: any; }) => item.deck),
+        };
+      } else {
+        data = await secureFetch(`/search/${searchQuery}`);
+      }
+      setQuizzes(data.quizzes);
+      setDecks(data.decks);
+      setSummaries(data.summaries);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        if (!secureFetch) return;
-        const data = await secureFetch(`/search/${searchQuery}`);
-        setQuizzes(data.quizzes);
-        setDecks(data.decks);
-        setSummaries(data.summaries);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
     fetchProjects();
-  }, [searchQuery]);
+  }, [searchQuery, isFocused]);
 
   const handleSearch = async () => {
     if (searchQuery.trim()) {
       navigation.navigate(`SearchResult`, { query: searchQuery });
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchProjects();
+    setRefreshing(false);
+  }, [searchQuery]);
 
   return (
     <View style={styles.container}>
@@ -75,52 +99,29 @@ const SearchResult = ({ navigation }: any) => {
           />
         </View>
       </View>
-      <ScrollView>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Summaries Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {summaries.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"summary"}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-        </View>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Quizes Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {quizzes.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"quiz"}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-        </View>
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Decks Found</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {decks.map((project, index) => (
-              <Card
-                key={index}
-                title={project.title}
-                creator={project.user.username}
-                projectId={parseInt(project.projectId)}
-                type={"flashcard"}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
-        </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <HorizontalCardSlider
+          title="Summaries Found"
+          items={summaries}
+          navigation={navigation}
+          emptyMessage="No summaries found."
+        />
+        <HorizontalCardSlider
+          title="Quizzes Found"
+          items={quizzes}
+          navigation={navigation}
+          emptyMessage="No quizzes found."
+        />
+        <HorizontalCardSlider
+          title="Decks Found"
+          items={decks}
+          navigation={navigation}
+          emptyMessage="No decks found."
+        />
       </ScrollView>
     </View>
   );
@@ -232,6 +233,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "black",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

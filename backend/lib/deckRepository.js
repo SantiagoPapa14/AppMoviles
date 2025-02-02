@@ -124,7 +124,7 @@ const updateDeck = async (id, deckContent) => {
       data: {
         title: deckContent.title,
         flashcards: {
-          deleteMany: {}, // Delete existing flashcards
+          deleteMany: {}, 
           create: deckContent.flashcards.map((f) => ({
             front: f.front,
             back: f.back,

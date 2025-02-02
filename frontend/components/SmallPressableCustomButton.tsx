@@ -6,7 +6,7 @@ interface SmallPressableCustomButtonProps {
   onPress: () => void;
 }
 
-const SmallPressableCustomButton: React.FC<SmallPressableCustomButtonProps> = ({ label, onPress }) => {
+const SmallPressableCustomButton = ({ label, onPress }:SmallPressableCustomButtonProps) => {
   return (
     <Pressable
       style={({ pressed }) => [

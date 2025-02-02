@@ -1,11 +1,12 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
@@ -63,7 +64,7 @@ const FlashcardAddComponent = ({
   );
 };
 
-const CreateFlashcard = ({ navigation }: { navigation: any }) => {
+export default function CreateFlashcard({ navigation }: { navigation: any }) {
   const [title, setTitle] = useState("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,6 +72,31 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [redirectOnClose, setRedirectOnClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      const token = await AsyncStorage.getItem(API_TOKEN_KEY);
+      const resp = await fetch(`${API_BASE_URL}/tag/all`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const data = await resp.json();
+      setAllTags(data);
+    } catch {}
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
     setFlashcards((prevFlashcards) => {
@@ -129,7 +155,19 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify(deck),
       });
 
-      if (!response.ok) {
+      const responseData = await response.json();
+      const deckId = responseData.deck.projectId;
+      
+      console.log("Deck ID:", deckId);
+      console.log("Selected tags:", selectedTags);
+
+      const responseTag = await fetch(`${API_BASE_URL}/tag/deck`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ tagsIds: selectedTags, deckId: deckId }),
+      });
+
+      if (!response.ok && responseTag.ok) {
         throw new Error("Failed to save the deck");
       } else {
         setModalTitle("Éxito");
@@ -185,6 +223,24 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
           disabled={isSaving}
         />
         <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <View style={styles.break} />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
       <CustomAlertModal
         visible={modalVisible}
@@ -220,6 +276,32 @@ const styles = StyleSheet.create({
   removeIcon: {
     marginLeft: 10,
   },
+  break: {
+    marginVertical: 20,
+  },
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
+  },
 });
-
-export default CreateFlashcard;
