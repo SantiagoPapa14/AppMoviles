@@ -109,18 +109,21 @@ const SearchResult = ({ navigation }: any) => {
           items={summaries}
           navigation={navigation}
           emptyMessage="No summaries found."
+          projectType={"summary"}
         />
         <HorizontalCardSlider
           title="Quizzes Found"
           items={quizzes}
           navigation={navigation}
           emptyMessage="No quizzes found."
+          projectType={"quiz"}
         />
         <HorizontalCardSlider
           title="Decks Found"
           items={decks}
           navigation={navigation}
           emptyMessage="No decks found."
+          projectType={"deck"}
         />
       </ScrollView>
     </View>

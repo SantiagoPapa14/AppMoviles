@@ -5,11 +5,12 @@ import { Card } from '@/components/Card';
 interface HorizontalCardSliderProps {
   title: string;
   items: { projectId: string; title: string; type: string; user?: any }[];
+  projectType: string;
   navigation: any;
   emptyMessage: string;
 }
 
-function HorizontalCardSlider({ title, items, navigation, emptyMessage }: HorizontalCardSliderProps) {
+function HorizontalCardSlider({ title, items, navigation, emptyMessage,projectType }: HorizontalCardSliderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
@@ -21,7 +22,7 @@ function HorizontalCardSlider({ title, items, navigation, emptyMessage }: Horizo
               title={item.title}
               creator={item.user?.username || "By you"}
               projectId={parseInt(item.projectId)}
-              type={item.type}
+              type={item.type || projectType }
               navigation={navigation}
             />
           ))
