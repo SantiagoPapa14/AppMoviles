@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useAuth } from "@/app/context/AuthContext";
 import { Card } from "@/components/Card";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const FollowingProjects = ({ navigation }: { navigation: any }) => {
   const { secureFetch } = useAuth();
@@ -54,51 +55,24 @@ const FollowingProjects = ({ navigation }: { navigation: any }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Followed Quizzes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {followingQuizzes.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator={project.user.username}
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Followed Flashcards</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {followingFlashcards.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator={project.user.username}
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Followed Summaries</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {followingSummaries.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator={project.user.username}
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
+      <HorizontalCardSlider
+        title="Followed Quizzes"
+        items={followingQuizzes}
+        navigation={navigation}
+        emptyMessage="No quizzes found."
+      />
+      <HorizontalCardSlider
+        title="Followed Flashcards"
+        items={followingFlashcards}
+        navigation={navigation}
+        emptyMessage="No flashcards found."
+      />
+      <HorizontalCardSlider
+        title="Followed Summaries"
+        items={followingSummaries}
+        navigation={navigation}
+        emptyMessage="No summaries found."
+      />
     </ScrollView>
   );
 };
@@ -125,6 +99,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
     textAlign: "center",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 

@@ -11,6 +11,7 @@ import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRoute } from "@react-navigation/native";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 interface QuizQuestion {
   question: string;
@@ -85,6 +86,12 @@ const EditQuiz = ({ navigation }: any) => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [quiz, setQuiz] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [redirectFeedOnClose, setRedirectFeedOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const route = useRoute();
   const { id } = route.params as { id: string | number };
@@ -135,29 +142,54 @@ const EditQuiz = ({ navigation }: any) => {
     setIsSaving(true);
 
     if (!quiz.title.trim()) {
-      Alert.alert("Error", "El título del quiz no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del quiz no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (quiz.questions.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una pregunta.");
+      setModalTitle("Error");
+      setModalMessage("Debe agregar al menos una pregunta.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
-    const hasValidQuestion = quiz.questions.some(
-      (q) =>
-        q.question.trim() &&
-        q.answer.trim() &&
-        (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim()),
+    const hasEmptyQuestion = quiz.questions.some((q) => !q.question.trim());
+    if (hasEmptyQuestion) {
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+      setModalVisible(true);
+      setIsSaving(false);
+      return;
+    }
+
+
+    // const hasValidQuestion = quiz.questions.some(
+    //   (q) =>
+    //     q.question.trim() &&
+    //     q.answer.trim() &&
+    //     (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
+    // );
+
+    // if (!hasValidQuestion) {
+    //   setModalTitle("Error");
+    //   setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+    //   setModalVisible(true);
+    //   setIsSaving(false);
+    //   return;
+    // }
+
+    const hasCorrectAndIncorrectAnswer = quiz.questions.every(
+      (q) => q.answer.trim() && (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
     );
 
-    if (!hasValidQuestion) {
-      Alert.alert(
-        "Error",
-        "Cada pregunta debe tener contenido y no estar vacía.",
-      );
+    if (!hasCorrectAndIncorrectAnswer) {
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener al menos una respuesta correcta y una incorrecta.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
@@ -168,48 +200,53 @@ const EditQuiz = ({ navigation }: any) => {
         method: "PATCH",
         body: JSON.stringify(quiz),
       });
-      Alert.alert("Éxito", "Quiz guardado correctamente");
-      navigation.goBack();
+      setModalTitle("Éxito");
+      setModalMessage("Quiz guardado correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
     } catch (error) {
-      console.error("Failed to save the quiz:", error);
-      Alert.alert("Error", "Failed to save the quiz.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save the quiz.");
+      setModalVisible(true);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    Alert.alert(
-      "Confirmación",
-      "¿Está seguro de que desea eliminar este quiz?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              if (!secureFetch) return;
-              const response = await secureFetch(`/quiz/${id}`, {
-                method: "DELETE",
-              });
+  const handleDelete = () => {
+    setModalTitle("Confirmación");
+    setModalMessage("¿Está seguro de que desea eliminar este quiz?");
+    setDeleteModalVisible(true);
+  };
 
-              if (!response.ok) {
-                throw new Error("Failed to delete quiz");
-              } else {
-                Alert.alert("Éxito", "Quiz eliminado correctamente");
-                navigation.replace("Main");
-              }
-            } catch (error) {
-              console.error("Failed to delete quiz:", error);
-              Alert.alert("Error", "Failed to delete quiz.");
-            }
-          },
-        },
-      ],
-      { cancelable: false },
-    );
+  const confirmDelete = async () => {
+    try {
+      if (!secureFetch) return;
+      await secureFetch(`/quiz/${id}`, { method: "DELETE" });
+      setModalTitle("Éxito");
+      setModalMessage("Quiz eliminado correctamente");
+      setRedirectFeedOnClose(true);
+      setModalVisible(true);
+    } catch {
+      setModalTitle("Error");
+      setModalMessage("Failed to delete quiz.");
+      setModalVisible(true);
+    }
+    setDeleteModalVisible(false);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.goBack();
+    }
+    else if (redirectFeedOnClose) {
+      navigation.navigate("Feed");
+    }
   };
 
   return (
@@ -241,11 +278,25 @@ const EditQuiz = ({ navigation }: any) => {
           label="Agregar"
         />
         <PressableCustom
-          onPress={() => handleSave({ title, questions }, Number(id))}
+          onPress={() => handleSave({ title, questions })}
           label="Guardar"
         />
         <PressableCustom onPress={handleDelete} label="Eliminar" />
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
+      <CustomAlertModal
+        visible={deleteModalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+      />
     </View>
   );
 };

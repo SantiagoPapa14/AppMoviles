@@ -14,26 +14,26 @@ export interface CardProps {
 const getColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#FFD700";
+      return "#B49F84";
     case "flashcard":
-      return "#FF69B4";
+      return "#3A2F23";
     case "summary":
-      return "#8A2BE2";
+      return "#BB8632";
     default:
-      return "#4682B4";
+      return "#8D602D";
   }
 };
 
 const getActiveColorByType = (type: string) => {
   switch (type.toLowerCase()) {
     case "quiz":
-      return "#B8860B";
+      return "#A98955";
     case "flashcard":
-      return "#C71585";
+      return "#2F241B";
     case "summary":
-      return "#4B0082";
+      return "#A6752A";
     default:
-      return "#2B4F72";
+      return "#7A4F24";
   }
 };
 
@@ -102,7 +102,7 @@ export const Card = ({
           </Text>
         )}
         <Text style={styles.carouselText}>{title}</Text>
-        <Text style={styles.creatorText}>{creator}</Text>
+        <Text style={styles.creatorText}>@{creator}</Text>
       </Animated.View>
     </Pressable>
   );
@@ -121,19 +121,19 @@ const styles: { [key: string]: ViewStyle | TextStyle } = {
   },
   carouselText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 27,
     fontWeight: "bold",
     textAlign: "center",
   },
   typeText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 18,
     textAlign: "center",
     marginTop: 4,
   },
   creatorText: {
     color: "#fff",
-    fontSize: 12,
+    fontSize: 15,
     textAlign: "center",
   },
 };

@@ -2,15 +2,17 @@ import {
   View,
   Text,
   TextInput,
-  Alert,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 interface QuizQuestion {
   question: string;
@@ -84,6 +86,35 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      const token = await AsyncStorage.getItem("api_token");
+      const resp = await fetch(`${API_BASE_URL}/tag/all`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const data = await resp.json();
+      setAllTags(data);
+    } catch {}
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
 
   const updateQuestion = (index: number, updatedQuestion: QuizQuestion) => {
     setQuestions((prevQuestions) => {
@@ -106,34 +137,45 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
     setIsSaving(true);
 
     if (!quiz.title.trim()) {
-      Alert.alert("Error", "El título del quiz no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del quiz no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (quiz.questions.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una pregunta.");
+      setModalTitle("Error");
+      setModalMessage("Debe agregar al menos una pregunta.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
-    const hasValidQuestion = quiz.questions.some(
-      (q) =>
-        q.question.trim() &&
-        q.answer.trim() &&
-        (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim()),
+    const hasEmptyQuestion = quiz.questions.some((q) => !q.question.trim());
+    
+    if (hasEmptyQuestion) {
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener contenido y no estar vacía.");
+      setModalVisible(true);
+      setIsSaving(false);
+      return;
+    }
+
+    const hasCorrectAndIncorrectAnswer = quiz.questions.every(
+      (q) => q.answer.trim() && (q.decoy1.trim() || q.decoy2.trim() || q.decoy3.trim())
     );
 
-    if (!hasValidQuestion) {
-      Alert.alert(
-        "Error",
-        "Cada pregunta debe tener contenido y no estar vacía.",
-      );
+    if (!hasCorrectAndIncorrectAnswer) {
+      setModalTitle("Error");
+      setModalMessage("Cada pregunta debe tener al menos una respuesta correcta y una incorrecta.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
+
     try {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem("api_token");
       const response = await fetch(`${API_BASE_URL}/quiz`, {
         method: "POST",
         headers: {
@@ -143,16 +185,35 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify(quiz),
       });
 
+      const quizId = (await response.json()).quiz.projectId;
+
       if (!response.ok) {
         throw new Error("Failed to save the quiz");
       }
-      Alert.alert("Éxito", "Quiz guardado correctamente");
-      navigation.goBack();
+
+      await fetch(`${API_BASE_URL}/tag/quiz`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ tagsIds: selectedTags, quizId: quizId }),
+      });
+
+      setModalTitle("Éxito");
+      setModalMessage("Quiz guardado correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
     } catch (error) {
-      console.error("Failed to save the quiz:", error);
-      Alert.alert("Error", "Failed to save the quiz.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save the quiz.");
+      setModalVisible(true);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main")
     }
   };
 
@@ -188,8 +249,33 @@ const CreateQuiz = ({ navigation }: { navigation: any }) => {
           onPress={() => handleSave({ title, questions })}
           label="Guardar"
         />
-        <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <View style={styles.break} />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
     </View>
   );
 };
@@ -216,6 +302,34 @@ const styles = StyleSheet.create({
   },
   removeIcon: {
     marginLeft: 10,
+  },
+  break: {
+    marginVertical: 20,
+  },
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
   },
 });
 

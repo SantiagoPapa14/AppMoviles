@@ -1,0 +1,23 @@
+-- CreateTable
+CREATE TABLE "SummaryTag" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "summaryId" INTEGER NOT NULL,
+    CONSTRAINT "SummaryTag_summaryId_fkey" FOREIGN KEY ("summaryId") REFERENCES "Summary" ("projectId") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "QuizTag" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "quizId" INTEGER NOT NULL,
+    CONSTRAINT "QuizTag_quizId_fkey" FOREIGN KEY ("quizId") REFERENCES "Quiz" ("projectId") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "DeckTag" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "deckId" INTEGER NOT NULL,
+    CONSTRAINT "DeckTag_deckId_fkey" FOREIGN KEY ("deckId") REFERENCES "Deck" ("projectId") ON DELETE CASCADE ON UPDATE CASCADE
+);

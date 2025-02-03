@@ -43,6 +43,8 @@ import TopQuizzes from "./(global)/viewMore/topQuizzes";
 import TopSummaries from "./(global)/viewMore/topSummaries";
 import MyProjects from "./(global)/viewMore/userProjects";
 
+import UserTimeTableScreen from "./home/UserTimeTableScreen";
+
 const DrawerNavigator = createDrawerNavigator();
 const TabNavigator = createBottomTabNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -60,16 +62,35 @@ function HomeTabs() {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Create") {
             iconName = focused ? "create" : "create-outline";
+            return <Ionicons name={iconName} size={size + 10} color={color} />; // increase size of create button
           } else if (route.name === "Search") {
             iconName = focused ? "search" : "search-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
 
-        tabBarActiveTintColor: "#D2B48C",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "#B49F84" },
-        tabBarLabelStyle: { fontSize: 14, color: "white" },
+        tabBarStyle: {
+          backgroundColor: "#B49F84",
+          height: 70, 
+          shadowColor: '#000', 
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.5,
+          elevation: 5,
+        },
+        tabBarItemStyle: {
+          borderRadius: 10, 
+          margin: 5, 
+        },
+        tabBarActiveBackgroundColor: "#A98955", 
+        tabBarInactiveBackgroundColor: "#B49F84", 
+        tabBarActiveTintColor: "#FFFFFF", 
+        tabBarInactiveTintColor: "#D3D3D3",
+        tabBarLabelStyle: {
+          fontSize: 13, 
+          color: "white",
+          paddingBottom: 5, 
+        },
         headerShown: false,
       })}
     >
@@ -131,12 +152,18 @@ function MainNavigation() {
               iconName = focused ? "star" : "star-outline";
               return <Ionicons name={iconName} size={size} color={color} />;
             }
+            else if (route.name === "TimeTable") {
+              iconName = focused ? "calendar" : "calendar-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
           },
           drawerStyle: {
             backgroundColor: "#B49F84",
           },
-          drawerActiveTintColor: "#D2B48C",
-          drawerInactiveTintColor: "gray",
+          drawerActiveBackgroundColor: "#A98955", // darker background when selected
+          drawerInactiveBackgroundColor: "#B49F84", // original background when not selected
+          drawerActiveTintColor: "#FFFFFF", // text color when selected
+          drawerInactiveTintColor: "#D3D3D3", // text color when not selected
           drawerLabelStyle: { fontSize: 14, color: "white" },
           headerTitle: () => (
             <Image
@@ -151,6 +178,7 @@ function MainNavigation() {
       >
         <DrawerNavigator.Screen name="Home" component={HomeTabs} />
         <DrawerNavigator.Screen name="Profile" component={ProfileScreen} />
+        <DrawerNavigator.Screen name="TimeTable" component={UserTimeTableScreen} options={{ title: "Time Table" }}   />
         <DrawerNavigator.Screen name="Settings" component={SettingsScreen} />
       </DrawerNavigator.Navigator>
     );
@@ -175,42 +203,65 @@ export default function Layout() {
   return (
     <AuthProvider>
       <NavigationContainer independent={true}>
-        <GlobalStack.Navigator>
+        <GlobalStack.Navigator
+          screenOptions={{
+            headerTitleAlign: "center",
+            headerTitleStyle: { fontWeight: "bold" },
+          }}
+        >
           <GlobalStack.Screen
             name="Main"
             component={MainNavigation}
             options={{ headerShown: false }}
           />
 
-          {/*Summary*/}
+          {/* Summary */}
           <GlobalStack.Screen name="Summary" component={SummaryScreen} />
           <GlobalStack.Screen name="Edit Summary" component={EditSummary} />
 
-          {/*Quiz*/}
+          {/* Quiz */}
           <GlobalStack.Screen name="Quiz" component={QuizScreen} />
           <GlobalStack.Screen name="Edit Quiz" component={EditQuiz} />
           <GlobalStack.Screen name="Play Quiz" component={PlayQuiz} />
-          <GlobalStack.Screen name="Quiz Score" component={QuizScore} />
+          <GlobalStack.Screen
+            name="Quiz Score"
+            component={QuizScore}
+            options={{
+              headerLeft: () => null,
+              gestureEnabled: false,
+              headerBackVisible: false, // Ensures the back button is hidden
+            }}
+          />
 
-          {/*Quiz*/}
+          {/* Flashcard (Deck) */}
           <GlobalStack.Screen name="Flashcard" component={DeckScreen} />
           <GlobalStack.Screen name="Edit Deck" component={EditDeck} />
           <GlobalStack.Screen name="Play Deck" component={PlayDeck} />
-          <GlobalStack.Screen name="Deck Score" component={DeckScore} />
+          <GlobalStack.Screen
+            name="Deck Score"
+            component={DeckScore}
+            options={{
+              headerLeft: () => null,
+              gestureEnabled: false,
+              headerBackVisible: false, // Ensures the back button is hidden
+            }}
+          />
 
-          {/*Social*/}
+          {/* Social */}
           <GlobalStack.Screen name="User Profile" component={UserProfile} />
 
-          {/*ViewMore*/}
+          {/* ViewMore */}
           <GlobalStack.Screen
             name="FollowingProjects"
             component={FollowingProjects}
+            options={{ title: "Following Projects" }}
           />
           <GlobalStack.Screen name="Top Decks" component={TopDecks} />
           <GlobalStack.Screen name="Top Quizzes" component={TopQuizzes} />
           <GlobalStack.Screen name="Top Summaries" component={TopSummaries} />
           <GlobalStack.Screen name="My Projects" component={MyProjects} />
         </GlobalStack.Navigator>
+
       </NavigationContainer>
     </AuthProvider>
   );

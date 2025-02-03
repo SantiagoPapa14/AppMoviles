@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -5,20 +6,40 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ScrollView, // Import ScrollView
 } from "react-native";
-import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { PressableCustom } from "@/components/PressableCustom";
 import * as DocumentPicker from "expo-document-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
-const CreateSummary = ({ navigation }: { navigation: any }) => {
+export default function CreateSummary({ navigation }: { navigation: any }) {
   const [files, setFiles] = useState<any[]>([]);
   const [summary, setSummary] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { secureFetch, uploadAttachment } = useAuth();
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      if (!secureFetch) return;
+      const data = await secureFetch("/tag/all");
+      setAllTags(data);
+    } catch {}
+  };
 
   const pickFiles = async () => {
     try {
@@ -28,7 +49,9 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
       if (result.canceled) return;
       setFiles(result.assets);
     } catch (error) {
-      Alert.alert("Error", "An error occurred while selecting files.");
+      setModalTitle("Error");
+      setModalMessage("An error occurred while selecting files.");
+      setModalVisible(true);
     }
   };
 
@@ -45,77 +68,146 @@ const CreateSummary = ({ navigation }: { navigation: any }) => {
         await uploadAttachment(file);
       } catch (error) {
         console.error("Error uploading document:", error);
-        Alert.alert("Error", "Failed to upload document.");
+        setModalTitle("Error");
+        setModalMessage("Failed to upload document.");
+        setModalVisible(true);
       }
     }
   };
 
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
+
   async function handleSave(): Promise<void> {
     if (!secureFetch) return;
+    if (!title.trim() || !summary.trim() || !subject.trim()) {
+      setModalTitle("Error");
+      setModalMessage("El título y el resumen no pueden estar vacíos");
+      setModalVisible(true);
+      return;
+    }
     await uploadDocuments();
-    const data = await secureFetch(`/summary`, {
-      method: "POST",
-      body: JSON.stringify({ title, subject, summary, files }),
-    });
-    Alert.alert("Éxito", "Resumen creado correctamente");
-    navigation.goBack();
+    try {
+      const response = await secureFetch(`/summary`, {
+        method: "POST",
+        body: JSON.stringify({ title, subject, summary, files }),
+      });
+
+      const summaryId = response.summary.projectId;
+      
+      await secureFetch(`/tag/summary`, {
+        method: "POST",
+        body: JSON.stringify({ tagsIds: selectedTags, summaryId: summaryId }),
+      });
+      setModalTitle("Éxito");
+      setModalMessage("Resumen creado correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
+    } catch (error) {
+      setModalTitle("Error");
+      setModalMessage("Hubo un problema al crear el resumen");
+      setModalVisible(true);
+    }
   }
 
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main");
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Crear Resumen</Text>
-      <TextInput
-        style={styles.titleInput}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Escribe el título aquí"
-      />
-      <TextInput
-        style={styles.titleInput}
-        value={subject}
-        onChangeText={setSubject}
-        placeholder="Subject va aca"
-      />
-      <TextInput
-        style={styles.summaryInput}
-        value={summary}
-        onChangeText={setSummary}
-        placeholder="Escribe tu resumen aquí"
-        multiline
-      />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
-          <Text>Upload Files:</Text>
-          {files.length == 0 && (
-            <Text> Haga click para subir archivos... </Text>
-          )}
-          {files.map((file, index) => (
-            <Text key={index}>{file.name}</Text>
-          ))}
-        </TouchableOpacity>
-        {files.length > 0 && (
-          <TouchableOpacity
-            onPress={() => setFiles([])}
-            style={styles.pressableStyle}
-          >
-            <Ionicons name="trash-outline" size={24} color="black" />
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.label}>Crear Resumen</Text>
+        <TextInput
+          style={styles.titleInput}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Escribe el título aquí"
+        />
+        <TextInput
+          style={styles.titleInput}
+          value={subject}
+          onChangeText={setSubject}
+          placeholder="Subject va aca"
+        />
+        <TextInput
+          style={[styles.summaryInput, { height: 200 }]}
+          value={summary}
+          onChangeText={setSummary}
+          placeholder="Escribe tu resumen aquí"
+          multiline
+        />
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <TouchableOpacity onPress={pickFiles} style={styles.fileInput}>
+            <Text>Upload Files:</Text>
+            {files.length == 0 ? (
+              <Text> </Text>
+            ) : (
+              <Text> Haga click para subir archivos... </Text>
+            )}
+            {files.map((file, index) => (
+              <Text key={index}>{file.name}</Text>
+            ))}
           </TouchableOpacity>
-        )}
+          {files.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setFiles([])}
+              style={styles.pressableStyle}
+            >
+              <Ionicons name="trash-outline" size={24} color="black" />
+            </TouchableOpacity>
+          )}
+        </View>
+        <PressableCustom onPress={handleSave} label="Guardar Resumen" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <CustomAlertModal
+          visible={modalVisible}
+          title={modalTitle}
+          errorMessage={modalMessage}
+          onClose={closeModal}
+          singleButton
+        />
       </View>
-      <PressableCustom onPress={handleSave} label="Guardar Resumen" />
-      <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
-    </View>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -144,7 +236,6 @@ const styles = StyleSheet.create({
     color: "#3A2F23",
   },
   summaryInput: {
-    flex: 1,
     borderColor: "#8D602D",
     borderWidth: 1,
     marginBottom: 16,
@@ -165,6 +256,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#3A2F23",
   },
-});
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
+  },
 
-export default CreateSummary;
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+});

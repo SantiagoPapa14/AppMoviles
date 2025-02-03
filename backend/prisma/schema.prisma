@@ -21,6 +21,7 @@ model User {
   decks          Deck[]
   followers      Follows[] @relation("following")
   following      Follows[] @relation("follower")
+  timetable      String?
 }
 
 model Follows {
@@ -43,6 +44,7 @@ model Summary {
   user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
   views     Int      @default(0)
   files     SummaryFile[]
+  tags      SummaryTag[]
 }
 
 model SummaryFile {
@@ -61,6 +63,7 @@ model Quiz {
   userId    Int
   user      User           @relation(fields: [userId], references: [userId], onDelete: Cascade)
   views     Int            @default(0)
+  tags      QuizTag[]
 }
 
 model QuizQuestion {
@@ -83,6 +86,7 @@ model Deck {
   userId     Int
   user       User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
   views      Int         @default(0)
+  tags       DeckTag[]
 }
 
 model Flashcard {
@@ -91,4 +95,37 @@ model Flashcard {
   back   String
   deckId Int
   deck   Deck   @relation(fields: [deckId], references: [projectId], onDelete: Cascade)
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  DeckTag DeckTag[]
+  QuizTag QuizTag[]
+  SummaryTag SummaryTag[]
+}
+
+model SummaryTag {
+  id        Int       @id @default(autoincrement())
+  tagId     Int
+  summaryId Int
+  summary   Summary   @relation(fields: [summaryId], references: [projectId], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+}
+
+model QuizTag {
+  id      Int    @id @default(autoincrement())
+  tagId   Int
+  quizId  Int
+  quiz    Quiz   @relation(fields: [quizId], references: [projectId], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+}
+
+model DeckTag {
+  id      Int    @id @default(autoincrement())
+  tagId   Int
+  deckId  Int
+  deck    Deck   @relation(fields: [deckId], references: [projectId], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
 }

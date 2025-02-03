@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/app/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
 
 const TopSummaries = ({ navigation }: { navigation: any }) => {
   const { secureFetch } = useAuth();
@@ -14,6 +15,7 @@ const TopSummaries = ({ navigation }: { navigation: any }) => {
       views: number;
     }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAllProjects = async () => {
     try {
@@ -23,6 +25,8 @@ const TopSummaries = ({ navigation }: { navigation: any }) => {
       setAllSummaries(summaries);
     } catch (error) {
       console.error("Failed to fetch all projects:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,19 +34,50 @@ const TopSummaries = ({ navigation }: { navigation: any }) => {
     fetchAllProjects();
   }, []);
 
+  const getMedalIcon = (index: number) => {
+    switch (index) {
+      case 0:
+        return <Ionicons name="medal-outline" size={24} color="gold" />;
+      case 1:
+        return <Ionicons name="medal-outline" size={24} color="silver" />;
+      case 2:
+        return <Ionicons name="medal-outline" size={24} color="#cd7f32" />;
+      default:
+        return null;
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#808080" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView>
         {allSummaries.map((summary, index) => (
-          <View key={index} style={styles.cardContainer}>
-            <Text style={styles.viewsText}>{summary.views} views</Text>
+          <View key={index} style={styles.outerBox}>
+            <View style={styles.infoBox}>
+              {index < 3 ? (
+                <View style={styles.medalContainer}>
+                  <Text style={styles.positionText}>{index + 1}th</Text>
+                  {getMedalIcon(index)}
+                </View>
+              ) : (
+                <Text style={styles.positionText}>{index + 1}th</Text>
+              )}
+              <Text style={styles.viewsText}>{summary.views} views</Text>
+            </View>
             <Card
               title={summary.title}
               creator={summary.user.username}
               projectId={parseInt(summary.projectId)}
               type={summary.type}
               navigation={navigation}
-              views={summary.views}
             />
           </View>
         ))}
@@ -63,14 +98,50 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
-  cardContainer: {
+  outerBox: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 24, // Add more space between cards
+    padding: 16,
+    backgroundColor: "#f0ece4",
+    borderRadius: 8,
   },
   viewsText: {
     fontSize: 16,
+    textAlign: "center",
+  },
+  medalContainer: {
+    alignItems: "center",
+    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between", // Add space between items
+    width: 52, // Ensure consistent width
+  },
+  positionText: {
+    fontSize: 16,
     marginBottom: 8,
     textAlign: "center",
+  },
+  infoBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 8,
+    backgroundColor: "#f2f2f2",
+    borderRadius: 8,
+    marginBottom: 8,
+    width: "100%", // Ensure consistent width
+    borderWidth: 1, // Add border
+    borderColor: "#ccc", // Border color
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
   },
 });
 

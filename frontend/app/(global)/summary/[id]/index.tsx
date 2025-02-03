@@ -63,7 +63,7 @@ const SummaryScreen = ({ navigation }: any) => {
     );
   }
 
-  if (error) {
+  if (error || !summary) {
     return (
       <View style={styles.container}>
         <Text>Error: {error}</Text>
@@ -96,7 +96,7 @@ const SummaryScreen = ({ navigation }: any) => {
               );
             }}
           >
-            <Text>{file.filename}</Text>
+            <Text>{file.filename.replace(/^\d+-/, '')}</Text>
             <Ionicons
               name="download-outline"
               size={24}
@@ -116,7 +116,7 @@ const SummaryScreen = ({ navigation }: any) => {
       ) : (
         <SmallPressableCustom
           label="View Profile"
-          onPress={() => navigation.navigate("User Profile", { summary })}
+          onPress={() => navigation.navigate("User Profile", { id: summary.user.userId })}
         />
       )}
     </ScrollView>

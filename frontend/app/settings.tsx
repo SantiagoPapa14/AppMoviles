@@ -1,12 +1,14 @@
-import { PressableCustom } from "@/components/PressableCustom";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import { Alert } from "react-native";
-import { useAuth } from "@/app/context/AuthContext";
-import { Modal, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/app/context/AuthContext";
+import { PressableCustom } from "@/components/PressableCustom";
+import CustomModal from "@/components/CustomModal";
+import { API_BASE_URL } from "@/constants/API-IP";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_TOKEN_KEY } from "@/constants/API-TOKEN";
 
-const AccountSettings: React.FC = () => {
+const AccountSettings = ({ navigation }: { navigation: any }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,15 +16,14 @@ const AccountSettings: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentField, setCurrentField] = useState<
-    "username" | "email" | "password" | "name" | null
-  >(null);
+  const [currentField, setCurrentField] = useState<"username" | "email" | "password" | "name" | null>(null);
   const [tempValue, setTempValue] = useState("");
+  const [confirmTempValue, setConfirmTempValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showModalPassword, setShowModalPassword] = useState(false);
 
-  const { fetchProfile, updateToken, secureFetch } = useAuth();
+  const { fetchProfile, updateToken, secureFetch ,updateProfile} = useAuth();
 
   const fetchUserData = async () => {
     if (!fetchProfile) return;
@@ -38,8 +39,14 @@ const AccountSettings: React.FC = () => {
 
   const handleSave = async () => {
     if (!secureFetch || !updateToken) return;
-    const data = await secureFetch(`/user`, {
+
+    const token = await AsyncStorage.getItem(API_TOKEN_KEY);
+    const response = await fetch(`${API_BASE_URL}/user`, {
       method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
       body: JSON.stringify({
         username: username,
         email: email,
@@ -48,143 +55,124 @@ const AccountSettings: React.FC = () => {
         currentPassword: currentPassword,
       }),
     });
-    updateToken(data.token);
-    Alert.alert("Success", "Profile updated successfully");
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.newToken) {
+        updateToken(data.newToken);
+      }
+      if (updateProfile) {
+        await updateProfile();
+      }
+      Alert.alert("Success", "Account details saved successfully!");
+      navigation.navigate("Feed"); // Redirect to Feed screen
+    } else {
+      const errorData = await response.json();
+      Alert.alert("Error", errorData.message || "Failed to save account details.");
+    }
   };
 
-  const openModal = (field: "username" | "email" | "password" | "name") => {
-    setCurrentField(field);
-    setTempValue(
-      field === "username"
-        ? username
-        : field === "email"
-          ? email
-          : field === "password"
-            ? password
-            : name,
-    );
-    setModalVisible(true);
-  };
+const openModal = (field: "username" | "email" | "password" | "name") => {
+  setCurrentField(field);
+  setTempValue(
+    field === "username" ? username : field === "email" ? email : field === "password" ? password : name
+  );
+  setConfirmTempValue("");
+  setModalVisible(true);
+};
 
-  const saveModalValue = () => {
-    if (currentField === "username") setUsername(tempValue);
-    if (currentField === "email") setEmail(tempValue);
-    if (currentField === "password") setPassword(tempValue);
-    if (currentField === "name") setName(tempValue);
-    setModalVisible(false);
-    setShowModalPassword(false);
-  };
+const saveModalValue = () => {
+  if (currentField === "password" && tempValue !== confirmTempValue) {
+    Alert.alert("Error", "Passwords do not match");
+    return;
+  }
+  if (currentField === "username") setUsername(tempValue);
+  if (currentField === "email") setEmail(tempValue);
+  if (currentField === "password") setPassword(tempValue);
+  if (currentField === "name") setName(tempValue);
+  setModalVisible(false);
+  setShowModalPassword(false);
+};
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+const togglePasswordVisibility = () => {
+  setShowPassword(!showPassword);
+};
 
-  const toggleCurrentPasswordVisibility = () => {
-    setShowCurrentPassword(!showCurrentPassword);
-  };
+const toggleCurrentPasswordVisibility = () => {
+  setShowCurrentPassword(!showCurrentPassword);
+};
 
-  const toggleModalPasswordVisibility = () => {
-    setShowModalPassword(!showModalPassword);
-  };
+const toggleModalPasswordVisibility = () => {
+  setShowModalPassword(!showModalPassword);
+};
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Account Settings</Text>
-      <View style={styles.form}>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("username")}
-        >
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.input}>{username}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("email")}
-        >
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.input}>{email}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("password")}
-        >
-          <Text style={styles.label}>New password:</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, styles.passwordInput]}
-              value={password}
-              secureTextEntry={!showPassword}
-              editable={false}
-            />
-            <Ionicons
-              style={styles.eyeIconInside}
-              name={showPassword ? "eye-off" : "eye"}
-              size={24}
-              color="black"
-              onPress={togglePasswordVisibility}
-            />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.inputGroup}
-          onPress={() => openModal("name")}
-        >
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.input}>{name}</Text>
-        </TouchableOpacity>
-        <Text style={styles.label}>Current Password:</Text>
+return (
+  <View style={styles.container}>
+    <Text style={styles.title}>Account Settings</Text>
+    <View style={styles.form}>
+      <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("username")}>
+        <Text style={styles.label}>Username:</Text>
+        <Text style={styles.input}>{username}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("email")}>
+        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.input}>{email}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("password")}>
+        <Text style={styles.label}>New password:</Text>
         <View style={styles.passwordContainer}>
           <TextInput
             style={[styles.input, styles.passwordInput]}
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            secureTextEntry={!showCurrentPassword}
+            value={password}
+            secureTextEntry={!showPassword}
+            editable={false}
           />
           <Ionicons
             style={styles.eyeIconInside}
-            name={showCurrentPassword ? "eye-off" : "eye"}
+            name={showPassword ? "eye-off" : "eye"}
             size={24}
             color="black"
-            onPress={toggleCurrentPasswordVisibility}
+            onPress={togglePasswordVisibility}
           />
         </View>
-        <PressableCustom label="Save" onPress={handleSave} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.inputGroup} onPress={() => openModal("name")}>
+        <Text style={styles.label}>Name:</Text>
+        <Text style={styles.input}>{name}</Text>
+      </TouchableOpacity>
+      <Text style={styles.label}>Current Password:</Text>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={[styles.input, styles.passwordInput]}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry={!showCurrentPassword}
+        />
+        <Ionicons
+          style={styles.eyeIconInside}
+          name={showCurrentPassword ? "eye-off" : "eye"}
+          size={24}
+          color="black"
+          onPress={toggleCurrentPasswordVisibility}
+        />
       </View>
-
-      <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.label}>Enter new {currentField}:</Text>
-            <TextInput
-              style={styles.input}
-              value={tempValue}
-              onChangeText={setTempValue}
-              secureTextEntry={
-                currentField === "password" && !showModalPassword
-              }
-              keyboardType={
-                currentField === "email" ? "email-address" : "default"
-              }
-            />
-            {currentField === "password" && (
-              <View style={styles.passwordContainer}>
-                <Ionicons
-                  style={styles.eyeIconInside}
-                  name={showModalPassword ? "eye-off" : "eye"}
-                  size={24}
-                  color="black"
-                  onPress={toggleModalPasswordVisibility}
-                />
-              </View>
-            )}
-            <Button title="Save" onPress={saveModalValue} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
+      <PressableCustom label="Save" onPress={handleSave} />
     </View>
-  );
+
+    <CustomModal
+      visible={modalVisible}
+      field={currentField}
+      value={tempValue}
+      onChange={setTempValue}
+      onSave={saveModalValue}
+      onCancel={() => setModalVisible(false)}
+      showPassword={showModalPassword}
+      togglePasswordVisibility={toggleModalPasswordVisibility}
+      confirmValue={confirmTempValue}
+      onConfirmChange={setConfirmTempValue}
+    />
+  </View>
+);
 };
 
 export default AccountSettings;
@@ -212,23 +200,15 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: "#ccc",
     borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 5,
     paddingVertical: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    borderColor: "#8D602D",
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   passwordContainer: {
     flexDirection: "row",
@@ -237,10 +217,6 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 10,
   },
   eyeIconInside: {
     position: "absolute",

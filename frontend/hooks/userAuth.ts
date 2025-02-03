@@ -10,7 +10,7 @@ async function fetchUserProfile(): Promise<{
   followerCount: number;
 } | null> {
   try {
-    const token = await AsyncStorage.getItem("userToken");
+    const token = await AsyncStorage.getItem("api_token");
     if (!token) throw new Error("No token found");
     const response = await fetch(`${API_BASE_URL}/user`, {
       method: "GET",

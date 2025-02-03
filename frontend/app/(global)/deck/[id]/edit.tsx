@@ -12,6 +12,7 @@ import { PressableCustom } from "@/components/PressableCustom";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRoute } from "@react-navigation/native";
+import CustomAlertModal from "@/components/CustomAlertModal";
 
 interface Flashcard {
   front: string;
@@ -66,6 +67,12 @@ const EditDeck = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [redirectFeedOnClose, setRedirectFeedOnClose] = useState(false);
 
   const route = useRoute();
   const { id } = route.params as { id: string | number };
@@ -96,23 +103,24 @@ const EditDeck = ({ navigation }: any) => {
     setIsSaving(true);
 
     if (!deck.title.trim()) {
-      Alert.alert("Error", "El título del maso no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del maso no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (deck.flashcards.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una flashcard.");
+      setModalMessage("Debe agregar al menos una flashcard.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     for (const flashcard of deck.flashcards) {
       if (!flashcard.front.trim() || !flashcard.back.trim()) {
-        Alert.alert(
-          "Error",
-          "Todas las flashcards deben tener ambos lados llenos.",
-        );
+        setModalMessage("Todas las flashcards deben tener ambos lados llenos.");
+        setModalVisible(true);
         setIsSaving(false);
         return;
       }
@@ -125,58 +133,43 @@ const EditDeck = ({ navigation }: any) => {
         body: JSON.stringify(deck),
       });
 
-      Alert.alert("Éxito", "Mazo guardada correctamente");
-      navigation.replace("Main");
+      setModalTitle("Éxito");
+      setModalMessage("Mazo guardada correctamente");
+      setRedirectOnClose(true);
+      setModalVisible(true);
     } catch (error) {
-      console.error("Failed to save flashcard:", error);
-      Alert.alert("Error", "Failed to save flashcard.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save flashcard.");
+      setModalVisible(true);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    Alert.alert(
-      "Confirmación",
-      "¿Está seguro de que desea eliminar este maso?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const token = await AsyncStorage.getItem("userToken");
-              const response = await fetch(
-                `${API_BASE_URL}/deck/${parsedFlashcardId}`,
-                {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                  },
-                },
-              );
+  const handleDelete = () => {
+    setModalTitle("Confirmación");
+    setModalMessage("¿Está seguro de que desea eliminar este maso?");
+    setDeleteModalVisible(true);
+  };
 
-              if (!response.ok) {
-                throw new Error("Failed to delete deck");
-              } else {
-                Alert.alert("Éxito", "Maso eliminado correctamente");
-                setRefresh(true);
-                router.replace("/(mainTabs)/createTab");
-              }
-            } catch (error) {
-              console.error("Failed to delete deck:", error);
-              Alert.alert("Error", "Failed to delete deck.");
-            }
-          },
-        },
-      ],
-      { cancelable: false },
-    );
+  const confirmDelete = async () => {
+    try {
+      if (!secureFetch) return;
+      await secureFetch(`/deck/${id}`, { method: "DELETE" });
+      setModalTitle("Éxito");
+      setModalMessage("Mazo eliminado correctamente");
+      setRedirectFeedOnClose(true);
+      setModalVisible(true);
+    } catch {
+      setModalTitle("Error");
+      setModalMessage("Failed to delete deck.");
+      setModalVisible(true);
+    }
+    setDeleteModalVisible(false);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
   };
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
@@ -193,6 +186,15 @@ const EditDeck = ({ navigation }: any) => {
       newFlashcards.splice(index, 1);
       return { ...prevDeck, flashcards: newFlashcards };
     });
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.goBack();
+    } else if (redirectFeedOnClose) {
+      navigation.navigate("Feed");
+    }
   };
 
   if (loading) {
@@ -242,6 +244,20 @@ const EditDeck = ({ navigation }: any) => {
         <PressableCustom onPress={() => handleSave(deck)} label="Guardar" />
         <PressableCustom onPress={handleDelete} label="Eliminar" />
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
+      <CustomAlertModal
+        visible={deleteModalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+      />
     </View>
   );
 };

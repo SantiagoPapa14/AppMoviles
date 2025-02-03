@@ -1,16 +1,19 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  Alert,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
 import { API_BASE_URL } from "@/constants/API-IP";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PressableCustom } from "@/components/PressableCustom";
 import { Ionicons } from "@expo/vector-icons";
+import { SmallPressableCustom } from "@/components/SmallPressableCustom";
+import CustomAlertModal from "@/components/CustomAlertModal";
+import { API_TOKEN_KEY } from "@/constants/API-TOKEN";
 
 interface Flashcard {
   front: string;
@@ -61,10 +64,39 @@ const FlashcardAddComponent = ({
   );
 };
 
-const CreateFlashcard = ({ navigation }: { navigation: any }) => {
+export default function CreateFlashcard({ navigation }: { navigation: any }) {
   const [title, setTitle] = useState("");
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [redirectOnClose, setRedirectOnClose] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [allTags, setAllTags] = useState<any[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchAllTags();
+  }, []);
+
+  const fetchAllTags = async () => {
+    try {
+      const token = await AsyncStorage.getItem(API_TOKEN_KEY);
+      const resp = await fetch(`${API_BASE_URL}/tag/all`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const data = await resp.json();
+      setAllTags(data);
+    } catch {}
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((t) => t !== tagId)
+        : [...prev, tagId]
+    );
+  };
 
   const updateFlashcard = (index: number, updatedFlashcard: Flashcard) => {
     setFlashcards((prevFlashcards) => {
@@ -87,30 +119,33 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
     setIsSaving(true);
 
     if (!deck.title.trim()) {
-      Alert.alert("Error", "El título del maso no puede estar vacío.");
+      setModalTitle("Error");
+      setModalMessage("El título del maso no puede estar vacío.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     if (deck.flashcards.length === 0) {
-      Alert.alert("Error", "Debe agregar al menos una flashcard.");
+      setModalTitle("Error");
+      setModalMessage("Debe agregar al menos una flashcard.");
+      setModalVisible(true);
       setIsSaving(false);
       return;
     }
 
     for (const flashcard of deck.flashcards) {
       if (!flashcard.front.trim() || !flashcard.back.trim()) {
-        Alert.alert(
-          "Error",
-          "Todas las flashcards deben tener ambos lados llenos.",
-        );
+        setModalTitle("Error");
+        setModalMessage("Todas las flashcards deben tener ambos lados llenos.");
+        setModalVisible(true);
         setIsSaving(false);
         return;
       }
     }
 
     try {
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem(API_TOKEN_KEY);
       const response = await fetch(`${API_BASE_URL}/deck`, {
         method: "POST",
         headers: {
@@ -120,17 +155,40 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify(deck),
       });
 
-      if (!response.ok) {
+      const responseData = await response.json();
+      const deckId = responseData.deck.projectId;
+      
+      console.log("Deck ID:", deckId);
+      console.log("Selected tags:", selectedTags);
+
+      const responseTag = await fetch(`${API_BASE_URL}/tag/deck`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ tagsIds: selectedTags, deckId: deckId }),
+      });
+
+      if (!response.ok && responseTag.ok) {
         throw new Error("Failed to save the deck");
       } else {
-        Alert.alert("Éxito", `Deck ${deck.title} guardado correctamente`);
-        navigation.navigate("Feed");
+        setModalTitle("Éxito");
+        setModalMessage(`Deck ${deck.title} guardado correctamente`);
+        setModalVisible(true);
+        setRedirectOnClose(true);
       }
     } catch (error) {
       console.error("Failed to save the deck:", error);
-      Alert.alert("Error", "Failed to save the deck.");
+      setModalTitle("Error");
+      setModalMessage("Failed to save the deck.");
+      setModalVisible(true);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    if (redirectOnClose) {
+      navigation.replace("Main")
     }
   };
 
@@ -164,8 +222,33 @@ const CreateFlashcard = ({ navigation }: { navigation: any }) => {
           label="Guardar"
           disabled={isSaving}
         />
-        <PressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <SmallPressableCustom onPress={() => navigation.goBack()} label="Cancelar" />
+        <View style={styles.break} />
+        <Text style={styles.selectTagsText}>Select Tags:</Text>
+        <View style={styles.tagsContainer}>
+          {allTags.map((tag) => (
+            <TouchableOpacity
+              key={tag.id}
+              onPress={() => toggleTag(tag.id)}
+              style={[
+                styles.tagButton,
+                selectedTags.includes(tag.id) && styles.selectedTagButton,
+              ]}
+            >
+              <Text style={styles.tagButtonText}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
+      <CustomAlertModal
+        visible={modalVisible}
+        title={modalTitle}
+        errorMessage={modalMessage}
+        onClose={closeModal}
+        singleButton
+      />
     </View>
   );
 };
@@ -193,6 +276,32 @@ const styles = StyleSheet.create({
   removeIcon: {
     marginLeft: 10,
   },
+  break: {
+    marginVertical: 20,
+  },
+  selectTagsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  tagButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#8D602D",
+    borderRadius: 5,
+    margin: 5,
+    backgroundColor: "#EFEDE6",
+  },
+  selectedTagButton: {
+    backgroundColor: "#8D602D",
+  },
+  tagButtonText: {
+    color: "#3A2F23",
+  },
 });
-
-export default CreateFlashcard;

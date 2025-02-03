@@ -15,12 +15,14 @@ const authLib = require("../lib/authLib");
 router.post("/", authLib.validateAuthorization, async (req, res) => {
   try {
     const { title, flashcards } = req.body;
+
     if (!title || !flashcards) {
       res.status(400).json({
         message: "Please provide title and flashcards",
       });
       return;
     }
+    
     const newDeck = await createDeck(
       { title, flashcards },
       req.userData.userId,

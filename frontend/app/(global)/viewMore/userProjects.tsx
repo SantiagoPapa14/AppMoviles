@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { Card } from "@/components/Card";
+import HorizontalCardSlider from '@/components/HorizontalCardSlider';
 
 const MyProjects = ({ navigation }: { navigation: any }) => {
   const { secureFetch } = useAuth();
@@ -14,6 +15,7 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
   const [summaries, setSummaries] = useState<
     { projectId: string; title: string; type: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserContent = async () => {
     try {
@@ -24,6 +26,8 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
       setSummaries(Array.isArray(data.summaries) ? data.summaries : []);
     } catch (error) {
       console.error("Failed to fetch user content:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,53 +35,35 @@ const MyProjects = ({ navigation }: { navigation: any }) => {
     fetchUserContent();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#808080" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Quizzes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {quizzes.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Flashcards</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {flashcards.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Summaries</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {summaries.map((project, index) => (
-            <Card
-              key={index}
-              title={project.title}
-              creator="By you"
-              projectId={parseInt(project.projectId)}
-              type={project.type}
-              navigation={navigation}
-            />
-          ))}
-        </ScrollView>
-      </View>
+      <HorizontalCardSlider
+        title="Quizzes"
+        items={quizzes}
+        navigation={navigation}
+        emptyMessage="No quizzes available."
+      />
+      <HorizontalCardSlider
+        title="Flashcards"
+        items={flashcards}
+        navigation={navigation}
+        emptyMessage="No flashcards available."
+      />
+      <HorizontalCardSlider
+        title="Summaries"
+        items={summaries}
+        navigation={navigation}
+        emptyMessage="No summaries available."
+      />
     </ScrollView>
   );
 };
@@ -109,6 +95,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#808080",
+    marginTop: 10,
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#808080",
+    fontStyle: "italic",
   },
 });
 
