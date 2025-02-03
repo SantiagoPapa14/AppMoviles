@@ -19,6 +19,7 @@ export default function Register({ navigation }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { onRegister } = useAuth();
 
@@ -71,6 +72,10 @@ export default function Register({ navigation }: any) {
     if (!result.canceled) {
       setImageUri(result.assets![0].uri);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleRegister = async () => {
@@ -132,13 +137,22 @@ export default function Register({ navigation }: any) {
         value={name}
         onChangeText={setName}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+        />
+        <Ionicons
+          style={styles.eyeIconInside}
+          name={showPassword ? "eye-off" : "eye"}
+          size={24}
+          color="black"
+          onPress={togglePasswordVisibility}
+        />
+      </View>
       <Button title="Register" onPress={handleRegister} color="#B49F84" />
       <Text style={styles.registerText}>
         Already have an account?{" "}
@@ -180,12 +194,26 @@ const styles = {
   },
   input: {
     width: width * 0.8,
-    padding: 8,
-    marginVertical: 8,
+    height: 40,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    backgroundColor: "#fff",
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    paddingVertical: 10,
+    borderColor: "#8D602D",
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+  },
+  eyeIconInside: {
+    position: "absolute",
+    right: 10,
+    top: 10,
   },
   registerText: {
     marginTop: 16,
