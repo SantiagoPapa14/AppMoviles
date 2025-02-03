@@ -43,6 +43,8 @@ import TopQuizzes from "./(global)/viewMore/topQuizzes";
 import TopSummaries from "./(global)/viewMore/topSummaries";
 import MyProjects from "./(global)/viewMore/userProjects";
 
+import UserTimeTableScreen from "./home/UserTimeTableScreen";
+
 const DrawerNavigator = createDrawerNavigator();
 const TabNavigator = createBottomTabNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -150,6 +152,10 @@ function MainNavigation() {
               iconName = focused ? "star" : "star-outline";
               return <Ionicons name={iconName} size={size} color={color} />;
             }
+            else if (route.name === "TimeTable") {
+              iconName = focused ? "calendar" : "calendar-outline";
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
           },
           drawerStyle: {
             backgroundColor: "#B49F84",
@@ -172,6 +178,7 @@ function MainNavigation() {
       >
         <DrawerNavigator.Screen name="Home" component={HomeTabs} />
         <DrawerNavigator.Screen name="Profile" component={ProfileScreen} />
+        <DrawerNavigator.Screen name="TimeTable" component={UserTimeTableScreen} options={{ title: "Time Table" }}   />
         <DrawerNavigator.Screen name="Settings" component={SettingsScreen} />
       </DrawerNavigator.Navigator>
     );
