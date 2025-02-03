@@ -205,13 +205,6 @@ const FeedScreen = ({ navigation }: { navigation: any }) => {
         </View>
       )}
       <View style={styles.break}></View>
-      <Pressable
-        style={styles.timeTableButton}
-        onPress={() => navigation.navigate('UserTimeTableScreen')}
-      >
-        <Text style={styles.timeTableButtonText}>View Your Timetable</Text>
-      </Pressable>
-      <View style={styles.break}></View>
     </ScrollView>
   );
 };

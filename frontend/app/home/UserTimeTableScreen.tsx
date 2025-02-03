@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Modal, TextInput, Text, TouchableOpacity 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import WeekView, { createFixedWeekDate } from 'react-native-week-view';
 import { useAuth } from '@/app/context/AuthContext';
-import {SmallPressableCustom} from '@/components/SmallPressableCustom';
+import { SmallPressableCustom } from '@/components/SmallPressableCustom';
 import { customAlertModal } from '@/components/CustomAlertModal';
 import CustomAlertModal from '@/components/CustomAlertModal';
 
@@ -13,6 +13,8 @@ interface Event {
   startDate: Date;
   endDate: Date;
   color: string; // Add color property
+  resolveOverlap : string;
+  gridRowStyle : { borderLeftWidth: number, color: string }
 }
 
 const UserTimeTableScreen = () => {
@@ -23,7 +25,7 @@ const UserTimeTableScreen = () => {
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>('#8B4513'); // Default color
-  const colors = ['#8B4513', '#A0522D', '#D2691E', '#CD853F', '#F4A460', '#DAA520', ];
+  const colors = ['#8B4513', '#A0522D', '#D2691E', '#CD853F', '#F4A460', '#DAA520',];
   const { secureFetch, fetchProfile } = useAuth();
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -57,7 +59,7 @@ const UserTimeTableScreen = () => {
           }));
           setEvents(parsedTimetable);
         } else {
-          console.error("Fetched timetable is not an array");
+          console.log("Fetched timetable is empty or not an array");
         }
       } catch (error) {
         console.error("Failed to fetch timetable", error);
@@ -76,12 +78,15 @@ const UserTimeTableScreen = () => {
   };
 
   const handleGridPress = (event: any, startHour: number, date: Date) => {
+    const method = 'stack'; // Default resolveOverlap method
     const newEvent: Event = {
       id: events.length + 1,
       description: '',
       startDate: new Date(date.setHours(startHour, 0, 0, 0)),
       endDate: new Date(date.setHours(startHour + 1, 0, 0, 0)),
       color: selectedColor, // Use selected color
+      resolveOverlap: method,
+      gridRowStyle: { borderLeftWidth: 0.2, color: '#E9EDF0' }
     };
     setSelectedEvent(newEvent);
     setModalVisible(true);
@@ -167,14 +172,15 @@ const UserTimeTableScreen = () => {
         <WeekView
           events={events}
           fixedHorizontally={true}
-          numberOfDays={5}
+          weekStartsOn={1}           // Start week on Monday
+          numberOfDays={7}           
           onEventPress={handleEventPress}
           onGridClick={handleGridPress}
           formatDateHeader="ddd"
           hoursInDisplay={12}
-          startHour={12}
-          startDay={1}  // Start on Monday
-          showTitle={false}  // Remove month and year
+          startHour={8}
+          showTitle={true}
+          enableVerticalPinch = {true}
         />
         <SmallPressableCustom label="Save Timetable" onPress={handleSave} />
       </View>
