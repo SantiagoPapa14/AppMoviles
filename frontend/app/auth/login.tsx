@@ -70,12 +70,16 @@ const styles = {
   },
   input: {
     width: width * 0.8, // 80% de la pantalla
-    padding: 8,
-    marginVertical: 8,
+    height: 40,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    backgroundColor: "#fff",
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    paddingVertical: 10,
+    borderColor: "#8D602D",
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: "#EFEDE6",
+    color: "#3A2F23",
   },
   registerText: {
     marginTop: 16,
